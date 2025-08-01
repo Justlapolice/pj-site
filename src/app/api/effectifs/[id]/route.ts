@@ -9,10 +9,8 @@ interface RouteParams {
   };
 }
 
-export async function GET(
-  request: Request,
-  { params }: RouteParams
-) {
+export async function GET(request: Request, { params }: { params: { id: string } }) {
+
   try {
     const id = parseInt(params.id);
     if (isNaN(id)) {

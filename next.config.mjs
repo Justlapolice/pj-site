@@ -9,8 +9,7 @@ const nextConfig = {
       },
     ],
   },
-  // Désactive le minification pour faciliter le débogage
-  swcMinify: false,
+
   // Active le mode strict pour le rendu
   reactStrictMode: true,
   // Configuration pour le build
