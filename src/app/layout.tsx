@@ -6,6 +6,8 @@ import { Inter } from 'next/font/google'
 import '@fortawesome/fontawesome-free/css/all.css';
 import MaintenanceProvider from '@/components/maintenance/MaintenanceProvider';
 
+
+
 const inter = Inter({ subsets: ['latin'] });
 
 const geistSans = Geist({
@@ -32,9 +34,8 @@ export default function RootLayout({
   return (
     <SessionWrapper>
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-black text-white`}>
+
         {children}
         <MaintenanceProvider />
       </body>
