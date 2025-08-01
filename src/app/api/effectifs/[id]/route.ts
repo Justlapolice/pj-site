@@ -3,14 +3,7 @@ import { PrismaClient, Grade } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-// ✅ Type pour les paramètres de route
-type Params = {
-  params: {
-    id: string
-  }
-}
-
-export async function GET(_req: NextRequest, { params }: Params) {
+export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = parseInt(params.id)
     if (isNaN(id)) {
@@ -47,7 +40,6 @@ export async function GET(_req: NextRequest, { params }: Params) {
   }
 }
 
-// ✅ Utilitaire pour normaliser un grade
 function validateGrade(grade: string | undefined | null): Grade | null {
   if (!grade) return null
 
@@ -72,7 +64,7 @@ function validateGrade(grade: string | undefined | null): Grade | null {
   return null
 }
 
-export async function PUT(req: NextRequest, { params }: Params) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = parseInt(params.id)
     if (isNaN(id)) {
@@ -127,7 +119,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: Params) {
+export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const id = parseInt(params.id)
     if (isNaN(id)) {
