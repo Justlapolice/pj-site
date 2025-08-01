@@ -3,9 +3,9 @@ import { PrismaClient, Grade } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, context: any) {
   try {
-    const id = parseInt(params.id)
+    const id = parseInt(context.params.id)
     if (isNaN(id)) {
       return NextResponse.json({ error: 'ID invalide' }, { status: 400 })
     }
@@ -56,17 +56,15 @@ function validateGrade(grade: string | undefined | null): Grade | null {
     .replace('CPT-S', 'CPT_S')
     .replace('E-COM', 'E_COM')
 
-  console.log(normalizedGrade)
-
   if (Object.values(Grade).includes(normalizedGrade as Grade)) {
     return normalizedGrade as Grade
   }
   return null
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, context: any) {
   try {
-    const id = parseInt(params.id)
+    const id = parseInt(context.params.id)
     if (isNaN(id)) {
       return NextResponse.json({ error: 'ID invalide' }, { status: 400 })
     }
@@ -119,9 +117,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, context: any) {
   try {
-    const id = parseInt(params.id)
+    const id = parseInt(context.params.id)
     if (isNaN(id)) {
       return NextResponse.json({ error: 'ID invalide' }, { status: 400 })
     }
