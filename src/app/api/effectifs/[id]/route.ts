@@ -3,16 +3,16 @@ import { PrismaClient, Grade } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-interface RouteParams {
+// ✅ Type commun réutilisable
+type RouteContext = {
   params: {
     id: string;
   };
-}
+};
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
-
+export async function GET(request: Request, context: RouteContext) {
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(context.params.id);
     if (isNaN(id)) {
       return NextResponse.json(
         { error: 'ID invalide' },
@@ -45,7 +45,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
     return NextResponse.json({
       ...effectif,
-      // S'assurer que formations est toujours un tableau
       formations: Array.isArray(effectif.formations) ? effectif.formations : []
     });
   } catch (error) {
@@ -57,39 +56,33 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-// Fonction utilitaire pour valider et normaliser le grade
+// ✅ Fonction utilitaire pour valider et normaliser le grade
 function validateGrade(grade: string | undefined | null): Grade | null {
   if (!grade) return null;
-  
-  // Convertir le format d'affichage en format d'enum
+
   const normalizedGrade = grade.trim()
     .toUpperCase()
-    .replace(/\s+/g, '_')  // Remplacer les espaces par des underscores
-    .replace('B/C', 'B_C') // Gérer le cas spécial B/C -> B_C
-    .replace('B_C_NORMAL', 'B_C_Normal') // Remettre en casse correcte
-    .replace('B_C_SUP', 'B_C_Sup') // Remettre en casse correcte
-    .replace('GPX-S', 'GPX_S') // Remettre en casse correcte
-    .replace('E-GPX', 'E_GPX') // Remettre en casse correcte
-    .replace('E-CPT', 'E_CPT') // Remettre en casse correcte
-    .replace('CPT-S', 'CPT_S') // Remettre en casse correcte
-    .replace('E-COM', 'E_COM'); // Remettre en casse correcte
-    
-    console.log(normalizedGrade);
-    
+    .replace(/\s+/g, '_')
+    .replace('B/C', 'B_C')
+    .replace('B_C_NORMAL', 'B_C_Normal')
+    .replace('B_C_SUP', 'B_C_Sup')
+    .replace('GPX-S', 'GPX_S')
+    .replace('E-GPX', 'E_GPX')
+    .replace('E-CPT', 'E_CPT')
+    .replace('CPT-S', 'CPT_S')
+    .replace('E-COM', 'E_COM');
 
-  // Vérifier si le grade normalisé est valide
+  console.log(normalizedGrade);
+
   if (Object.values(Grade).includes(normalizedGrade as Grade)) {
     return normalizedGrade as Grade;
   }
   return null;
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: Request, context: RouteContext) {
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(context.params.id);
     if (isNaN(id)) {
       return NextResponse.json(
         { error: 'ID invalide' },
@@ -99,7 +92,6 @@ export async function PUT(
 
     const { prenom, nom, grade, poste, statut, telephone, formations = [] } = await request.json();
 
-    // Validation des champs obligatoires
     if (!prenom || !nom || !poste) {
       return NextResponse.json(
         { error: 'Les champs prénom, nom et poste sont obligatoires' },
@@ -107,10 +99,7 @@ export async function PUT(
       );
     }
 
-    // Valider et normaliser le grade
     const validatedGrade = validateGrade(grade);
-    
-    // Valider que les formations sont un tableau
     const validFormations = Array.isArray(formations) ? formations : [];
 
     const updatedEffectif = await prisma.effectif.update({
@@ -152,12 +141,9 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: RouteParams
-) {
+export async function DELETE(request: Request, context: RouteContext) {
   try {
-    const id = parseInt(params.id);
+    const id = parseInt(context.params.id);
     if (isNaN(id)) {
       return NextResponse.json(
         { error: 'ID invalide' },
