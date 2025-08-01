@@ -13,7 +13,7 @@
     "prisma:db:pull": "prisma db pull",
     "prisma:db:push": "prisma db push",
     "prisma:db:studio": "prisma studio",
-    "vercel-build": "npx prisma generate && npx prisma migrate deploy && next build"
+    "vercel-build": "prisma generate && prisma migrate deploy && next build"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
