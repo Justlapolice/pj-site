@@ -1,0 +1,76 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Grade {
+  PA
+  E_GPX
+  GPX_S
+  GPX
+  B_C_Normal
+  B_C_Sup
+  MAJ
+  MEEX
+  MAJRULP
+  E_CPT
+  CPT_S
+  LTN
+  CNE
+  CDT
+  CDTD
+  CDTEF
+  E_COM
+  COM
+  CD
+  CG
+}
+
+model Effectif {
+  id          Int        @id @default(autoincrement())
+  prenom      String     @db.VarChar(50)
+  nom         String     @db.VarChar(50)
+  grade       Grade?
+  poste       String     @db.VarChar(100)
+  statut      String     @default("Actif")
+  telephone   String?    @db.VarChar(20)
+  formations  Json?      @default("[]")
+  dateArrivee DateTime   @default(now())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("effectif")
+}
+
+model Outfit {
+  id              Int       @id @default(autoincrement())
+  name            String    @db.VarChar(100)
+  image1          String    // Chemin ou URL de la première image
+  image2          String    // Chemin ou URL de la deuxième image
+  hautVeste1      String?   @db.VarChar(100)
+  hautVeste2      String?   @db.VarChar(100)
+  grade           String?   @db.VarChar(50)
+  sousVetement    String?   @db.VarChar(100)
+  giletPareBalles1 String?  @db.VarChar(100)
+  giletPareBalles2 String?  @db.VarChar(100)
+  sacParachute    String?   @db.VarChar(100)
+  mainsBras       String?   @db.VarChar(100)
+  jambes          String?   @db.VarChar(100)
+  chaussures      String?   @db.VarChar(100)
+  masques         String?   @db.VarChar(100)
+  echarpesChaines String?   @db.VarChar(100)
+  autocollants1   String?   @db.VarChar(100)
+  autocollants2   String?   @db.VarChar(100)
+  chapeauCasque1  String?   @db.VarChar(100)
+  chapeauCasque2  String?   @db.VarChar(100)
+  createdBy       String?   @db.VarChar(255)  // ID de l'utilisateur qui a créé la tenue
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("outfits")
+}
