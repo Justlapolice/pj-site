@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <div
       className="relative min-h-screen bg-cover bg-center flex items-center justify-center"
-      style={{ backgroundImage: `url('/background.jpg')` }}
+      style={{ backgroundImage: `url('/backgroundaccueil.png')` }}
     >
       {/* Voile plus léger et flou réduit */}
       <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px] z-0" />
