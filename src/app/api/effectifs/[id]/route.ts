@@ -1,23 +1,20 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient, Grade } from '@prisma/client';
+import { NextResponse, type NextRequest } from 'next/server'
+import { PrismaClient, Grade } from '@prisma/client'
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
-// ✅ Type commun réutilisable
-type RouteContext = {
+// ✅ Type pour les paramètres de route
+type Params = {
   params: {
-    id: string;
-  };
-};
+    id: string
+  }
+}
 
-export async function GET(request: Request, context: RouteContext) {
+export async function GET(_req: NextRequest, { params }: Params) {
   try {
-    const id = parseInt(context.params.id);
+    const id = parseInt(params.id)
     if (isNaN(id)) {
-      return NextResponse.json(
-        { error: 'ID invalide' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'ID invalide' }, { status: 400 })
     }
 
     const effectif = await prisma.effectif.findUnique({
@@ -34,33 +31,28 @@ export async function GET(request: Request, context: RouteContext) {
         createdAt: true,
         updatedAt: true
       }
-    });
-    
+    })
+
     if (!effectif) {
-      return NextResponse.json(
-        { error: 'Effectif non trouvé' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Effectif non trouvé' }, { status: 404 })
     }
 
     return NextResponse.json({
       ...effectif,
       formations: Array.isArray(effectif.formations) ? effectif.formations : []
-    });
+    })
   } catch (error) {
-    console.error('Erreur lors de la récupération de l\'effectif:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de la récupération de l\'effectif' },
-      { status: 500 }
-    );
+    console.error("Erreur lors de la récupération de l'effectif:", error)
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
   }
 }
 
-// ✅ Fonction utilitaire pour valider et normaliser le grade
+// ✅ Utilitaire pour normaliser un grade
 function validateGrade(grade: string | undefined | null): Grade | null {
-  if (!grade) return null;
+  if (!grade) return null
 
-  const normalizedGrade = grade.trim()
+  const normalizedGrade = grade
+    .trim()
     .toUpperCase()
     .replace(/\s+/g, '_')
     .replace('B/C', 'B_C')
@@ -70,37 +62,34 @@ function validateGrade(grade: string | undefined | null): Grade | null {
     .replace('E-GPX', 'E_GPX')
     .replace('E-CPT', 'E_CPT')
     .replace('CPT-S', 'CPT_S')
-    .replace('E-COM', 'E_COM');
+    .replace('E-COM', 'E_COM')
 
-  console.log(normalizedGrade);
+  console.log(normalizedGrade)
 
   if (Object.values(Grade).includes(normalizedGrade as Grade)) {
-    return normalizedGrade as Grade;
+    return normalizedGrade as Grade
   }
-  return null;
+  return null
 }
 
-export async function PUT(request: Request, context: RouteContext) {
+export async function PUT(req: NextRequest, { params }: Params) {
   try {
-    const id = parseInt(context.params.id);
+    const id = parseInt(params.id)
     if (isNaN(id)) {
-      return NextResponse.json(
-        { error: 'ID invalide' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'ID invalide' }, { status: 400 })
     }
 
-    const { prenom, nom, grade, poste, statut, telephone, formations = [] } = await request.json();
+    const { prenom, nom, grade, poste, statut, telephone, formations = [] } = await req.json()
 
     if (!prenom || !nom || !poste) {
       return NextResponse.json(
         { error: 'Les champs prénom, nom et poste sont obligatoires' },
         { status: 400 }
-      );
+      )
     }
 
-    const validatedGrade = validateGrade(grade);
-    const validFormations = Array.isArray(formations) ? formations : [];
+    const validatedGrade = validateGrade(grade)
+    const validFormations = Array.isArray(formations) ? formations : []
 
     const updatedEffectif = await prisma.effectif.update({
       where: { id },
@@ -126,41 +115,32 @@ export async function PUT(request: Request, context: RouteContext) {
         createdAt: true,
         updatedAt: true
       }
-    });
+    })
 
     return NextResponse.json({
       ...updatedEffectif,
       formations: Array.isArray(updatedEffectif.formations) ? updatedEffectif.formations : []
-    });
+    })
   } catch (error) {
-    console.error('Erreur lors de la mise à jour de l\'effectif:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de la mise à jour de l\'effectif' },
-      { status: 500 }
-    );
+    console.error("Erreur lors de la mise à jour de l'effectif:", error)
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
   }
 }
 
-export async function DELETE(request: Request, context: RouteContext) {
+export async function DELETE(_req: NextRequest, { params }: Params) {
   try {
-    const id = parseInt(context.params.id);
+    const id = parseInt(params.id)
     if (isNaN(id)) {
-      return NextResponse.json(
-        { error: 'ID invalide' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'ID invalide' }, { status: 400 })
     }
 
     await prisma.effectif.delete({
       where: { id }
-    });
+    })
 
-    return new Response(null, { status: 204 });
+    return new Response(null, { status: 204 })
   } catch (error) {
-    console.error('Erreur lors de la suppression de l\'effectif:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de la suppression de l\'effectif' },
-      { status: 500 }
-    );
+    console.error("Erreur lors de la suppression de l'effectif:", error)
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
   }
 }
