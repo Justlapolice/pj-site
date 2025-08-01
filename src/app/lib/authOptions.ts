@@ -44,7 +44,7 @@ export const authOptions: NextAuthOptions = {
       console.log("[AUTH] Début du processus de connexion");
       if (account?.provider === "discord" && account.access_token) {
         const guildId = "865982689437286410";
-        const requiredRoleId = "924310471480332318";
+        const requiredRoleId = "1397621439388975274";
         console.log("[AUTH] Compte Discord détecté, vérification du serveur et du rôle...");
 
         try {
