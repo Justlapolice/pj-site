@@ -12,7 +12,6 @@
     "prisma:studio": "prisma studio",
     "prisma:db:pull": "prisma db pull",
     "prisma:db:push": "prisma db push",
-    "prisma:db:seed": "prisma db seed",
     "prisma:db:studio": "prisma studio",
     "vercel-build": "npx prisma generate && npx prisma migrate deploy && next build"
   },
