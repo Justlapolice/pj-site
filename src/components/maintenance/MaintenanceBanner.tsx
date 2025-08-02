@@ -16,7 +16,7 @@ export default function MaintenanceBanner() {
         setIsMaintenance(data.isMaintenance);
       } catch (error) {
         console.error('Erreur lors de la vérification de la maintenance:', error);
-        // En cas d'erreur, considérer que le site est en maintenance
+        // En cas d'erreur, considérer le site est en maintenance
         setIsMaintenance(true);
       } finally {
         setIsLoading(false);
