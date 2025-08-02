@@ -13,6 +13,7 @@ if (isDevelopment) {
   (global as any).prisma = prisma;
 }
 
+// Exportation de PrismaClient
 export { prisma };
 
 export default prisma;
