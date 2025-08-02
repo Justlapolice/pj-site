@@ -243,7 +243,7 @@ export default function StatistiquesPage() {
               title="Effectif actif" 
               icon={<UserGroupIcon className="h-6 w-6 text-green-400" />}
             >
-              <div className="text-4xl font-bold text-white mb-2">{effectifsActifs}</div>
+              <div className="text-4xl font-bold text-white mb-2">{effectifsActifs}/{totalEffectifs}</div>
               <p className="text-sm text-gray-400">Membres actifs</p>
             </InfoCard>
 
