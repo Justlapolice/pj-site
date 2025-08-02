@@ -1,0 +1,25 @@
+/* Test avec des styles CSS purs pour vérifier le chargement */
+.test-container {
+  padding: 2rem;
+  background-color: white;
+}
+
+.test-heading {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: red;
+}
+
+.test-button {
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 0.25rem;
+  margin-top: 1rem;
+  border: none;
+  cursor: pointer;
+}
+
+.test-button:hover {
+  background-color: #2563eb;
+}

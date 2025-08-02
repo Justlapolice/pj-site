@@ -399,6 +399,7 @@ export default function GestionEffectifs() {
               <motion.button
                 onClick={handleAddClick}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-200"
+                style={{ borderRadius: '0.5rem' }}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -612,10 +613,10 @@ export default function GestionEffectifs() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div className="p-6">
-                      <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center justify-between mb-6 ">
                         <h2 
                           id="modal-title"
-                          className="text-xl font-bold text-gray-900 dark:text-white"
+                          className="text-xl font-bold text-gray-900 dark:text-white "
                         >
                           {isEditing ? 'Modifier un effectif' : 'Ajouter un effectif'}
                         </h2>
@@ -633,6 +634,7 @@ export default function GestionEffectifs() {
                           <div>
                             <label className="block text-sm font-medium text-gray-300 mb-1">Prénom *</label>
                             <input
+                              style={{ borderRadius: '0.5rem' }}
                               type="text"
                               name="prenom"
                               value={currentEffectif.prenom || ''}
@@ -649,6 +651,7 @@ export default function GestionEffectifs() {
                             >
                             </label>
                             <input
+                              style={{ borderRadius: '0.5rem' }}
                               type="text"
                               id="nom"
                               name="nom"
@@ -668,6 +671,7 @@ export default function GestionEffectifs() {
                               Grade
                             </label>
                             <select
+                              style={{ borderRadius: '0.5rem' }}
                               id="grade"
                               name="grade"
                               value={currentEffectif.grade || ''}
@@ -693,6 +697,7 @@ export default function GestionEffectifs() {
                             >
                             </label>
                             <select
+                              style={{ borderRadius: '0.5rem' }}
                               id="poste"
                               name="poste"
                               value={currentEffectif.poste || ''}
@@ -721,6 +726,7 @@ export default function GestionEffectifs() {
                             >
                             </label>
                             <select
+                              style={{ borderRadius: '0.5rem' }}
                               id="statut"
                               name="statut"
                               value={currentEffectif.statut || 'Actif'}
@@ -746,6 +752,7 @@ export default function GestionEffectifs() {
                             </label>
                             <div className="relative">
                               <input
+                                style={{ borderRadius: '0.5rem' }}
                                 type="tel"
                                 id="telephone"
                                 name="telephone"
@@ -779,6 +786,7 @@ export default function GestionEffectifs() {
                               {formationsList.map((formation) => (
                                 <label key={formation} className="flex items-center space-x-2 text-gray-200">
                                   <input
+                                    style={{ borderRadius: '0.5rem' }}
                                     type="checkbox"
                                     checked={currentEffectif.formations?.includes(formation) || false}
                                     onChange={() => handleFormationChange(formation)}
@@ -794,6 +802,7 @@ export default function GestionEffectifs() {
 
                         <div className="mt-8 flex justify-end space-x-3">
                           <button
+                            style={{ borderRadius: '0.5rem' }}
                             type="button"
                             onClick={() => setIsModalOpen(false)}
                             className="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
@@ -801,8 +810,9 @@ export default function GestionEffectifs() {
                             Annuler
                           </button>
                           <button
+                            style={{ borderRadius: '0.5rem' }}
                             type="submit"
-                            className="px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 flex items-center"
+                            className="px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 flex items-center "
                           >
                             {isEditing ? (
                               <>

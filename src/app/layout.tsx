@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SessionWrapper from "./lib/SessionWrapper";
 import { Inter } from 'next/font/google'
-import '@fortawesome/fontawesome-free/css/all.css';
 import MaintenanceProvider from '@/components/maintenance/MaintenanceProvider';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -32,9 +31,7 @@ export default function RootLayout({
   return (
     <SessionWrapper>
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <body className={`${inter.className} ${geistSans.variable} ${geistMono.variable}`}>
         {children}
         <MaintenanceProvider />
       </body>

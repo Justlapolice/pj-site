@@ -41,7 +41,7 @@ export default function Home() {
           {!session ? (
             <button
               onClick={() => signIn("discord", { callbackUrl: "/accueil" })}
-              className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white py-3 px-4 rounded-lg flex items-center justify-center gap-3 transition-all"
+              className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white py-3 px-4 rounded-lg flex items-center justify-center gap-3 transition-all rounded-xl"
             >
               <SiDiscord className="w-5 h-5" />
               Se connecter avec Discord
@@ -53,7 +53,7 @@ export default function Home() {
               </p>
               <button
                 onClick={() => signOut()}
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg transition-all"
+                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg transition-all rounded-xl"
               >
                 Se déconnecter
               </button>
