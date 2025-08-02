@@ -70,7 +70,7 @@ export default function GestionEffectifs() {
     .slice(0, 2);
     
   // Vérifier si l'utilisateur a le rôle requis pour la gestion des effectifs
-  const canManageStaff = user?.roles?.includes('1397621439388975274') || false;
+  const canManageStaff = user?.roles?.includes('1331527328219529216') || false;
 
   // Déconnexion automatique toutes les heures
   useEffect(() => {

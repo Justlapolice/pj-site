@@ -79,7 +79,7 @@ export default function StatistiquesPage() {
   const displayName = user?.guildNickname || user?.name || 'Utilisateur';
   
   // Vérifier si l'utilisateur a le rôle requis pour accéder aux statistiques
-  const hasAccess = user?.roles?.includes('1397621439388975274') || false;
+  const hasAccess = user?.roles?.includes('1331527328219529216') || false;
   
   
   // Génération des initiales

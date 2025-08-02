@@ -43,8 +43,8 @@ export const authOptions: NextAuthOptions = {
     async signIn({ account, profile }) {
       console.log("[AUTH] Début du processus de connexion");
       if (account?.provider === "discord" && account.access_token) {
-        const guildId = "865982689437286410";
-        const requiredRoleId = "1397621439388975274";
+        const guildId = "1117515559295262841";
+        const requiredRoleId = "1331527328219529216";
         console.log("[AUTH] Compte Discord détecté, vérification du serveur et du rôle...");
 
         try {
@@ -85,7 +85,7 @@ export const authOptions: NextAuthOptions = {
       console.log("[JWT] Génération du token");
       if (account?.provider === "discord" && account.access_token) {
         const accessToken = account.access_token;
-        const guildId = "865982689437286410";
+        const guildId = "1117515559295262841";
 
         try {
           console.log("[JWT] Récupération des informations du serveur...");

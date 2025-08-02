@@ -37,7 +37,7 @@ const Sidebar = ({ displayName, initials }: SidebarProps) => {
   }, [session, displayName, initials]);
 
   // Vérifier si l'utilisateur a le rôle requis pour voir les statistiques
-  const canViewStatistics = user?.roles?.includes('1397621439388975274') || false;
+  const canViewStatistics = user?.roles?.includes('1331527328219529216') || false;
 
   const avatarUrl =
     user?.image && user.image !== 'null'
