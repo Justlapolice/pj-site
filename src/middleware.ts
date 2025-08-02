@@ -8,7 +8,7 @@ const publicRoutes = ["/", "/auth/signin", "/auth/error"];
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   
-  // Vérifier si la route est publique
+  // Vérifier si la route est publique ou protégée
   if (publicRoutes.some(route => pathname === route)) {
     return NextResponse.next();
   }
