@@ -4,19 +4,22 @@ import type { NextRequest } from "next/server";
 
 const protectedRoutes = ["/accueil", "/infocrs", "/organigramme", "/tenues", "/vehicules", "/documents", "/statistiques"];
 const publicRoutes = ["/", "/auth/signin", "/auth/error"];
+const maintenanceBypassRoutes = ["/maintenance"]; // Ajout de la route de maintenance
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-
-  // Vérifier si le mode maintenance est activé
-  const isMaintenance = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true'
   
-  // Si en maintenance et pas sur la page de maintenance ni une page d'authentification
-  if (isMaintenance && !pathname.startsWith('/maintenance') && !pathname.startsWith('/auth')) {
-    return NextResponse.rewrite(new URL('/maintenance', req.url))
+  // Vérifier si le mode maintenance est activé
+  if (process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true') {
+    // Autoriser l'accès à la page de maintenance et aux routes publiques
+    if (pathname === '/maintenance' || publicRoutes.some(route => pathname === route)) {
+      return NextResponse.next();
+    }
+    // Rediriger vers la page de maintenance pour toutes les autres requêtes
+    return NextResponse.rewrite(new URL('/maintenance', req.url));
   }
 
-  // Vérifier si la route est publique ou protégée
+  // Vérifier si la route est publique
   if (publicRoutes.some(route => pathname === route)) {
     return NextResponse.next();
   }

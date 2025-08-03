@@ -630,129 +630,143 @@ export default function GestionEffectifs() {
                       </div>
 
                       <form onSubmit={handleSubmit} className="space-y-5">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-1">Prénom *</label>
-                            <input
-                              style={{ borderRadius: '0.5rem' }}
-                              type="text"
-                              name="prenom"
-                              value={currentEffectif.prenom || ''}
-                              onChange={handleInputChange}
-                              className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              required
-                            />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-300">Prénom *</label>
+                            <div className="relative">
+                              <input
+                                style={{ borderRadius: '10px' }}
+                                type="text"
+                                name="prenom"
+                                value={currentEffectif.prenom || ''}
+                                onChange={handleInputChange}
+                                className="w-full px-4 py-2 text-sm rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                placeholder="Entrez le prénom"
+                                required
+                              />
+                            </div>
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-1">Nom *</label>
+                          <div className="space-y-2">
                             <label 
                               htmlFor="nom" 
-                              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                              className="block text-sm font-medium text-gray-300"
                             >
+                              Nom *
                             </label>
-                            <input
-                              style={{ borderRadius: '0.5rem' }}
-                              type="text"
-                              id="nom"
-                              name="nom"
-                              value={currentEffectif.nom || ''}
-                              onChange={handleInputChange}
-                              className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                              required
-                              aria-required="true"
-                            />
+                            <div className="relative">
+                              <input
+                                style={{ borderRadius: '10px' }}
+                                type="text"
+                                id="nom"
+                                name="nom"
+                                value={currentEffectif.nom || ''}
+                                onChange={handleInputChange}
+                                className="w-full px-4 py-2 text-sm rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                placeholder="Entrez le nom"
+                                required
+                                aria-required="true"
+                              />
+                            </div>
                           </div>
 
-                          <div className="relative">
+                          <div className="space-y-2">
                             <label 
                               htmlFor="grade" 
-                              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                              className="block text-sm font-medium text-gray-300"
                             >
                               Grade
                             </label>
-                            <select
-                              style={{ borderRadius: '0.5rem' }}
-                              id="grade"
-                              name="grade"
-                              value={currentEffectif.grade || ''}
-                              onChange={handleInputChange}
-                              className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none"
-                            >
-                              <option value="">Sélectionner un grade</option>
-                              {GRADES.map((grade) => (
-                                <option key={grade} value={grade}>
-                                  {grade}
-                                </option>
-                              ))}
-                            </select>
-                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                              <ChevronDownIcon className="h-5 w-5 text-gray-400" />
+                            <div className="relative">
+                              <select
+                                style={{ borderRadius: '10px' }}
+                                id="grade"
+                                name="grade"
+                                value={currentEffectif.grade || ''}
+                                onChange={handleInputChange}
+                                className="w-full px-4 py-2 text-sm rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer pr-10"
+                              >
+                                <option value="">Grade</option>
+                                {GRADES.map((grade) => (
+                                  <option key={grade} value={grade}>
+                                    {grade}
+                                  </option>
+                                ))}
+                              </select>
+                              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+                              </div>
                             </div>
                           </div>
 
-                          <div className="relative">
+                          <div className="space-y-2">
                             <label 
                               htmlFor="poste" 
-                              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                              className="block text-sm font-medium text-gray-300"
                             >
+                              Poste *
                             </label>
-                            <select
-                              style={{ borderRadius: '0.5rem' }}
-                              id="poste"
-                              name="poste"
-                              value={currentEffectif.poste || ''}
-                              onChange={handleInputChange}
-                              className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none"
-                              required
-                              aria-required="true"
-                            >
-                              <option value="">Sélectionner un poste</option>
-                              <option value="Stagiaire">Stagiaire</option>
-                              <option value="Confirmé">Confirmé</option>
-                              <option value="Formateur">Formateur</option>
-                              <option value="Responsable Adjoint">Responsable Adjoint</option>
-                              <option value="Responsable">Responsable</option>
-                              <option value="Directeur">Directeur</option>
-                            </select>
-                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                              <ChevronDownIcon className="h-5 w-5 text-gray-400" />
+                            <div className="relative">
+                              <select
+                                style={{ borderRadius: '10px' }}
+                                id="poste"
+                                name="poste"
+                                value={currentEffectif.poste || ''}
+                                onChange={handleInputChange}
+                                className="w-full px-4 py-2 text-sm rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer pr-10"
+                                required
+                                aria-required="true"
+                              >
+                                <option value="">Poste</option>
+                                <option value="Stagiaire">Stagiaire</option>
+                                <option value="Confirmé">Confirmé</option>
+                                <option value="Formateur">Formateur</option>
+                                <option value="Responsable Adjoint">Responsable Adjoint</option>
+                                <option value="Responsable">Responsable</option>
+                                <option value="Directeur">Directeur</option>
+                              </select>
+                              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+                              </div>
                             </div>
                           </div>
 
-                          <div className="relative">
+                          <div className="space-y-2">
                             <label 
                               htmlFor="statut" 
-                              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                              className="block text-sm font-medium text-gray-300"
                             >
+                              Statut *
                             </label>
-                            <select
-                              style={{ borderRadius: '0.5rem' }}
-                              id="statut"
-                              name="statut"
-                              value={currentEffectif.statut || 'Actif'}
-                              onChange={handleInputChange}
-                              className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 appearance-none"
-                              required
-                              aria-required="true"
-                            >
-                              <option value="Actif">Actif</option>
-                              <option value="Non actif">Non actif</option>
-                            </select>
-                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                              <ChevronDownIcon className="h-5 w-5 text-gray-400" />
+                            <div className="relative">
+                              <select
+                                style={{ borderRadius: '10px' }}
+                                id="statut"
+                                name="statut"
+                                value={currentEffectif.statut || 'Actif'}
+                                onChange={handleInputChange}
+                                className="w-full px-4 py-2 text-sm rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer pr-10"
+                                required
+                                aria-required="true"
+                              >
+                                <option value="Actif">Actif</option>
+                                <option value="Non actif">Non actif</option>
+                              </select>
+                              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+                              </div>
                             </div>
                           </div>
 
-                          <div className="relative">
+                          <div className="space-y-2">
                             <label 
                               htmlFor="telephone" 
-                              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                              className="block text-sm font-medium text-gray-300"
                             >
                               Téléphone
                             </label>
                             <div className="relative">
                               <input
-                                style={{ borderRadius: '0.5rem' }}
+                                style={{ borderRadius: '10px' }}
                                 type="tel"
                                 id="telephone"
                                 name="telephone"
@@ -760,7 +774,7 @@ export default function GestionEffectifs() {
                                 onChange={handleInputChange}
                                 placeholder="06.12.34.56.78"
                                 pattern="^(\+33|0)[1-9]([-. ]?[0-9]{2}){4}$"
-                                className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                className="w-full px-4 py-2 text-sm rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                               />
                               {currentEffectif.telephone && (
                                 <button
@@ -780,19 +794,19 @@ export default function GestionEffectifs() {
                           </div>
 
                           {/* Section Formations */}
-                          <div className="mb-6">
-                            <h3 className="text-lg font-medium text-gray-200 mb-3">Formations</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="space-y-3 col-span-2 mt-2">
+                            <h3 className="text-base font-medium text-gray-200 pb-1 border-b border-gray-700">Formations</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               {formationsList.map((formation) => (
-                                <label key={formation} className="flex items-center space-x-2 text-gray-200">
+                                <label key={formation} className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-700/50 transition-colors cursor-pointer">
                                   <input
-                                    style={{ borderRadius: '0.5rem' }}
+                                    style={{ borderRadius: '10px' }}
                                     type="checkbox"
                                     checked={currentEffectif.formations?.includes(formation) || false}
                                     onChange={() => handleFormationChange(formation)}
-                                    className="h-4 w-4 text-blue-600 rounded border-gray-600 bg-gray-700 focus:ring-blue-500"
+                                    className="h-4 w-4 text-blue-500 rounded border-gray-500 bg-gray-600 focus:ring-blue-500 cursor-pointer"
                                   />
-                                  <span>{formation}</span>
+                                  <span className="text-sm text-gray-200 font-medium">{formation}</span>
                                 </label>
                               ))}
                             </div>
@@ -800,19 +814,19 @@ export default function GestionEffectifs() {
 
                         </div>
 
-                        <div className="mt-8 flex justify-end space-x-3">
+                        <div className="flex justify-end space-x-3 pt-4 mt-6 border-t border-gray-700">
                           <button
-                            style={{ borderRadius: '0.5rem' }}
+                            style={{ borderRadius: '10px' }}
                             type="button"
                             onClick={() => setIsModalOpen(false)}
-                            className="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                            className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                           >
                             Annuler
                           </button>
                           <button
-                            style={{ borderRadius: '0.5rem' }}
+                            style={{ borderRadius: '10px' }}
                             type="submit"
-                            className="px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 flex items-center "
+                            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors flex items-center"
                           >
                             {isEditing ? (
                               <>
