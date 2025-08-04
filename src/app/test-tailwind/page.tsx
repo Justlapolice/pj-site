@@ -93,18 +93,6 @@ export default function StatistiquesPage() {
     }
   }, [status, hasAccess, router]);
 
-
-  // if (status === 'loading' || isLoading) {
-  //   return (
-  //     <div className="h-screen w-full flex items-center justify-center bg-gray-900">
-  //       <div className="animate-pulse flex flex-col items-center">
-  //         <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-  //         <p className="mt-4 text-gray-300">Chargement de la page {pathname} en cours...</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
   if (error) {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-gray-900">

@@ -5,11 +5,12 @@
 import { signIn, signOut, useSession } from "next-auth/react"
 import Image from "next/image"
 import { SiDiscord } from "react-icons/si"
-
+import { useRouter } from "next/navigation"
 
 export default function Home() {
   const { data: session } = useSession()
   const displayName = session?.user?.name || "Utilisateur"
+  const router = useRouter()
 
   return (
     <div
@@ -53,9 +54,15 @@ export default function Home() {
               </p>
               <button
                 onClick={() => signOut()}
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg transition-all rounded-xl"
+                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg transition-all rounded-xl mb-4"
               >
                 Se déconnecter
+              </button>
+              <button
+                onClick={() => router.push("/accueil")}
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg transition-all rounded-xl"
+              >
+                Accéder à la page d'accueil
               </button>
             </>
           )}

@@ -1,36 +1,26 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Intranet CRS pour la Police Nationale de FRRP fait avec
 
-## Getting Started
+[Next.js](https://nextjs.org) amorcé à l'aide de [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-First, run the development server:
+[NextAuth.js](https://next-auth.js.org) pour l'authentification via Discord
+
+## Information
+
+Ce projet contient : 
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Une page de connexion avec authentification via Discord
+# avec système d'authentification sécurisé et rôle
+Une page accueil avec un accès rapide sur les documents
+# avec système de gestion des documents
+Une page information sur la CRS
+# avec les différentes informations de la CRS
+Une page organisation avec les différents effectifs de la CRS du serveur
+# avec système de gestion des effectifs
+Une page de tenues avec les différentes tenues de la CRS
+# avec système de gestion des tenues
+Une page de véhicules avec les différents véhicules de la CRS
+# avec système de gestion des véhicules
+Une page de statistiques avec les différentes statistiques de la CRS
+# avec système de gestion des statistiques et avec des graphiques
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

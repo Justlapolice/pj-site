@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
-
 interface StatItem {
   name: string;
   value: number;
@@ -144,7 +143,7 @@ const InterventionStats = () => {
               ></div>
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              {stat.value}% des interventions totales
+              {stat.value}% des d'interventions en {stat.icon} {stat.name} totales
             </div>
           </motion.div>
         ))}
