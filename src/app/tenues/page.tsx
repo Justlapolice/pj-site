@@ -201,7 +201,7 @@ const outfits: Outfit[] = [
       { label: "Autocollants", value: "266" },
       { label: "Autocollants 2", value: "0" },
       { label: "Chapeaux & Casque", value: "117 " },
-      { label: "Chapeaux & Casque 2", value: "//" },
+      { label: "Chapeaux & Casque 2", value: "0" },
     ]
   },
   {

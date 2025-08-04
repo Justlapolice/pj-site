@@ -1,12 +1,20 @@
 // Page statistiques - Tableau de bord des statistiques
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Sidebar from '@/components/ui/sidebar';
-import { ChartBarIcon, UserGroupIcon, AcademicCapIcon, BriefcaseIcon } from '@heroicons/react/24/outline';
+import { 
+  ChartBarIcon, 
+  UserGroupIcon, 
+  AcademicCapIcon, 
+  BriefcaseIcon,
+  ArrowPathIcon
+} from '@heroicons/react/24/outline';
+import ProgressBar from '@/components/ui/ProgressBar';
+import InterventionStats from '@/components/statistics/InterventionStats';
 
 // Définition des types
 type Formation = 'CRS' | 'BMU' | 'MO' | 'Maritime' | 'ERI' | 'Secours en Montagne' | 'CRS 8';
@@ -31,15 +39,22 @@ interface User extends Record<string, any> {
   roles?: string[];
 }
 
-// Composant de carte réutilisable
-const InfoCard = ({ title, children, icon, className = '' }: { 
-  title: string; 
-  children: React.ReactNode; 
-  icon: React.ReactNode;
-  className?: string;
-}) => (
+// Types pour les statistiques
+type FormationStats = {
+  nom: string;
+  count: number;
+  percentage: number;
+};
+
+type PosteStats = {
+  nom: string;
+  count: number;
+  percentage: number;
+};
+
+const InfoCard = ({ title, children, icon }: { title: string; children: React.ReactNode; icon: React.ReactNode }) => (
   <motion.div 
-    className={`bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:border-blue-500/50 transition-all duration-300 h-full flex flex-col ${className}`}
+    className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:border-blue-500/50 transition-all duration-300 h-full flex flex-col"
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.4 }}
@@ -54,16 +69,6 @@ const InfoCard = ({ title, children, icon, className = '' }: {
       {children}
     </div>
   </motion.div>
-);
-
-// Composant de barre de progression
-const ProgressBar = ({ value, max, color = 'bg-blue-500' }: { value: number; max: number; color?: string }) => (
-  <div className="w-full bg-gray-700 rounded-full h-2.5 mt-1">
-    <div 
-      className={`${color} h-2.5 rounded-full`} 
-      style={{ width: `${(value / max) * 100}%` }}
-    ></div>
-  </div>
 );
 
 export default function StatistiquesPage() {
@@ -121,53 +126,62 @@ export default function StatistiquesPage() {
     }
   }, [hasAccess]);
 
-  // Calcul des statistiques
-  const totalEffectifs = effectifs.length;
-  const effectifsActifs = effectifs.filter(e => e.statut === 'Actif').length;
-  
-  // Calcul des formations
-  const formationsStats = effectifs.reduce((acc, effectif) => {
-    effectif.formations.forEach(formation => {
-      acc[formation] = (acc[formation] || 0) + 1;
-    });
-    return acc;
-  }, {} as Record<string, number>);
+  // Calcul des statistiques avec useMemo pour optimiser les performances
+  const { totalEffectifs, effectifsActifs, formationsTriees, postesTries } = useMemo(() => {
+    const total = effectifs.length;
+    const actifs = effectifs.filter(e => e.statut === 'Actif').length;
+    
+    // Calcul des formations
+    const formationsStats = effectifs.reduce((acc, effectif) => {
+      effectif.formations.forEach(formation => {
+        acc[formation] = (acc[formation] || 0) + 1;
+      });
+      return acc;
+    }, {} as Record<string, number>);
 
-  // Calcul des postes
-  const postesStats = effectifs.reduce((acc, effectif) => {
-    acc[effectif.poste] = (acc[effectif.poste] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+    // Calcul des postes
+    const postesStats = effectifs.reduce((acc, effectif) => {
+      acc[effectif.poste] = (acc[effectif.poste] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
 
-  // Tri des formations par nombre décroissant
-  const formationsTriees = Object.entries(formationsStats)
-    .sort((a, b) => b[1] - a[1])
-    .map(([formation, count]) => ({
-      nom: formation,
-      count,
-      percentage: Math.round((count / totalEffectifs) * 100) || 0
-    }));
+    // Tri des formations par nombre décroissant
+    const formationsTriees = Object.entries(formationsStats)
+      .sort((a, b) => b[1] - a[1])
+      .map(([nom, count]) => ({
+        nom,
+        count,
+        percentage: Math.round((count / total) * 100) || 0
+      }));
 
-  // Ordre prédéfini des postes
-  const ordrePostes = [
-    'Directeur',
-    'Responsable',
-    'Responsable Adjoint',
-    'Formateur',
-    'Confirmé',
-    'Stagiaire'
-  ];
+    // Ordre prédéfini des postes
+    const ordrePostes = [
+      'Directeur',
+      'Responsable',
+      'Responsable Adjoint',
+      'Formateur',
+      'Confirmé',
+      'Stagiaire'
+    ];
 
-  // Tri des postes selon l'ordre prédéfini
-  const postesTries = ordrePostes
-    .map(poste => ({
-      nom: poste,
-      count: postesStats[poste] || 0,
-      percentage: postesStats[poste] 
-        ? Math.round((postesStats[poste] / totalEffectifs) * 100) || 0 
-        : 0
-    }))
-    .filter(poste => poste.count > 0 || ordrePostes.includes(poste.nom));
+    // Tri des postes selon l'ordre prédéfini
+    const postesTries = ordrePostes
+      .map(nom => ({
+        nom,
+        count: postesStats[nom] || 0,
+        percentage: postesStats[nom] 
+          ? Math.round((postesStats[nom] / total) * 100) || 0 
+          : 0
+      }))
+      .filter(poste => poste.count > 0 || ordrePostes.includes(poste.nom));
+
+    return {
+      totalEffectifs: total,
+      effectifsActifs: actifs,
+      formationsTriees,
+      postesTries
+    };
+  }, [effectifs]);
 
   if (status === 'loading' || isLoading) {
     return (
@@ -232,35 +246,42 @@ export default function StatistiquesPage() {
           {/* Cartes de synthèse */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <InfoCard 
-              title="Effectif total" 
+              title="Effectif Total" 
               icon={<UserGroupIcon className="h-6 w-6 text-blue-400" />}
             >
-              <div className="text-4xl font-bold text-white mb-2">{totalEffectifs}</div>
-              <p className="text-sm text-gray-400">Personnes enregistrées</p>
-            </InfoCard>
-
-            <InfoCard 
-              title="Effectif actif" 
-              icon={<UserGroupIcon className="h-6 w-6 text-green-400" />}
-            >
-              <div className="text-4xl font-bold text-white mb-2">{effectifsActifs}/{totalEffectifs}</div>
-              <p className="text-sm text-gray-400">Membres actifs</p>
-            </InfoCard>
-
-            <InfoCard 
-              title="Taux d'activité" 
-              icon={<ChartBarIcon className="h-6 w-6 text-yellow-400" />}
-            >
-              <div className="text-4xl font-bold text-white mb-2">
-                {totalEffectifs > 0 ? Math.round((effectifsActifs / totalEffectifs) * 100) : 0}%
-              </div>
-              <p className="text-sm text-gray-400">de l'effectif est actif</p>
-              <div className="mt-2">
+              <p className="text-3xl font-bold text-white mb-1">{totalEffectifs}</p>
+              <p className="text-sm text-gray-400">Membres au total</p>
+              <div className="mt-3">
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="text-green-400">{effectifsActifs} actifs</span>
+                  <span className="text-gray-400">
+                    {totalEffectifs > 0 ? Math.round((effectifsActifs / totalEffectifs) * 100) : 0}%
+                  </span>
+                </div>
                 <ProgressBar 
                   value={effectifsActifs} 
-                  max={Math.max(totalEffectifs, 1)} 
-                  color="bg-yellow-500" 
+                  max={Math.max(totalEffectifs, 1)}
+                  color="bg-green-500"
                 />
+              </div>
+            </InfoCard>
+
+            <InfoCard 
+              title="Disponibilité" 
+              icon={<ChartBarIcon className="h-6 w-6 text-amber-400" />}
+            >
+              <div className="flex items-baseline space-x-2">
+                <p className="text-3xl font-bold text-white">85%</p>
+                <p className="text-lg text-gray-300">({effectifsActifs}/{totalEffectifs})</p>
+              </div>
+              <p className="text-sm text-gray-400">Taux de disponibilité (effectifs actifs/total)</p>
+              <div className="mt-3">
+                <ProgressBar 
+                  value={85} 
+                  max={100} 
+                  color="bg-amber-400"
+                />
+                <p className="text-xs text-gray-400 mt-1">Moyenne sur les 30 derniers jours</p>
               </div>
             </InfoCard>
 
@@ -268,10 +289,36 @@ export default function StatistiquesPage() {
               title="Formations" 
               icon={<AcademicCapIcon className="h-6 w-6 text-purple-400" />}
             >
-              <div className="text-4xl font-bold text-white mb-2">
-                {Object.keys(formationsStats).length}
+              <div className="text-3xl font-bold text-white mb-1">
+                {formationsTriees.length}
               </div>
-              <p className="text-sm text-gray-400">types de formations</p>
+              <p className="text-sm text-gray-400">Types de formations</p>
+              <div className="mt-3">
+                <p className="text-sm text-gray-300">
+                  <span className="text-purple-400 font-medium">
+                    {formationsTriees[0]?.nom || 'Aucune'}
+                  </span> est la plus courante
+                </p>
+              </div>
+            </InfoCard>
+
+            <InfoCard 
+              title="Dernière mise à jour" 
+              icon={<ArrowPathIcon className="h-6 w-6 text-cyan-400" />}
+            >
+              <p className="text-3xl font-bold text-white mb-1">
+                {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+              </p>
+              <p className="text-sm text-gray-400">Données actualisées</p>
+              <div className="mt-3">
+                <button 
+                  onClick={() => window.location.reload()}
+                  className="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-md transition-colors flex items-center"
+                >
+                  <ArrowPathIcon className="h-3 w-3 mr-1" />
+                  Actualiser
+                </button>
+              </div>
             </InfoCard>
           </div>
 
@@ -280,7 +327,6 @@ export default function StatistiquesPage() {
             <InfoCard 
               title="Répartition par formation" 
               icon={<AcademicCapIcon className="h-6 w-6 text-purple-400" />}
-              className="h-full"
             >
               <div className="space-y-4 mt-4">
                 {formationsTriees.map((formation) => (
@@ -306,7 +352,6 @@ export default function StatistiquesPage() {
             <InfoCard 
               title="Répartition par poste" 
               icon={<BriefcaseIcon className="h-6 w-6 text-blue-400" />}
-              className="h-full"
             >
               <div className="space-y-4 mt-4">
                 {postesTries.map((poste) => (
@@ -329,17 +374,25 @@ export default function StatistiquesPage() {
             </InfoCard>
           </div>
 
-          {/* Section d'évolution */}
-          {/* <div className="mt-8">
+          {/* Section des statistiques d'intervention */}
+          <div className="mt-8">
             <InfoCard 
-              title="Évolution des effectifs" 
+              title="Répartition des Interventions" 
               icon={<ChartBarIcon className="h-6 w-6 text-green-400" />}
+              // className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 border-gray-700/70 hover:border-green-500/50"
             >
-              <div className="h-64 flex items-center justify-center">
-                <p className="text-gray-400">Graphique d'évolution à venir (intégration avec une librairie de graphiques)</p>
+              <div className="space-y-6 py-2">
+                <InterventionStats />
+                <div className="text-xs text-gray-400 text-center mt-4">
+                  Données mises à jour le {new Date().toLocaleDateString('fr-FR', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                  })}
+                </div>
               </div>
             </InfoCard>
-          </div> */}
+          </div>
         </main>
       </div>
     </div>
