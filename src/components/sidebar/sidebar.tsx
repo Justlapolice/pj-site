@@ -3,10 +3,12 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
 import { FaHome, FaAddressBook, FaUserAlt, FaTshirt, FaCar, FaChartBar } from 'react-icons/fa';
 import { SiDiscord } from 'react-icons/si';
+import { FiLogOut } from "react-icons/fi"; 
+
 
 interface User extends Record<string, any> {
   roles?: string[];
@@ -27,9 +29,9 @@ const Sidebar = ({ displayName, initials }: SidebarProps) => {
   React.useEffect(() => {
     if (session?.user) {
       console.log('[SIDEBAR] Informations de session:', {
-        guildNickname: session.user.guildNickname,
+        user: session?.user as { guildNickname?: string; name?: string | null } | undefined,
+        displayName: user?.guildNickname || user?.name || 'Utilisateur',
         globalName: session.user.name,
-        displayName,
         initials,
         userImage: session.user.image
       });
@@ -55,8 +57,11 @@ const Sidebar = ({ displayName, initials }: SidebarProps) => {
 
   // Ajouter le lien des statistiques si l'utilisateur a le rôle requis
   const adminLinks = canViewStatistics 
-    ? [{ href: '/statistiques', icon: <FaChartBar />, label: 'Statistiques' }]
-    : [];
+  ? [
+      { href: '/statistiques', icon: <FaChartBar />, label: 'Statistiques' },
+      { href: '/statsproject', icon: <FaChartBar />, label: 'Statistiques du projet' }
+    ]
+  : [];
 
   // Fusionner les tableaux de liens
   const links = [...baseLinks, ...adminLinks];
@@ -73,7 +78,24 @@ const Sidebar = ({ displayName, initials }: SidebarProps) => {
           style={styles.avatar}
         />
         <div>
-          <p style={styles.name}>{displayName}</p>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              // Déconnecte et redirige directement vers /login sans charger /logout
+              void signOut({ callbackUrl: '/login' });
+            }}
+            style={{
+              ...styles.name,
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              textAlign: 'left',
+            }}
+          >
+            {displayName}
+          </button>
           <p style={styles.status}>Connecté</p>
         </div>
       </div>

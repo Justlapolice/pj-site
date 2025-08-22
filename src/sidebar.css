@@ -1,0 +1,33 @@
+/* Sidebar layout */
+.sidebar {
+  width: 4rem;
+  background-color: #ffffff;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 1rem;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+/* Icons */
+.icon {
+  font-size: 1.25rem;
+  color: gray;
+  transition: color 0.2s;
+}
+
+.icon.active {
+  color: #2563eb; /* Equivalent de text-blue-600 */
+}
+
+/* Optionnel : survol */
+.nav-link:hover .icon {
+  color: #2563eb;
+}

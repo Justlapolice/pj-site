@@ -34,28 +34,12 @@ const InterventionStats = () => {
   }, [stats]);
   
   const handleValueChange = (index: number, newValue: number) => {
-    if (newValue < 0) newValue = 0;
-    if (newValue > 100) newValue = 100;
+    // Limiter la valeur entre 0 et 100
+    newValue = Math.max(0, Math.min(100, newValue));
     
+    // Mettre à jour uniquement la valeur modifiée
     const updatedStats = [...editableStats];
     updatedStats[index].value = newValue;
-    
-    // Ajuster les autres valeurs pour que la somme fasse 100%
-    const total = updatedStats.reduce((sum, stat, i) => 
-      i === index ? sum + newValue : sum + stat.value, 0);
-    
-    if (total !== 100) {
-      const remaining = 100 - newValue;
-      const otherStats = updatedStats.filter((_, i) => i !== index);
-      const otherTotal = otherStats.reduce((sum, stat) => sum + stat.value, 0);
-      
-      if (otherTotal > 0) {
-        otherStats.forEach((stat, i) => {
-          const originalIndex = updatedStats.findIndex(s => s.name === stat.name);
-          updatedStats[originalIndex].value = Math.round((stat.value / otherTotal) * remaining);
-        });
-      }
-    }
     
     setEditableStats(updatedStats);
   };

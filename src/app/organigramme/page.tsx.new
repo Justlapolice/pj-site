@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import Sidebar from '@/components/ui/sidebar';
+import Sidebar from '../../components/sidebar/sidebar';
 import { PlusIcon, PencilIcon, TrashIcon, XMarkIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
 // Définition des types

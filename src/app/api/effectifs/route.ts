@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma'
+import prisma from '@/lib/prisma';
 
 export async function GET() {
   try {
     const effectifs = await prisma.effectif.findMany();
-    return NextResponse.json(effectifs);
+    // Normalize formations to always be an array
+    const normalized = effectifs.map((e: any) => ({
+      ...e,
+      formations: Array.isArray(e.formations) ? e.formations : [],
+    }));
+    return NextResponse.json(normalized);
   } catch (error) {
     console.error('Erreur lors de la récupération des effectifs:', error);
     return NextResponse.json(
@@ -29,8 +34,7 @@ export async function POST(request: Request) {
     // S'assurer que les formations sont un tableau
     const validFormations = Array.isArray(formations) ? formations : [];
 
-    // Créer le nouvel effectif avec Prisma
-    // Créer le nouvel effectif avec les formations
+    // Créer le nouvel effectif avec Prisma et les formations
     const nouvelEffectif = await prisma.effectif.create({
       data: {
         prenom,

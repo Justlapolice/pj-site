@@ -4,7 +4,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 
-const existingPages = ['/accueil', '/infocrs', '/organigramme', '/'];
+const existingPages = ['/accueil', '/infocrs', '/organigramme', '/tenues', '/vehicules'];
 
 function getClosestMatches(path: string, maxResults = 3) {
   function distance(a: string, b: string) {

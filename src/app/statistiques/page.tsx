@@ -1,24 +1,31 @@
 // Page statistiques - Tableau de bord des statistiques
-'use client';
+"use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter, usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
-import Sidebar from '@/components/ui/sidebar';
-import { 
-  ChartBarIcon, 
-  UserGroupIcon, 
-  AcademicCapIcon, 
+import React, { useState, useEffect, useMemo } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter, usePathname } from "next/navigation";
+import { motion } from "framer-motion";
+import Sidebar from "../../components/sidebar/sidebar";
+import {
+  ChartBarIcon,
+  UserGroupIcon,
+  AcademicCapIcon,
   BriefcaseIcon,
-  ArrowPathIcon
-} from '@heroicons/react/24/outline';
-import ProgressBar from '@/components/ui/ProgressBar';
-import InterventionStats from '@/components/statistics/InterventionStats';
+  ArrowPathIcon,
+} from "@heroicons/react/24/outline";
+import ProgressBar from "@/components/ui/ProgressBar";
+import InterventionStats from "@/components/statistics/InterventionStats";
 
 // Définition des types
-type Formation = 'CRS' | 'BMU' | 'MO' | 'Maritime' | 'ERI' | 'Secours en Montagne' | 'CRS 8';
-type Statut = 'Actif' | 'Non actif';
+type Formation =
+  | "CRS"
+  | "BMU"
+  | "MO"
+  | "Maritime"
+  | "ERI"
+  | "Secours en Montagne"
+  | "CRS 8";
+type Statut = "Actif" | "Non actif";
 
 interface Effectif {
   id: number;
@@ -52,22 +59,26 @@ type PosteStats = {
   percentage: number;
 };
 
-const InfoCard = ({ title, children, icon }: { title: string; children: React.ReactNode; icon: React.ReactNode }) => (
-  <motion.div 
+const InfoCard = ({
+  title,
+  children,
+  icon,
+}: {
+  title: string;
+  children: React.ReactNode;
+  icon: React.ReactNode;
+}) => (
+  <motion.div
     className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:border-blue-500/50 transition-all duration-300 h-full flex flex-col"
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.4 }}
   >
     <div className="flex items-center mb-4">
-      <div className="p-2 bg-blue-600/20 rounded-lg mr-3">
-        {icon}
-      </div>
+      <div className="p-2 bg-blue-600/20 rounded-lg mr-3">{icon}</div>
       <h3 className="text-lg font-semibold text-gray-100">{title}</h3>
     </div>
-    <div className="text-gray-300 flex-1">
-      {children}
-    </div>
+    <div className="text-gray-300 flex-1">{children}</div>
   </motion.div>
 );
 
@@ -81,26 +92,25 @@ export default function StatistiquesPage() {
 
   // Gestion sécurisée de la session utilisateur
   const user = session?.user as User | undefined;
-  const displayName = user?.guildNickname || user?.name || 'Utilisateur';
-  
+  const displayName = user?.guildNickname || user?.name || "Utilisateur";
+
   // Vérifier si l'utilisateur a le rôle requis pour accéder aux statistiques
-  const hasAccess = user?.roles?.includes('1331527328219529216') || false;
-  
-  
+  const hasAccess = user?.roles?.includes("1331527328219529216") || false;
+
   // Génération des initiales
   const initials = displayName
-    .split(' ')
+    .split(" ")
     .map((n: string) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
     .slice(0, 2);
 
   // Vérification de l'authentification et des autorisations
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/');
-    } else if (status === 'authenticated' && !hasAccess) {
-      router.push('/accueil');
+    if (status === "unauthenticated") {
+      router.push("/");
+    } else if (status === "authenticated" && !hasAccess) {
+      router.push("/accueil");
     }
   }, [status, hasAccess, router]);
 
@@ -108,14 +118,15 @@ export default function StatistiquesPage() {
   useEffect(() => {
     const fetchEffectifs = async () => {
       try {
-        const response = await fetch('/api/effectifs');
-        if (!response.ok) throw new Error('Erreur lors du chargement des données');
-        
+        const response = await fetch("/api/effectifs");
+        if (!response.ok)
+          throw new Error("Erreur lors du chargement des données");
+
         const data = await response.json();
         setEffectifs(data);
       } catch (err) {
-        console.error('Erreur:', err);
-        setError('Impossible de charger les données');
+        console.error("Erreur:", err);
+        setError("Impossible de charger les données");
       } finally {
         setIsLoading(false);
       }
@@ -127,68 +138,71 @@ export default function StatistiquesPage() {
   }, [hasAccess]);
 
   // Calcul des statistiques avec useMemo pour optimiser les performances
-  const { totalEffectifs, effectifsActifs, formationsTriees, postesTries } = useMemo(() => {
-    const total = effectifs.length;
-    const actifs = effectifs.filter(e => e.statut === 'Actif').length;
-    
-    // Calcul des formations
-    const formationsStats = effectifs.reduce((acc, effectif) => {
-      effectif.formations.forEach(formation => {
-        acc[formation] = (acc[formation] || 0) + 1;
-      });
-      return acc;
-    }, {} as Record<string, number>);
+  const { totalEffectifs, effectifsActifs, formationsTriees, postesTries } =
+    useMemo(() => {
+      const total = effectifs.length;
+      const actifs = effectifs.filter((e) => e.statut === "Actif").length;
 
-    // Calcul des postes
-    const postesStats = effectifs.reduce((acc, effectif) => {
-      acc[effectif.poste] = (acc[effectif.poste] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+      // Calcul des formations
+      const formationsStats = effectifs.reduce((acc, effectif) => {
+        effectif.formations.forEach((formation) => {
+          acc[formation] = (acc[formation] || 0) + 1;
+        });
+        return acc;
+      }, {} as Record<string, number>);
 
-    // Tri des formations par nombre décroissant
-    const formationsTriees = Object.entries(formationsStats)
-      .sort((a, b) => b[1] - a[1])
-      .map(([nom, count]) => ({
-        nom,
-        count,
-        percentage: Math.round((count / total) * 100) || 0
-      }));
+      // Calcul des postes
+      const postesStats = effectifs.reduce((acc, effectif) => {
+        acc[effectif.poste] = (acc[effectif.poste] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
 
-    // Ordre prédéfini des postes
-    const ordrePostes = [
-      'Directeur',
-      'Responsable',
-      'Responsable Adjoint',
-      'Formateur',
-      'Confirmé',
-      'Stagiaire'
-    ];
+      // Tri des formations par nombre décroissant
+      const formationsTriees = Object.entries(formationsStats)
+        .sort((a, b) => b[1] - a[1])
+        .map(([nom, count]) => ({
+          nom,
+          count,
+          percentage: Math.round((count / total) * 100) || 0,
+        }));
 
-    // Tri des postes selon l'ordre prédéfini
-    const postesTries = ordrePostes
-      .map(nom => ({
-        nom,
-        count: postesStats[nom] || 0,
-        percentage: postesStats[nom] 
-          ? Math.round((postesStats[nom] / total) * 100) || 0 
-          : 0
-      }))
-      .filter(poste => poste.count > 0 || ordrePostes.includes(poste.nom));
+      // Ordre prédéfini des postes
+      const ordrePostes = [
+        "Directeur",
+        "Responsable",
+        "Responsable Adjoint",
+        "Formateur",
+        "Confirmé",
+        "Stagiaire",
+      ];
 
-    return {
-      totalEffectifs: total,
-      effectifsActifs: actifs,
-      formationsTriees,
-      postesTries
-    };
-  }, [effectifs]);
+      // Tri des postes selon l'ordre prédéfini
+      const postesTries = ordrePostes
+        .map((nom) => ({
+          nom,
+          count: postesStats[nom] || 0,
+          percentage: postesStats[nom]
+            ? Math.round((postesStats[nom] / total) * 100) || 0
+            : 0,
+        }))
+        .filter((poste) => poste.count > 0 || ordrePostes.includes(poste.nom));
 
-  if (status === 'loading' || isLoading) {
+      return {
+        totalEffectifs: total,
+        effectifsActifs: actifs,
+        formationsTriees,
+        postesTries,
+      };
+    }, [effectifs]);
+
+  if (status === "loading" || isLoading) {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-gray-900">
         <div className="animate-pulse flex flex-col items-center">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-300">Chargement de la page {pathname} en cours...</p>
+          <p className="mt-4 text-gray-300">
+            Chargement de la page {pathname} en cours...
+          </p>
         </div>
       </div>
     );
@@ -226,15 +240,25 @@ export default function StatistiquesPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <a href="/accueil">
-                  <img src="/crslogo.svg" alt="Logo CRS" className="h-10 w-auto" />
+                  <img
+                    src="/crslogo.svg"
+                    alt="Logo CRS"
+                    className="h-10 w-auto"
+                  />
                 </a>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
-                  Tableau de bord - Statistiques
-                </h1>
+                <a
+                  href="/accueil"
+                  className="text-xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent"
+                >
+                  Intranet CRS
+                </a>
               </div>
               <div className="hidden md:flex items-center space-x-6">
                 <span className="text-gray-300 text-sm">
-                  Connecté en tant que: <span className="text-blue-400 font-medium">{displayName}</span>
+                  Connecté en tant que:{" "}
+                  <span className="text-blue-400 font-medium">
+                    {displayName}
+                  </span>
                 </span>
               </div>
             </div>
@@ -245,48 +269,57 @@ export default function StatistiquesPage() {
         <main className="container mx-auto px-6 py-8">
           {/* Cartes de synthèse */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <InfoCard 
-              title="Effectif Total" 
+            <InfoCard
+              title="Effectif Total"
               icon={<UserGroupIcon className="h-6 w-6 text-blue-400" />}
             >
-              <p className="text-3xl font-bold text-white mb-1">{totalEffectifs}</p>
+              <p className="text-3xl font-bold text-white mb-1">
+                {totalEffectifs}
+              </p>
               <p className="text-sm text-gray-400">Membres au total</p>
               <div className="mt-3">
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-green-400">{effectifsActifs} actifs</span>
+                  <span className="text-green-400">
+                    {effectifsActifs} actifs
+                  </span>
                   <span className="text-gray-400">
-                    {totalEffectifs > 0 ? Math.round((effectifsActifs / totalEffectifs) * 100) : 0}%
+                    {totalEffectifs > 0
+                      ? Math.round((effectifsActifs / totalEffectifs) * 100)
+                      : 0}
+                    %
                   </span>
                 </div>
-                <ProgressBar 
-                  value={effectifsActifs} 
+                <ProgressBar
+                  value={effectifsActifs}
                   max={Math.max(totalEffectifs, 1)}
                   color="bg-green-500"
                 />
               </div>
             </InfoCard>
 
-            <InfoCard 
-              title="Disponibilité" 
+            <InfoCard
+              title="Disponibilité"
               icon={<ChartBarIcon className="h-6 w-6 text-amber-400" />}
             >
               <div className="flex items-baseline space-x-2">
                 <p className="text-3xl font-bold text-white">85%</p>
-                <p className="text-lg text-gray-300">({effectifsActifs}/{totalEffectifs})</p>
+                <p className="text-lg text-gray-300">
+                  ({effectifsActifs}/{totalEffectifs})
+                </p>
               </div>
-              <p className="text-sm text-gray-400">Taux de disponibilité (effectifs actifs/total)</p>
+              <p className="text-sm text-gray-400">
+                Taux de disponibilité (effectifs actifs/total)
+              </p>
               <div className="mt-3">
-                <ProgressBar 
-                  value={85} 
-                  max={100} 
-                  color="bg-amber-400"
-                />
-                <p className="text-xs text-gray-400 mt-1">Moyenne sur les 30 derniers jours</p>
+                <ProgressBar value={85} max={100} color="bg-amber-400" />
+                <p className="text-xs text-gray-400 mt-1">
+                  Moyenne sur les 30 derniers jours
+                </p>
               </div>
             </InfoCard>
 
-            <InfoCard 
-              title="Formations" 
+            <InfoCard
+              title="Formations"
               icon={<AcademicCapIcon className="h-6 w-6 text-purple-400" />}
             >
               <div className="text-3xl font-bold text-white mb-1">
@@ -296,22 +329,26 @@ export default function StatistiquesPage() {
               <div className="mt-3">
                 <p className="text-sm text-gray-300">
                   <span className="text-purple-400 font-medium">
-                    {formationsTriees[0]?.nom || 'Aucune'}
-                  </span> est la plus courante
+                    {formationsTriees[0]?.nom || "Aucune"}
+                  </span>{" "}
+                  est la plus courante
                 </p>
               </div>
             </InfoCard>
 
-            <InfoCard 
-              title="Dernière mise à jour" 
+            <InfoCard
+              title="Dernière mise à jour"
               icon={<ArrowPathIcon className="h-6 w-6 text-cyan-400" />}
             >
               <p className="text-3xl font-bold text-white mb-1">
-                {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                {new Date().toLocaleDateString("fr-FR", {
+                  day: "numeric",
+                  month: "short",
+                })}
               </p>
               <p className="text-sm text-gray-400">Données actualisées</p>
               <div className="mt-3">
-                <button 
+                <button
                   onClick={() => window.location.reload()}
                   className="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1 rounded-md transition-colors flex items-center"
                 >
@@ -324,51 +361,63 @@ export default function StatistiquesPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Graphique des formations */}
-            <InfoCard 
-              title="Répartition par formation" 
+            <InfoCard
+              title="Répartition par formation"
               icon={<AcademicCapIcon className="h-6 w-6 text-purple-400" />}
             >
               <div className="space-y-4 mt-4">
                 {formationsTriees.map((formation) => (
                   <div key={formation.nom} className="space-y-1">
                     <div className="flex justify-between text-sm">
-                      <span className="font-medium text-gray-200">{formation.nom}</span>
-                      <span className="text-gray-400">{formation.count} ({formation.percentage}%)</span>
+                      <span className="font-medium text-gray-200">
+                        {formation.nom}
+                      </span>
+                      <span className="text-gray-400">
+                        {formation.count} ({formation.percentage}%)
+                      </span>
                     </div>
-                    <ProgressBar 
-                      value={formation.count} 
-                      max={totalEffectifs || 1} 
+                    <ProgressBar
+                      value={formation.count}
+                      max={totalEffectifs || 1}
                       color="bg-purple-500"
                     />
                   </div>
                 ))}
                 {formationsTriees.length === 0 && (
-                  <p className="text-gray-400 text-center py-4">Aucune donnée de formation disponible</p>
+                  <p className="text-gray-400 text-center py-4">
+                    Aucune donnée de formation disponible
+                  </p>
                 )}
               </div>
             </InfoCard>
 
             {/* Graphique des postes */}
-            <InfoCard 
-              title="Répartition par poste" 
+            <InfoCard
+              title="Répartition par poste"
               icon={<BriefcaseIcon className="h-6 w-6 text-blue-400" />}
             >
               <div className="space-y-4 mt-4">
                 {postesTries.map((poste) => (
                   <div key={poste.nom} className="space-y-1">
                     <div className="flex justify-between text-sm">
-                      <span className="font-medium text-gray-200">{poste.nom || 'Non spécifié'}</span>
-                      <span className="text-gray-400">{poste.count} ({poste.percentage}%)</span>
+                      <span className="font-medium text-gray-200">
+                        {poste.nom || "Non spécifié"}
+                      </span>
+                      <span className="text-gray-400">
+                        {poste.count} ({poste.percentage}%)
+                      </span>
                     </div>
-                    <ProgressBar 
-                      value={poste.count} 
-                      max={totalEffectifs || 1} 
+                    <ProgressBar
+                      value={poste.count}
+                      max={totalEffectifs || 1}
                       color="bg-blue-500"
                     />
                   </div>
                 ))}
                 {postesTries.length === 0 && (
-                  <p className="text-gray-400 text-center py-4">Aucune donnée de poste disponible</p>
+                  <p className="text-gray-400 text-center py-4">
+                    Aucune donnée de poste disponible
+                  </p>
                 )}
               </div>
             </InfoCard>
@@ -376,18 +425,19 @@ export default function StatistiquesPage() {
 
           {/* Section des statistiques d'intervention */}
           <div className="mt-8">
-            <InfoCard 
-              title="Répartition des Interventions" 
+            <InfoCard
+              title="Répartition des Interventions"
               icon={<ChartBarIcon className="h-6 w-6 text-green-400" />}
               // className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 border-gray-700/70 hover:border-green-500/50"
             >
               <div className="space-y-6 py-2">
                 <InterventionStats />
                 <div className="text-xs text-gray-400 text-center mt-4">
-                  Données mises à jour le {new Date().toLocaleDateString('fr-FR', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric'
+                  Données mises à jour le{" "}
+                  {new Date().toLocaleDateString("fr-FR", {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
                   })}
                 </div>
               </div>

@@ -1,45 +1,46 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'; 
-import Sidebar from '@/components/ui/sidebar';
-import { useSession, signOut } from 'next-auth/react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import Sidebar from "../components/sidebar/sidebar";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function FormationMO() {
- const { data: session, status } = useSession();
-   const router = useRouter();
-   const displayName = session?.user?.guildNickname || session?.user?.name || 'Utilisateur';
-   const pathname = usePathname();
- 
-   // Le style de fond est géré dans globals.css
- 
-   // Vérification de l'authentification
-   useEffect(() => {
-     if (status === 'unauthenticated') {
-       router.push('/');
-     }
-   }, [status, router]);
- 
-   // Déconnexion automatique toutes les heures
-   useEffect(() => {
-     const timer = setInterval(() => {
-       signOut({
-         callbackUrl: '/',
-       });
-     }, 60 * 60 * 1000);
- 
-     return () => clearInterval(timer);
-   }, []);
- 
-   // Génération des initiales
-   const initials = displayName
-     .split(' ')
-     .map((n: string) => n[0])
-     .join('')
-     .toUpperCase()
-     .slice(0, 2);  
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const displayName =
+    session?.user?.guildNickname || session?.user?.name || "Utilisateur";
+  const pathname = usePathname();
+
+  // Le style de fond est géré dans globals.css
+
+  // Vérification de l'authentification
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
+
+  // Déconnexion automatique toutes les heures
+  useEffect(() => {
+    const timer = setInterval(() => {
+      signOut({
+        callbackUrl: "/",
+      });
+    }, 60 * 60 * 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Génération des initiales
+  const initials = displayName
+    .split(" ")
+    .map((n: string) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -51,7 +52,9 @@ export default function FormationMO() {
         animate={{ width: sidebarOpen ? 256 : 0 }}
         transition={{ duration: 0.3 }}
       >
-        {sidebarOpen && <Sidebar displayName={displayName} initials={initials} />}
+        {sidebarOpen && (
+          <Sidebar displayName={displayName} initials={initials} />
+        )}
       </motion.div>
 
       {/* Bouton toggle en bas à droite */}

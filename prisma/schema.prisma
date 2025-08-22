@@ -1,11 +1,103 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["interactiveTransactions"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Effectif {
+  id           Int      @id @default(autoincrement())
+  prenom       String
+  nom          String
+  grade        String?
+  poste        String
+  statut       String   @default("Actif")
+  telephone    String?
+  formations   Json?    @default("[]")
+  dateArrivee  DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("effectif")
+}
+
+model accounts {
+  id                  String  @id
+  user_id             String
+  type                String
+  provider            String
+  provider_account_id String
+  refresh_token       String?
+  access_token        String?
+  expires_at          Int?
+  token_type          String?
+  scope               String?
+  id_token            String?
+  session_state       String?
+  users               users   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([provider, provider_account_id])
+}
+
+model password_reset_tokens {
+  id         String   @id
+  email      String
+  token      String   @unique
+  expires    DateTime
+  created_at DateTime @default(now())
+  user_id    String
+  users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([email])
+}
+
+model sessions {
+  id            String   @id
+  session_token String   @unique
+  user_id       String
+  expires       DateTime
+  users         users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model users {
+  id                    String                  @id
+  name                  String?
+  email                 String                  @unique
+  email_verified        DateTime?
+  password              String
+  image                 String?
+  role                  Role                    @default(USER)
+  is_active             Boolean                 @default(true)
+  last_login            DateTime?
+  last_password_change  DateTime?
+  force_password_change Boolean                 @default(true)
+  created_at            DateTime                @default(now())
+  updated_at            DateTime
+  created_by_id         String?
+  accounts              accounts[]
+  password_reset_tokens password_reset_tokens[]
+  sessions              sessions[]
+  users                 users?                  @relation("usersTousers", fields: [created_by_id], references: [id])
+  other_users           users[]                 @relation("usersTousers")
+
+  @@index([email])
+}
+
+model verification_tokens {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime
+
+  @@unique([identifier, token])
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 enum Grade {
@@ -29,48 +121,4 @@ enum Grade {
   COM
   CD
   CG
-}
-
-model Effectif {
-  id          Int        @id @default(autoincrement())
-  prenom      String     @db.VarChar(50)
-  nom         String     @db.VarChar(50)
-  grade       Grade?
-  poste       String     @db.VarChar(100)
-  statut      String     @default("Actif")
-  telephone   String?    @db.VarChar(20)
-  formations  Json?      @default("[]")
-  dateArrivee DateTime   @default(now())
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  @@map("effectif")
-}
-
-model Outfit {
-  id              Int       @id @default(autoincrement())
-  name            String    @db.VarChar(100)
-  image1          String    // Chemin ou URL de la première image
-  image2          String    // Chemin ou URL de la deuxième image
-  hautVeste1      String?   @db.VarChar(100)
-  hautVeste2      String?   @db.VarChar(100)
-  grade           String?   @db.VarChar(50)
-  sousVetement    String?   @db.VarChar(100)
-  giletPareBalles1 String?  @db.VarChar(100)
-  giletPareBalles2 String?  @db.VarChar(100)
-  sacParachute    String?   @db.VarChar(100)
-  mainsBras       String?   @db.VarChar(100)
-  jambes          String?   @db.VarChar(100)
-  chaussures      String?   @db.VarChar(100)
-  masques         String?   @db.VarChar(100)
-  echarpesChaines String?   @db.VarChar(100)
-  autocollants1   String?   @db.VarChar(100)
-  autocollants2   String?   @db.VarChar(100)
-  chapeauCasque1  String?   @db.VarChar(100)
-  chapeauCasque2  String?   @db.VarChar(100)
-  createdBy       String?   @db.VarChar(255)  // ID de l'utilisateur qui a créé la tenue
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  @@map("outfits")
 }

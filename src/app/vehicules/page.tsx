@@ -1,17 +1,15 @@
 // Page vehicules
 
-'use client';
-import { useEffect } from 'react';
-import { useSession, signOut } from 'next-auth/react';
-import { useRouter, usePathname } from 'next/navigation';
-import Sidebar from '@/components/ui/sidebar';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
+"use client";
+import { useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter, usePathname } from "next/navigation";
+import Sidebar from "../../components/sidebar/sidebar";
 
 // Composants
-import { VehiculeSection } from '@/components/vehicules/VehiculeSection';
-import { VehiculeHeader } from '@/components/vehicules/VehiculeHeader';
-import { VehiculeNotes } from '@/components/vehicules/VehiculeNotes';
+import { VehiculeSection } from "@/components/vehicules/VehiculeSection";
+import { VehiculeHeader } from "@/components/vehicules/VehiculeHeader";
+import { VehiculeNotes } from "@/components/vehicules/VehiculeNotes";
 
 // Données des tenues
 const vehicules = [
@@ -19,12 +17,14 @@ const vehicules = [
     title: "Dacia Duster CRS",
     items: [
       { label: "Nom dans le garage", value: "suvcrs" },
-      { label: "Utilisation", value: "TV CRS/Secours en Montagne/Autoroutière" },
+      {
+        label: "Utilisation",
+        value: "TV CRS/Secours en Montagne/Autoroutière",
+      },
       { label: "Qui peut le prendre ?", value: "Tout le monde" },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/tvcrsetautre/dacia_duster_crs.png",
-
   },
   {
     title: "Peugeot Expert PMV",
@@ -35,7 +35,7 @@ const vehicules = [
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/autoroute/peugeot_expert_pmv.png",
-    secondImageSrc: "/vehicules_images/autoroute/peugeot_expert_pmv2.png" // À ajouter ultérieurement
+    secondImageSrc: "/vehicules_images/autoroute/peugeot_expert_pmv2.png", // À ajouter ultérieurement
   },
   {
     title: "Renault Mégane IV",
@@ -46,7 +46,6 @@ const vehicules = [
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/autoroute/renault_megane_IV.png",
-
   },
   {
     title: "Peugeot Rifter",
@@ -57,7 +56,7 @@ const vehicules = [
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/autoroute/peugeot_rifter.png",
-    secondImageSrc: "/vehicules_images/autoroute/peugeot_rifter_2.png" // À ajouter ultérieurement
+    secondImageSrc: "/vehicules_images/autoroute/peugeot_rifter_2.png", // À ajouter ultérieurement
   },
   {
     title: "Renault Scénic",
@@ -68,9 +67,8 @@ const vehicules = [
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/tvcrsetautre/renault_scenic.png",
-    secondImageSrc: "/vehicules_images/tvcrsetautre/renault_scenic_2.png" // À ajouter ultérieurement
+    secondImageSrc: "/vehicules_images/tvcrsetautre/renault_scenic_2.png", // À ajouter ultérieurement
   },
-  
 ];
 
 const moto = [
@@ -83,7 +81,6 @@ const moto = [
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/moto/yamaha_1250_gs.png",
-
   },
   {
     title: "YAMAHA FJR 1200",
@@ -94,7 +91,6 @@ const moto = [
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/moto/yamaha_fjr_1200.png",
-
   },
   {
     title: "YAMAHA MT 09",
@@ -105,7 +101,6 @@ const moto = [
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/moto/yamaha_mt_09.png",
-
   },
   {
     title: "BMW 1250 RT",
@@ -116,7 +111,6 @@ const moto = [
       { label: "Nombre d'exemplaire", value: "10" },
     ],
     image: "/vehicules_images/moto/bmw_1250_rt.png",
-
   },
   {
     title: "YAMAHA XTZ",
@@ -127,7 +121,6 @@ const moto = [
       { label: "Nombre d'exemplaire", value: "06" },
     ],
     image: "/vehicules_images/moto/yamaha_xtz.png",
-
   },
   {
     title: "YAMAHA 1250 GS Bana",
@@ -138,7 +131,6 @@ const moto = [
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/moto/yamaha_1250_gs_banalisee.png",
-
   },
   {
     title: "BMW 1250 RT Bana",
@@ -149,7 +141,6 @@ const moto = [
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/moto/bmw_1250_rt_banalisee.png",
-
   },
   {
     title: "YAMAHA FJR 1200 Bana",
@@ -160,7 +151,6 @@ const moto = [
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/moto/yamaha_fjr_1200_banalisee.png",
-
   },
 ];
 
@@ -170,7 +160,10 @@ const CRS8Vehicules = [
     items: [
       { label: "Nom dans le garage", value: "suvcrs" },
       { label: "Utilisation", value: "Mission CRS 8" },
-      { label: "Qui peut le prendre ?", value: "UNIQUEMENT LES MEMBRES DE LA CRS 8" },
+      {
+        label: "Qui peut le prendre ?",
+        value: "UNIQUEMENT LES MEMBRES DE LA CRS 8",
+      },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/crs8/fiat_ducato_III.png",
@@ -180,7 +173,10 @@ const CRS8Vehicules = [
     items: [
       { label: "Nom dans le garage", value: "suvbana1" },
       { label: "Utilisation", value: "Mission CRS 8" },
-      { label: "Qui peut le prendre ?", value: "UNIQUEMENT LES MEMBRES DE LA CRS 8" },
+      {
+        label: "Qui peut le prendre ?",
+        value: "UNIQUEMENT LES MEMBRES DE LA CRS 8",
+      },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/crs8/ford_ranger.png",
@@ -190,7 +186,10 @@ const CRS8Vehicules = [
     items: [
       { label: "Nom dans le garage", value: "vhlbanapn5" },
       { label: "Utilisation", value: "Mission CRS 8" },
-      { label: "Qui peut le prendre ?", value: "UNIQUEMENT LES MEMBRES DE LA CRS 8" },
+      {
+        label: "Qui peut le prendre ?",
+        value: "UNIQUEMENT LES MEMBRES DE LA CRS 8",
+      },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/crs8/peugeot_5008.png",
@@ -200,7 +199,10 @@ const CRS8Vehicules = [
     items: [
       { label: "Nom dans le garage", value: "voiturebanapn7" },
       { label: "Utilisation", value: "Mission CRS 8" },
-      { label: "Qui peut le prendre ?", value: "UNIQUEMENT LES MEMBRES DE LA CRS 8" },
+      {
+        label: "Qui peut le prendre ?",
+        value: "UNIQUEMENT LES MEMBRES DE LA CRS 8",
+      },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/crs8/skoda_kodiaq.png",
@@ -213,11 +215,14 @@ const MaintienOrdreVehicules = [
     items: [
       { label: "Nom dans le garage", value: "vancrs2" },
       { label: "Utilisation", value: "Mission MO" },
-      { label: "Qui peut le prendre ?", value: "Seulement en cas de déploiement MO" },
+      {
+        label: "Qui peut le prendre ?",
+        value: "Seulement en cas de déploiement MO",
+      },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/mo/renault_master_mo.png",
-    secondImageSrc: "/vehicules_images/mo/renault_master_mo_2.png" // À ajouter ultérieurement
+    secondImageSrc: "/vehicules_images/mo/renault_master_mo_2.png", // À ajouter ultérieurement
   },
   {
     title: "Camion Lanceur d'Eau",
@@ -237,7 +242,10 @@ const ERIVehicules = [
     items: [
       { label: "Nom dans le garage", value: "banakbpn5" },
       { label: "Utilisation", value: "Mission ERI, Banalisé, Autoroutière" },
-      { label: "Qui peut le prendre ?", value: "Responsable Adjoint, Responsable, Directeur" },
+      {
+        label: "Qui peut le prendre ?",
+        value: "Responsable Adjoint, Responsable, Directeur",
+      },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/eri/cupra_leon_eri.png",
@@ -250,7 +258,10 @@ const MaritimeVehicules = [
     items: [
       { label: "Nom dans le garage", value: "bateaupn1" },
       { label: "Utilisation", value: "Mission Nautique" },
-      { label: "Qui peut le prendre ?", value: "Responsable Adjoint, Responsable, Directeur" },
+      {
+        label: "Qui peut le prendre ?",
+        value: "Responsable Adjoint, Responsable, Directeur",
+      },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/maritime/bateau_maritime.png",
@@ -260,13 +271,14 @@ const MaritimeVehicules = [
 function VehiculesCRS() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const displayName = session?.user?.guildNickname || session?.user?.name || 'Utilisateur';
+  const displayName =
+    session?.user?.guildNickname || session?.user?.name || "Utilisateur";
   const pathname = usePathname();
 
   // Vérification de l'authentification
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/');
+    if (status === "unauthenticated") {
+      router.push("/");
     }
   }, [status, router]);
 
@@ -274,7 +286,7 @@ function VehiculesCRS() {
   useEffect(() => {
     const timer = setInterval(() => {
       signOut({
-        callbackUrl: '/',
+        callbackUrl: "/",
       });
     }, 60 * 60 * 1000);
 
@@ -283,18 +295,20 @@ function VehiculesCRS() {
 
   // Génération des initiales
   const initials = displayName
-    .split(' ')
+    .split(" ")
     .map((n: string) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
     .slice(0, 2);
 
-  if (status === 'loading') {
+  if (status === "loading") {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-gray-900">
         <div className="animate-pulse flex flex-col items-center">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-300">Chargement de la page {pathname} en cours...</p>
+          <p className="mt-4 text-gray-300">
+            Chargement de la page {pathname} en cours...
+          </p>
         </div>
       </div>
     );
@@ -303,7 +317,7 @@ function VehiculesCRS() {
   return (
     <div className="min-h-screen text-white flex bg-gray-900">
       <Sidebar displayName={displayName} initials={initials} />
-      
+
       <div className="flex-1 relative z-0 ml-[270px] w-[calc(100%-270px)]">
         {/* En-tête */}
         <header className="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-10">
@@ -311,15 +325,25 @@ function VehiculesCRS() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <a href="/accueil">
-                  <img src="/crslogo.svg" alt="Logo CRS" className="h-10 w-auto" />
+                  <img
+                    src="/crslogo.svg"
+                    alt="Logo CRS"
+                    className="h-10 w-auto"
+                  />
                 </a>
-                <a href="/accueil" className="text-xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+                <a
+                  href="/accueil"
+                  className="text-xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent"
+                >
                   Intranet CRS
                 </a>
               </div>
               <div className="hidden md:flex items-center space-x-6">
                 <span className="text-gray-300 text-sm">
-                  Connecté en tant que: <span className="text-blue-400 font-medium">{displayName}</span>
+                  Connecté en tant que:{" "}
+                  <span className="text-blue-400 font-medium">
+                    {displayName}
+                  </span>
                 </span>
               </div>
             </div>
@@ -328,43 +352,30 @@ function VehiculesCRS() {
 
         {/* Contenu principal */}
         <main className="p-6 lg:p-8">
-          <VehiculeHeader 
+          <VehiculeHeader
             title="Véhicules Officiels CRS"
             description="Vous retrouvez ici les véhicules de la CRS à utiliser en fonction de vos missions et grades"
           />
 
           <VehiculeNotes />
 
-          <VehiculeSection 
+          <VehiculeSection
             title="TV CRS/Secours en Montagne/Autoroutière"
             vehicules={vehicules}
           />
 
-          <VehiculeSection 
-            title="Moto (Tango Mike)"
-            vehicules={moto}
-          />
+          <VehiculeSection title="Moto (Tango Mike)" vehicules={moto} />
 
-          <VehiculeSection 
-            title="CRS 8"
-            vehicules={CRS8Vehicules}
-          />
+          <VehiculeSection title="CRS 8" vehicules={CRS8Vehicules} />
 
-          <VehiculeSection 
+          <VehiculeSection
             title="Maintien de l'Ordre"
             vehicules={MaintienOrdreVehicules}
           />
 
-          <VehiculeSection 
-            title="ERI"
-            vehicules={ERIVehicules}
-          />
-          
-          <VehiculeSection 
-            title="Maritime"
-            vehicules={MaritimeVehicules}
-          />
-          
+          <VehiculeSection title="ERI" vehicules={ERIVehicules} />
+
+          <VehiculeSection title="Maritime" vehicules={MaritimeVehicules} />
         </main>
       </div>
     </div>
