@@ -4,7 +4,7 @@
 import React, { useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
-import Sidebar from "../../components/sidebar/sidebar";
+import Sidebar from "../../../components/sidebar/sidebar";
 import { motion } from "framer-motion";
 import { FaFileAlt, FaFileInvoiceDollar, FaShip } from "react-icons/fa";
 import { FaMotorcycle, FaCar, FaTruck } from "react-icons/fa6";
