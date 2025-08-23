@@ -130,7 +130,7 @@ export default function GestionEffectifs() {
   useEffect(() => {
     const timer = setInterval(() => {
       signOut({
-        callbackUrl: "/",
+        callbackUrl: "/login",
       });
     }, 60 * 60 * 1000);
 
@@ -140,7 +140,7 @@ export default function GestionEffectifs() {
   // Vérification de l'authentification
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/");
+      router.push("/login");
     } else if (status === "authenticated") {
       loadEffectifs();
     }

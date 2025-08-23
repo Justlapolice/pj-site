@@ -19,7 +19,7 @@ export default function SousSpeCRS() {
   // Vérification de l'authentification
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/");
+      router.push("/login");
     }
   }, [status, router]);
 
@@ -27,7 +27,7 @@ export default function SousSpeCRS() {
   useEffect(() => {
     const timer = setInterval(() => {
       signOut({
-        callbackUrl: "/",
+        callbackUrl: "/login",
       });
     }, 60 * 60 * 1000);
 

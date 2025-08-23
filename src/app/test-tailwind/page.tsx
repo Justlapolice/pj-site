@@ -95,7 +95,7 @@ export default function StatistiquesPage() {
   // Vérification de l'authentification et des autorisations
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/");
+      router.push("/login");
     } else if (status === "authenticated" && !hasAccess) {
       router.push("/accueil");
     }
