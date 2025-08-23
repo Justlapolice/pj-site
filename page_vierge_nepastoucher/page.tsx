@@ -4,7 +4,7 @@
 import React, { useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
-import Sidebar from "../../../components/sidebar/sidebar";
+import Sidebar from "../../components/sidebar/sidebar";
 import { motion } from "framer-motion";
 
 // Composant de carte réutilisable

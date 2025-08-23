@@ -47,7 +47,7 @@ export default function InfoCrs() {
     }
   }, [status, router]);
 
-  // Déconnexion automatique toutes les 1h
+  // Déconnexion automatique toutes les heuress
   useEffect(() => {
     const timer = setInterval(() => {
       signOut({
