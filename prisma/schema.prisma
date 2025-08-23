@@ -1,5 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -8,17 +8,17 @@ datasource db {
 }
 
 model Effectif {
-  id           Int      @id @default(autoincrement())
-  prenom       String
-  nom          String
-  grade        String?
-  poste        String
-  statut       String   @default("Actif")
-  telephone    String?
-  formations   Json?    @default("[]")
-  dateArrivee  DateTime @default(now())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  prenom      String
+  nom         String
+  poste       String
+  statut      String   @default("Actif")
+  telephone   String?
+  formations  Json?    @default("[]")
+  dateArrivee DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  grade       String?
 
   @@map("effectif")
 }
