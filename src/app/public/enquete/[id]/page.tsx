@@ -1,5 +1,5 @@
 "use client";
-
+import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { FaCheck, FaLink, FaTrash, FaPen } from "react-icons/fa";
 
@@ -27,8 +27,9 @@ interface Note {
   createdAt: string;
 }
 
-export default function EnquetePage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function EnquetePage() {
+  const params = useParams();
+  const id = params?.id as string;
 
   const [notes, setNotes] = useState<Note[]>([]);
   const [newNote, setNewNote] = useState("");
