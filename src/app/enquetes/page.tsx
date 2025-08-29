@@ -40,14 +40,13 @@ export default function Rapport() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [formData, setFormData] = useState<{
-    id: number | undefined;
+    id?: number;
     objet: string;
     accusations: string;
     directeur: string;
     directeurAdjoint: string;
     statut: Statut;
   }>({
-    id: undefined,
     objet: "",
     accusations: "",
     directeur: "",
