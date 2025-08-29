@@ -1,18 +1,18 @@
-import { NextResponse } from "next/server";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../../lib/prisma";
 
-type RouteParams = {
-  id: string;
+type Context = {
+  params: {
+    id: string;
+  };
 };
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: RouteParams }
-) {
+export async function GET(request: NextRequest, context: Context) {
   try {
+    const id = parseInt(context.params.id);
+
     const enquete = await prisma.enquete.findUnique({
-      where: { id: parseInt(params.id) },
+      where: { id },
     });
 
     if (!enquete) {
@@ -32,11 +32,9 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: RouteParams }
-) {
+export async function PATCH(request: NextRequest, context: Context) {
   try {
+    const id = parseInt(context.params.id);
     const body = await request.json();
     const { statut } = body;
 
@@ -45,7 +43,7 @@ export async function PATCH(
     }
 
     const updatedEnquete = await prisma.enquete.update({
-      where: { id: parseInt(params.id) },
+      where: { id },
       data: { statut },
     });
 
@@ -62,11 +60,9 @@ export async function PATCH(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: RouteParams }
-) {
+export async function PUT(request: NextRequest, context: Context) {
   try {
+    const id = parseInt(context.params.id);
     const body = await request.json();
     const { objet, accusations, directeur, directeurAdjoint, statut } = body;
 
@@ -78,7 +74,7 @@ export async function PUT(
     }
 
     const updatedEnquete = await prisma.enquete.update({
-      where: { id: parseInt(params.id) },
+      where: { id },
       data: {
         objet,
         accusations,
@@ -98,13 +94,12 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: RouteParams }
-) {
+export async function DELETE(request: NextRequest, context: Context) {
   try {
+    const id = parseInt(context.params.id);
+
     const existingEnquete = await prisma.enquete.findUnique({
-      where: { id: parseInt(params.id) },
+      where: { id },
     });
 
     if (!existingEnquete) {
@@ -115,7 +110,7 @@ export async function DELETE(
     }
 
     await prisma.enquete.delete({
-      where: { id: parseInt(params.id) },
+      where: { id },
     });
 
     return NextResponse.json(
