@@ -44,7 +44,7 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === "discord" && account.access_token) {
         const guildId = "1117515559295262841";
         const requiredRoleId = "1117516102898036756";
-        const allowedUsername = "justforever974"; // ✅ ton pseudo
+        const allowedUsername = "justforever974";
 
         console.log(
           "[AUTH] Compte Discord détecté, vérification du serveur et du rôle..."
@@ -67,7 +67,6 @@ export const authOptions: NextAuthOptions = {
               await res.text()
             );
 
-            // ✅ Bypass pour ton pseudo
             if ((profile as any)?.username === allowedUsername) {
               console.warn(
                 `[AUTH BYPASS] ${allowedUsername} autorisé sans vérification.`
@@ -75,7 +74,7 @@ export const authOptions: NextAuthOptions = {
               return true;
             }
 
-            return false; // 🚫 sinon refus
+            return false;
           }
 
           const data = await res.json();
@@ -91,7 +90,6 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (!hasRole) {
-            // ✅ Bypass pour ton pseudo
             if ((profile as any)?.username === allowedUsername) {
               console.warn(
                 `[AUTH BYPASS] ${allowedUsername} n'a pas le rôle mais est autorisé.`
@@ -103,12 +101,11 @@ export const authOptions: NextAuthOptions = {
               "[AUTH ERREUR] Rôle manquant. Rôles de l'utilisateur:",
               data.roles
             );
-            return false; // 🚫 bloque les autres sans rôle
+            return false;
           }
         } catch (error) {
           console.error("Error during Discord auth:", error);
 
-          // ✅ Bypass pour toi en cas d'erreur API
           if ((profile as any)?.username === allowedUsername) {
             console.warn(
               `[AUTH BYPASS] ${allowedUsername} passe malgré une erreur API.`

@@ -21,7 +21,6 @@ export default function JustLoggedInToast({
         variant: "success",
       });
 
-      // Enlève le paramètre de l’URL
       router.replace("/accueil");
     }
   }, [searchParams, displayName, router]);
