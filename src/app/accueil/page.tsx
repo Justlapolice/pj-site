@@ -48,7 +48,6 @@ export default function AccueilIntranet() {
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
 
-  // Vérification de l'authentification
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
