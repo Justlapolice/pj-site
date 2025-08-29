@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../../lib/prisma";
 
-type Context = {
-  params: {
-    id: string;
-  };
-};
-
-export async function GET(request: NextRequest, context: Context) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const id = parseInt(context.params.id);
+    const id = parseInt(params.id);
 
     const enquete = await prisma.enquete.findUnique({
       where: { id },
@@ -32,9 +29,12 @@ export async function GET(request: NextRequest, context: Context) {
   }
 }
 
-export async function PATCH(request: NextRequest, context: Context) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const id = parseInt(context.params.id);
+    const id = parseInt(params.id);
     const body = await request.json();
     const { statut } = body;
 
@@ -60,9 +60,12 @@ export async function PATCH(request: NextRequest, context: Context) {
   }
 }
 
-export async function PUT(request: NextRequest, context: Context) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const id = parseInt(context.params.id);
+    const id = parseInt(params.id);
     const body = await request.json();
     const { objet, accusations, directeur, directeurAdjoint, statut } = body;
 
@@ -94,9 +97,12 @@ export async function PUT(request: NextRequest, context: Context) {
   }
 }
 
-export async function DELETE(request: NextRequest, context: Context) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const id = parseInt(context.params.id);
+    const id = parseInt(params.id);
 
     const existingEnquete = await prisma.enquete.findUnique({
       where: { id },
