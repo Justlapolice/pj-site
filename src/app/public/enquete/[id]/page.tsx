@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import { FaLink, FaTrash } from "react-icons/fa";
+import { FaCheck, FaLink, FaTrash, FaPen } from "react-icons/fa";
 
 type Statut =
   | "Début"
@@ -15,7 +14,6 @@ type Statut =
 interface Enquete {
   id: number;
   objet: string;
-  accusations: string;
   directeur: string;
   directeurAdjoint: string;
   statut: Statut;
@@ -29,9 +27,8 @@ interface Note {
   createdAt: string;
 }
 
-export default function EnquetePage() {
-  const params = useParams();
-  const id = params?.id ?? "";
+export default function EnquetePage({ params }: { params: { id: string } }) {
+  const { id } = params;
 
   const [notes, setNotes] = useState<Note[]>([]);
   const [newNote, setNewNote] = useState("");
@@ -42,33 +39,29 @@ export default function EnquetePage() {
   const [saving, setSaving] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
 
-  const today = new Date();
-  const jour = String(today.getDate()).padStart(2, "0");
-  const mois = String(today.getMonth() + 1).padStart(2, "0");
-  const annee = today.getFullYear();
-
-  const numeroEnquete = `PN17ARR${annee}${jour}${mois}`;
-
   const statusColors = {
     Début: "bg-blue-500 hover:bg-blue-600",
     "En cours": "bg-yellow-500 hover:bg-yellow-600",
     Rapport: "bg-purple-500 hover:bg-purple-600",
     Interpellation: "bg-orange-500 hover:bg-orange-600",
     Terminée: "bg-green-500 hover:bg-green-600",
-    Annulée: "bg-red-600 hover:bg-red-700",
+    Annulée: "bg-red-500 hover:bg-red-600",
   };
 
   const handleStatusChange = async (newStatus: Statut) => {
     if (!enquete) return;
     setSaving(true);
+
     try {
       const response = await fetch(`/api/enquetes/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ statut: newStatus }),
       });
-      if (response.ok) setEnquete({ ...enquete, statut: newStatus });
-      else console.error("Erreur lors de la mise à jour du statut");
+
+      if (response.ok) {
+        setEnquete({ ...enquete, statut: newStatus });
+      }
     } catch (error) {
       console.error("Erreur lors de la mise à jour du statut:", error);
     } finally {
@@ -83,25 +76,30 @@ export default function EnquetePage() {
 
     const fetchEnquete = async () => {
       try {
-        setLoading(true);
         const response = await fetch(`/api/enquetes/${id}`);
         if (response.ok) {
           const data = await response.json();
           setEnquete(data);
         } else {
           console.error("Erreur lors de la récupération de l'enquête");
-          setEnquete(null);
         }
       } catch (error) {
         console.error("Erreur:", error);
-        setEnquete(null);
       } finally {
         setLoading(false);
       }
     };
 
-    if (id) fetchEnquete();
+    fetchEnquete();
   }, [id]);
+
+  const handleCopyLink = () => {
+    const url = window.location.href;
+    navigator.clipboard
+      .writeText(url)
+      .then(() => alert("Lien copié dans le presse-papier !"))
+      .catch((err) => console.error("Erreur lors de la copie :", err));
+  };
 
   const fetchNotes = async () => {
     try {
@@ -109,8 +107,6 @@ export default function EnquetePage() {
       if (response.ok) {
         const data = await response.json();
         setNotes(data);
-      } else {
-        console.error("Erreur lors du chargement des notes");
       }
     } catch (error) {
       console.error("Erreur lors du chargement des notes:", error);
@@ -124,6 +120,7 @@ export default function EnquetePage() {
   const addNote = async () => {
     if (!newNote.trim()) return;
     setSaving(true);
+
     try {
       const response = await fetch("/api/noteenquetes", {
         method: "POST",
@@ -133,6 +130,7 @@ export default function EnquetePage() {
           content: newNote.trim(),
         }),
       });
+
       if (response.ok) {
         const newNoteData = await response.json();
         setNotes([newNoteData, ...notes]);
@@ -150,12 +148,14 @@ export default function EnquetePage() {
   const renderNoteContent = (content: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const parts = content.split(urlRegex);
+
     return (
       <>
         {parts.map((part, idx) => {
           try {
             const url = new URL(part.trim());
             const pathname = url.pathname.toLowerCase();
+
             if (
               pathname.endsWith(".png") ||
               pathname.endsWith(".jpg") ||
@@ -173,6 +173,7 @@ export default function EnquetePage() {
                 />
               );
             }
+
             return (
               <a
                 key={idx}
@@ -184,7 +185,7 @@ export default function EnquetePage() {
                 {part}
               </a>
             );
-          } catch {
+          } catch (e) {
             return <span key={idx}>{part}</span>;
           }
         })}
@@ -209,7 +210,7 @@ export default function EnquetePage() {
             L&apos;enquête n&apos;existe pas ou a été supprimée.
           </p>
           <p className="text-sm text-gray-500 font-bold">
-            Cordialement, l&apos;équipe de la Police Judiciaire
+            Cordialement, l&apos;équipe de la Police Judiciare
           </p>
         </div>
       </div>
@@ -233,14 +234,14 @@ export default function EnquetePage() {
       title: "IDENTITÉ DU MIS EN CAUSE",
       content: (
         <>
-          <p>Nom : </p>
-          <p>Prénom : </p>
-          <p>Date de naissance : </p>
-          <p>Lieu de naissance : </p>
-          <p>Adresse : </p>
-          <p>Profession : </p>
-          <p>Numéro de téléphone : </p>
-          <p>Groupe : </p>
+          <p>Nom : x</p>
+          <p>Prénom : x</p>
+          <p>Date de naissance : x</p>
+          <p>Lieu de naissance : x</p>
+          <p>Adresse : x</p>
+          <p>Profession : x</p>
+          <p>Numéro de téléphone : x</p>
+          <p>Groupe : x</p>
         </>
       ),
     },
@@ -248,26 +249,21 @@ export default function EnquetePage() {
       title: "DOCUMENTS RELATIFS À L'ENQUÊTE",
       content: (
         <>
-          <p>PVI : </p>
-          <p>PVA : </p>
-          <p>Dépôt de plainte : </p>
-          <p>Pièces jointes : </p>
+          <p>PVI : x</p>
+          <p>PVA : x</p>
+          <p>Dépôt de plainte : x</p>
+          <p>Pièces jointes : x</p>
         </>
       ),
     },
     {
       title: "COMPTE-RENDU DE L'ENQUÊTE",
       content: (
-        <div className="">
+        <>
           Fait à Paris le{" "}
-          <span className="underline">
-            {new Date(enquete.createdAt).toLocaleDateString("fr-FR")}
-          </span>{" "}
-          à{" "}
-          <span className="underline">
-            {new Date(enquete.createdAt).toLocaleTimeString("fr-FR")}
-          </span>
-        </div>
+          {new Date(enquete.createdAt).toLocaleDateString("fr-FR")} à{" "}
+          {new Date(enquete.createdAt).toLocaleTimeString("fr-FR")}
+        </>
       ),
     },
   ];
@@ -277,15 +273,9 @@ export default function EnquetePage() {
       {/* Header et statut */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h1 className="text-2xl font-bold">
-          Rapport de synthèse - Enquête n°PJ {id}
-          {numeroEnquete}
-          <p className="text-lg font-semibold text-gray-400">
-            - Objet de l&apos;enquête : {enquete.objet}
-          </p>
-          <p className="text-lg font-semibold text-gray-400">
-            - Chefs Accusations : {enquete.accusations}
-          </p>
+          Rapport de synthèse - {enquete.objet} - Enquête n°{id}
         </h1>
+
         <div className="relative">
           <button
             onClick={() => setShowStatusDropdown(!showStatusDropdown)}
@@ -332,15 +322,10 @@ export default function EnquetePage() {
         </div>
       </div>
 
+      {/* Actions */}
       <div className="flex justify-end gap-3">
         <button
-          onClick={() => {
-            const url = window.location.href;
-            navigator.clipboard
-              .writeText(url)
-              .then(() => alert("Lien copié dans le presse-papier !"))
-              .catch((err) => console.error("Erreur lors de la copie :", err));
-          }}
+          onClick={handleCopyLink}
           className="flex items-center gap-2 bg-gray-600 px-3 py-1.5 rounded hover:bg-gray-700 transition"
         >
           <FaLink /> Lien
@@ -349,69 +334,154 @@ export default function EnquetePage() {
         <button
           onClick={() => handleStatusChange("Annulée")}
           className="flex items-center gap-2 bg-red-600 px-3 py-1.5 rounded hover:bg-red-700 transition"
-          disabled={saving}
         >
           <FaTrash /> Annuler
         </button>
+
+        <button
+          onClick={() => handleStatusChange("Terminée")}
+          className="flex items-center gap-2 bg-green-600 px-3 py-1.5 rounded hover:bg-green-700 transition"
+        >
+          <FaCheck /> Clôturer
+        </button>
       </div>
 
-      {/* Sections */}
-      {sections.map(({ title, content }) => (
-        <section key={title} className="border border-gray-700 p-4 rounded">
-          <h2 className="text-xl font-semibold mb-2 border-b border-gray-600 pb-1">
-            {title}
-          </h2>
-          <div className="text-gray-300">{content}</div>
-        </section>
-      ))}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Bloc Rapport */}
+        <div className="flex-1 bg-[#161622] p-6 rounded-xl shadow-lg border border-[#222] space-y-6">
+          {/* En-tête du rapport */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center items-center">
+            <img
+              src="/pjlogo.png"
+              alt="Logo PN"
+              className="mx-auto h-20 w-auto"
+            />
+            <div>
+              <h2 className="font-bold text-lg mb-1">
+                <img
+                  src="/logopn.png"
+                  alt="Logo PN"
+                  className="mx-auto h-16 w-auto mb-2"
+                />
+                Rapport de synthèse
+              </h2>
+              <p className="text-gray-300">Police Judiciaire</p>
+            </div>
+            <div className="text-sm leading-5 text-gray-400">
+              <p>RÉPUBLIQUE FRANÇAISE MINISTÈRE DE L&apos;INTÉRIEUR</p>
+              <p>DIRECTION CENTRALE DE LA POLICE NATIONALE</p>
+              <p>PRÉFECTURE DE POLICE DE PARIS</p>
+            </div>
+          </div>
 
-      {/* Notes */}
-      <section className="border border-gray-700 p-4 rounded max-w-3xl mx-auto">
-        <h2 className="text-xl font-semibold mb-4">Notes</h2>
-        <div className="flex gap-2 mb-4">
-          <input
-            type="text"
-            value={newNote}
-            onChange={(e) => setNewNote(e.target.value)}
-            placeholder="Ajouter une note..."
-            className="flex-grow px-3 py-2 rounded bg-[#1a1a2e] border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <button
-            onClick={addNote}
-            disabled={saving || newNote.trim() === ""}
-            className="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded disabled:opacity-50 transition"
-          >
-            Ajouter
-          </button>
+          {/* Sections */}
+          {sections.map((section, idx) => (
+            <div key={idx}>
+              <div className="flex justify-between items-center bg-[#3b2e82] px-3 py-1 rounded-t-md">
+                <h3 className="font-bold text-sm">{section.title}</h3>
+                <button
+                  onClick={() => alert(`Action pour ${section.title}`)}
+                  className="text-white hover:text-gray-200 transition"
+                >
+                  <FaPen />
+                </button>
+              </div>
+              <div className="bg-[#1d1d2f] p-3 rounded-b-md">
+                {section.content}
+              </div>
+            </div>
+          ))}
+
+          {/* Signatures */}
+          <div className="mt-6 flex justify-around items-end gap-12">
+            <div className="text-center signature-container">
+              <p
+                className="signature font-signature text-2xl"
+                style={{ transform: `rotate(${rotations.dir}deg)` }}
+              >
+                {enquete.directeur}
+              </p>
+              <p className="text-sm text-gray-400">Directeur d&apos;enquête</p>
+            </div>
+            <div className="text-center signature-container">
+              <p
+                className="signature font-signature text-2xl"
+                style={{ transform: `rotate(${rotations.adj}deg)` }}
+              >
+                {enquete.directeurAdjoint}
+              </p>
+              <p className="text-sm text-gray-400">
+                Directeur Adjoint d&apos;enquête
+              </p>
+            </div>
+          </div>
         </div>
 
-        <ul className="space-y-3 max-h-80 overflow-y-auto">
-          {notes.map((note) => (
-            <li
-              key={note.id}
-              className="bg-[#22223b] p-3 rounded border border-gray-600"
-            >
-              <div className="text-gray-400 text-xs mb-1">
-                {new Date(note.createdAt).toLocaleString("fr-FR")}
-              </div>
-              <div className="break-words">
-                {renderNoteContent(note.content)}
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
+        {/* Notes */}
+        <div className="w-full lg:w-80 bg-[#161622] p-4 rounded-xl shadow-lg border border-[#222]">
+          <div className="p-4 bg-[#1e1e2e] rounded-lg mb-4">
+            <h3 className="font-bold mb-2">Notes</h3>
+
+            <div className="flex gap-2 mb-4">
+              <input
+                type="text"
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && !saving && addNote()}
+                placeholder="Ajouter une note..."
+                className={`w-full p-2 rounded bg-[#2a2a3a] text-white border ${
+                  saving
+                    ? "border-gray-600"
+                    : "border-[#3a3a4a] focus:border-indigo-500"
+                } focus:outline-none`}
+                disabled={saving}
+              />
+              <button
+                onClick={addNote}
+                disabled={saving}
+                className={`px-4 py-2 rounded transition ${
+                  saving
+                    ? "bg-gray-600 cursor-not-allowed"
+                    : "bg-indigo-600 hover:bg-indigo-700"
+                }`}
+              >
+                {saving ? "Enregistrement..." : "Ajouter"}
+              </button>
+            </div>
+
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {notes.length === 0 ? (
+                <p className="text-gray-400 text-sm italic">
+                  Aucune note pour le moment
+                </p>
+              ) : (
+                notes.map((note) => (
+                  <div
+                    key={note.id}
+                    className="p-3 bg-[#2a2a3a] rounded border border-[#3a3a4a] text-sm"
+                  >
+                    <div className="text-xs text-gray-400 mb-1">
+                      {new Date(note.createdAt).toLocaleString()}
+                    </div>
+                    {renderNoteContent(note.content)}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Lightbox */}
       {lightboxImage && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 cursor-pointer"
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 cursor-pointer"
           onClick={() => setLightboxImage(null)}
         >
           <img
             src={lightboxImage}
-            alt="Image agrandie"
-            className="max-h-full max-w-full"
+            className="max-h-full max-w-full rounded shadow-lg"
+            alt="Note image"
           />
         </div>
       )}

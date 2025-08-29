@@ -72,7 +72,7 @@ function TenuesCRS() {
                   href="/accueil"
                   className="text-xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent"
                 >
-                  Intranet CRS
+                  Intranet Police Judiciare
                 </a>
               </div>
               <div className="hidden md:flex items-center space-x-6">

@@ -13,7 +13,6 @@ import {
   ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 import ProgressBar from "../../components/ui/ProgressBar";
-import InterventionStats from "../../components/statistics/InterventionStats";
 
 type Formation = "PJ" | "PTS" | "Moto" | "Nautique" | "Négociateur";
 type Statut = "Actif" | "Non actif";
@@ -404,7 +403,7 @@ export default function StatistiquesPage() {
             </InfoCard>
           </div>
 
-          <div className="mt-8">
+          {/* <div className="mt-8">
             <InfoCard
               title="Répartition des Interventions"
               icon={<ChartBarIcon className="h-6 w-6 text-green-400" />}
@@ -421,7 +420,7 @@ export default function StatistiquesPage() {
                 </div>
               </div>
             </InfoCard>
-          </div>
+          </div> */}
         </main>
       </div>
     </div>
