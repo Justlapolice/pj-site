@@ -42,9 +42,7 @@ export default function MenuBar({ editor }: { editor: Editor | null }) {
         <button
           key={mark}
           onClick={() =>
-            editor
-              .chain()
-              .focus()
+            (editor.chain().focus() as any)
               [`toggle${mark[0].toUpperCase() + mark.slice(1)}`]()
               .run()
           }
