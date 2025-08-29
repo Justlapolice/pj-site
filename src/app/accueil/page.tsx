@@ -3,13 +3,12 @@ export const dynamic = "force-dynamic";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Sidebar from "../../components/sidebar/sidebar";
 import { motion } from "framer-motion";
 import { Effectif } from "@prisma/client";
 import { UserGroupIcon } from "@heroicons/react/24/outline";
 import BlocNote from "../../components/note/BlocNote";
-import { toast } from "../../components/ui/use-toast";
 import JustLoggedInToast from "./JustLoggedInToast";
 const InfoCard = ({
   title,
@@ -46,28 +45,12 @@ export default function AccueilIntranet() {
   const [effectifs, setEffectifs] = useState<Effectif[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
     }
   }, [status, router]);
-
-  useEffect(() => {
-    if (status === "authenticated") {
-      const justLoggedIn = searchParams.get("justLoggedIn");
-      if (justLoggedIn) {
-        toast({
-          title: "Authentification réussie",
-          description: `Tu es authentifié en tant que ${displayName}.`,
-          variant: "success",
-        });
-        // Nettoyer l'URL pour éviter de réafficher le toast au rafraîchissement
-        router.replace("/accueil");
-      }
-    }
-  }, [status, searchParams, displayName, router]);
 
   // Déconnexion automatique toutes les heures
   useEffect(() => {
