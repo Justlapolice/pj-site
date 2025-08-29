@@ -1,14 +1,19 @@
-import { NextResponse } from "next/server";
-import prisma from "../../../../lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma"; // ⬅️ adapte le chemin selon ton projet
 
-export async function GET(
-  request: Request,
-  context: { params: { id: string } }
-) {
-  const { id } = context.params;
+type Context = {
+  params: {
+    id: string;
+  };
+};
+
+// GET
+export async function GET(req: NextRequest, { params }: Context) {
+  const id = parseInt(params.id);
+
   try {
     const enquete = await prisma.enquete.findUnique({
-      where: { id: parseInt(id) },
+      where: { id },
     });
 
     if (!enquete) {
@@ -18,23 +23,19 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(enquete, { status: 200 });
+    return NextResponse.json(enquete);
   } catch (error) {
     console.error("Erreur lors de la récupération de l'enquête:", error);
-    return NextResponse.json(
-      { error: "Erreur lors de la récupération de l'enquête" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
 
-export async function PATCH(
-  request: Request,
-  context: { params: { id: string } }
-) {
-  const { id } = context.params;
+// PATCH
+export async function PATCH(req: NextRequest, { params }: Context) {
+  const id = parseInt(params.id);
+
   try {
-    const body = await request.json();
+    const body = await req.json();
     const { statut } = body;
 
     if (!statut) {
@@ -42,30 +43,23 @@ export async function PATCH(
     }
 
     const updatedEnquete = await prisma.enquete.update({
-      where: { id: parseInt(id) },
+      where: { id },
       data: { statut },
     });
 
-    return NextResponse.json(updatedEnquete, { status: 200 });
+    return NextResponse.json(updatedEnquete);
   } catch (error) {
-    console.error(
-      "Erreur lors de la mise à jour du statut de l'enquête:",
-      error
-    );
-    return NextResponse.json(
-      { error: "Erreur lors de la mise à jour du statut de l'enquête" },
-      { status: 500 }
-    );
+    console.error("Erreur lors de la mise à jour de l'enquête:", error);
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
 
-export async function PUT(
-  request: Request,
-  context: { params: { id: string } }
-) {
-  const { id } = context.params;
+// PUT
+export async function PUT(req: NextRequest, { params }: Context) {
+  const id = parseInt(params.id);
+
   try {
-    const body = await request.json();
+    const body = await req.json();
     const { objet, accusations, directeur, directeurAdjoint, statut } = body;
 
     if (!objet || !accusations || !directeur || !directeurAdjoint || !statut) {
@@ -76,7 +70,7 @@ export async function PUT(
     }
 
     const updatedEnquete = await prisma.enquete.update({
-      where: { id: parseInt(id) },
+      where: { id },
       data: {
         objet,
         accusations,
@@ -86,24 +80,20 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json(updatedEnquete, { status: 200 });
+    return NextResponse.json(updatedEnquete);
   } catch (error) {
     console.error("Erreur lors de la mise à jour de l'enquête:", error);
-    return NextResponse.json(
-      { error: "Erreur lors de la mise à jour de l'enquête" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
 
-export async function DELETE(
-  request: Request,
-  context: { params: { id: string } }
-) {
-  const { id } = context.params;
+// DELETE
+export async function DELETE(req: NextRequest, { params }: Context) {
+  const id = parseInt(params.id);
+
   try {
     const existingEnquete = await prisma.enquete.findUnique({
-      where: { id: parseInt(id) },
+      where: { id },
     });
 
     if (!existingEnquete) {
@@ -114,18 +104,12 @@ export async function DELETE(
     }
 
     await prisma.enquete.delete({
-      where: { id: parseInt(id) },
+      where: { id },
     });
 
-    return NextResponse.json(
-      { message: "Enquête supprimée avec succès" },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "Enquête supprimée avec succès" });
   } catch (error) {
     console.error("Erreur lors de la suppression de l'enquête:", error);
-    return NextResponse.json(
-      { error: "Erreur lors de la suppression de l'enquête" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
