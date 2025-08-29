@@ -90,7 +90,7 @@ const PageVierge = () => {
               <div className="flex items-center space-x-4">
                 <a href="/accueil">
                   <img
-                    src="/crslogo.svg"
+                    src="/pjlogo.png"
                     alt="Logo CRS"
                     className="h-10 w-auto"
                   />
@@ -128,11 +128,7 @@ const PageVierge = () => {
             >
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 flex items-center">
                 NOM DE LA PAGE{" "}
-                <img
-                  src="/crslogo.svg"
-                  alt="Logo CRS"
-                  className="h-10 w-auto"
-                />
+                <img src="/pjlogo.png" alt="Logo CRS" className="h-10 w-auto" />
               </h2>
             </motion.div>
           </main>

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useSession } from 'next-auth/react';
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 interface StatItem {
   name: string;
   value: number;
@@ -15,44 +15,44 @@ interface User extends Record<string, any> {
 const InterventionStats = () => {
   const { data: session } = useSession();
   const user = session?.user as User | undefined;
-  const isAdmin = user?.roles?.includes('1331527328219529216') || false;
-  
+  const isAdmin = user?.roles?.includes("1331527328219529216") || false;
+
   const [stats, setStats] = useState<StatItem[]>([
-    { name: 'BMU', value: 70, color: 'bg-blue-500', icon: '🏍️' },
-    { name: 'MO', value: 10, color: 'bg-green-500', icon: '🛡️' },
-    { name: 'Maritime', value: 5, color: 'bg-yellow-500', icon: '⛵' },
-    { name: 'ERI', value: 5, color: 'bg-red-500', icon: '🚨' },
-    { name: 'CRS 08', value: 4, color: 'bg-purple-500', icon: '👮' },
-    { name: 'Secours en Montagne', value: 1, color: 'bg-indigo-500', icon: '🏔️' },
+    { name: "BMU", value: 70, color: "bg-blue-500", icon: "🏍️" },
+    { name: "MO", value: 10, color: "bg-green-500", icon: "🛡️" },
+    { name: "Maritime", value: 5, color: "bg-yellow-500", icon: "⛵" },
+    { name: "ERI", value: 5, color: "bg-red-500", icon: "🚨" },
+    { name: "CRS 08", value: 4, color: "bg-purple-500", icon: "👮" },
+    {
+      name: "Secours en Montagne",
+      value: 1,
+      color: "bg-indigo-500",
+      icon: "🏔️",
+    },
   ]);
-  
+
   const [isEditing, setIsEditing] = useState(false);
   const [editableStats, setEditableStats] = useState<StatItem[]>([]);
-  
+
   useEffect(() => {
     setEditableStats([...stats]);
   }, [stats]);
-  
+
   const handleValueChange = (index: number, newValue: number) => {
-    // Limiter la valeur entre 0 et 100
     newValue = Math.max(0, Math.min(100, newValue));
-    
-    // Mettre à jour uniquement la valeur modifiée
     const updatedStats = [...editableStats];
     updatedStats[index].value = newValue;
-    
+
     setEditableStats(updatedStats);
   };
-  
+
   const saveChanges = () => {
-    // Ici, vous pourriez ajouter une requête API pour sauvegarder les changements
     setStats([...editableStats]);
     setIsEditing(false);
-    
-    // Afficher une notification de succès
-    alert('Les modifications ont été enregistrées avec succès !');
+
+    alert("Les modifications ont été enregistrées avec succès !");
   };
-  
+
   const cancelEditing = () => {
     setEditableStats([...stats]);
     setIsEditing(false);
@@ -61,10 +61,12 @@ const InterventionStats = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-white">Répartition des Interventions</h2>
+        <h2 className="text-2xl font-bold text-white">
+          Répartition des Interventions
+        </h2>
         {isAdmin && !isEditing && (
           <button
-          style={{ borderRadius: '10px' }}
+            style={{ borderRadius: "10px" }}
             onClick={() => setIsEditing(true)}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
           >
@@ -74,14 +76,14 @@ const InterventionStats = () => {
         {isAdmin && isEditing && (
           <div className="space-x-2">
             <button
-            style={{ borderRadius: '10px' }}
+              style={{ borderRadius: "10px" }}
               onClick={saveChanges}
               className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
             >
               Enregistrer
             </button>
             <button
-            style={{ borderRadius: '10px' }}
+              style={{ borderRadius: "10px" }}
               onClick={cancelEditing}
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
             >
@@ -102,7 +104,9 @@ const InterventionStats = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="text-2xl">{stat.icon}</div>
-                <h3 className="text-lg font-semibold text-gray-100">{stat.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-100">
+                  {stat.name}
+                </h3>
               </div>
               {isEditing ? (
                 <div className="flex items-center space-x-2">
@@ -111,13 +115,17 @@ const InterventionStats = () => {
                     min="0"
                     max="100"
                     value={stat.value}
-                    onChange={(e) => handleValueChange(index, parseInt(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleValueChange(index, parseInt(e.target.value) || 0)
+                    }
                     className="w-20 px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-right"
                   />
                   <span className="text-2xl font-bold text-white">%</span>
                 </div>
               ) : (
-                <span className="text-2xl font-bold text-white">{stat.value}%</span>
+                <span className="text-2xl font-bold text-white">
+                  {stat.value}%
+                </span>
               )}
             </div>
             <div className="w-full bg-gray-700 rounded-full h-2.5">
@@ -127,7 +135,7 @@ const InterventionStats = () => {
               ></div>
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              {stat.value}% des d'interventions en {stat.icon} {stat.name} totales
+              {stat.value}% des interventions en {stat.icon} {stat.name} totales
             </div>
           </motion.div>
         ))}

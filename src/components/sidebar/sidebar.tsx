@@ -12,8 +12,10 @@ import {
   FaTshirt,
   FaCar,
   FaChartBar,
+  FaFile,
 } from "react-icons/fa";
 import { SiDiscord } from "react-icons/si";
+import { FaFileArrowUp } from "react-icons/fa6";
 
 interface User extends Record<string, any> {
   roles?: string[];
@@ -30,121 +32,89 @@ const Sidebar = ({ displayName, initials }: SidebarProps) => {
   const pathname = usePathname();
   const user = session?.user as User | undefined;
 
-  // Log des informations de session pour le débogage
-  React.useEffect(() => {
-    if (session?.user) {
-      console.log("[SIDEBAR] Informations de session:", {
-        user: session?.user as
-          | { guildNickname?: string; name?: string | null }
-          | undefined,
-        displayName: user?.guildNickname || user?.name || "Utilisateur",
-        globalName: session.user.name,
-        initials,
-        userImage: session.user.image,
-      });
-    }
-  }, [session, displayName, initials]);
-
-  // Vérifier si l'utilisateur a le rôle requis pour voir les statistiques
   const canViewStatistics =
     user?.roles?.includes("1331527328219529216") || false;
 
   const avatarUrl =
     user?.image && user.image !== "null" ? user.image : "/default-avatar.png";
 
-  // Liens de base accessibles à tous
   const baseLinks = [
     { href: "/accueil", icon: <FaHome />, label: "Accueil" },
     {
-      href: "/infocrs",
+      href: "/infopj",
       icon: <FaAddressBook />,
-      label: "Informations sur la CRS",
+      label: "Informations et règlement",
     },
     { href: "/organigramme", icon: <FaUserAlt />, label: "Organigramme" },
     { href: "/tenues", icon: <FaTshirt />, label: "Tenues" },
     { href: "/vehicules", icon: <FaCar />, label: "Véhicules" },
+    { href: "/enquetes", icon: <FaFile />, label: "Enquêtes" },
+    {
+      href: "/rapportvacation",
+      icon: <FaFileArrowUp />,
+      label: "Rapport de patrouille",
+    },
   ];
 
-  // Ajouter le lien des statistiques si l'utilisateur a le rôle requis
   const adminLinks = canViewStatistics
     ? [{ href: "/statistiques", icon: <FaChartBar />, label: "Statistiques" }]
     : [];
 
-  // Fusionner les tableaux de liens
   const links = [...baseLinks, ...adminLinks];
 
   return (
     <aside style={styles.sidebar}>
-      {/* USER */}
-      <div style={styles.user}>
-        <Image
-          src={avatarUrl}
-          alt="Avatar"
-          width={50}
-          height={50}
-          style={styles.avatar}
-        />
-        <div>
+      {/* USER CARD */}
+      <div style={styles.userCard}>
+        <div style={styles.avatarWrapper}>
+          <Image
+            src={avatarUrl}
+            alt="Avatar"
+            width={60}
+            height={60}
+            style={styles.avatar}
+          />
+          <div style={styles.avatarHalo} />
+        </div>
+        <div style={styles.userInfo}>
           <button
-            type="button"
+            style={styles.userName}
             onClick={(e) => {
               e.preventDefault();
-              // Déconnecte et redirige directement vers /login sans charger /logout
               void signOut({ callbackUrl: "/login" });
-            }}
-            style={{
-              ...styles.name,
-              background: "none",
-              border: "none",
-              padding: 0,
-              cursor: "pointer",
-              textAlign: "left",
             }}
           >
             {displayName}
           </button>
-          <p style={styles.status}>Connecté</p>
+          <span style={styles.userStatus}>En ligne</span>
         </div>
       </div>
 
-      {/* LINKS */}
+      {/* NAV LINKS */}
       <nav style={styles.nav}>
         {links.map(({ href, icon, label }) => {
           const isActive =
             pathname === href || pathname?.startsWith(`${href}/`);
           return (
-            <Link href={href} key={href} style={{ textDecoration: "none" }}>
+            <Link key={href} href={href} style={{ textDecoration: "none" }}>
               <div
                 style={{
-                  ...styles.link,
-                  backgroundColor: isActive
-                    ? "rgba(37, 99, 235, 0.25)"
-                    : "transparent ",
-                  color: isActive ? "#fff" : "#cbd5e1",
-                  transform: isActive ? "scale(1.02)" : "none",
+                  ...styles.linkCard,
+                  ...(isActive ? styles.activeLinkCard : {}),
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor =
-                    "rgba(37, 99, 235, 0.15)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = isActive
-                    ? "rgba(37, 99, 235, 0.25)"
-                    : "transparent")
-                }
               >
-                <span style={styles.icon}>{icon}</span>
+                <span style={styles.linkIcon}>{icon}</span>
                 <span>{label}</span>
+                {isActive && <span style={styles.activeBadge}></span>}
               </div>
             </Link>
           );
         })}
       </nav>
 
-      {/* FOOTER */}
-      <div style={styles.footer}>
-        <SiDiscord size={18} />
-        <span style={{ marginLeft: 8 }}>Connecté via Discord</span>
+      <div style={styles.footerCard}>
+        <SiDiscord size={22} color="#60A5FA" />
+        <span style={{ marginLeft: 10 }}>Connecté via Discord</span>
       </div>
     </aside>
   );
@@ -152,79 +122,118 @@ const Sidebar = ({ displayName, initials }: SidebarProps) => {
 
 const styles: { [key: string]: React.CSSProperties } = {
   sidebar: {
-    width: "270px",
+    width: 270,
     height: "100vh",
     position: "fixed",
     top: 0,
     left: 0,
-    bottom: 0,
-    background: "rgba(17, 24, 39, 0.95)",
-    backdropFilter: "blur(12px)",
-    WebkitBackdropFilter: "blur(12px)",
+    backgroundColor: "rgba(5, 12, 48, 1)",
     display: "flex",
     flexDirection: "column",
-    padding: "20px",
-    borderRight: "1px solid rgba(255, 255, 255, 0.05)",
-    zIndex: 50,
-    boxShadow: "4px 0 15px rgba(0,0,0,0.2)",
-    overflowY: "auto",
+    padding: 20,
+    gap: 25,
+    boxShadow: "8px 0 30px rgba(0,0,0,0.7)",
+    zIndex: 100,
   },
-  user: {
+  userCard: {
     display: "flex",
     alignItems: "center",
-    marginBottom: "30px",
-    padding: "12px 8px",
-    borderRadius: "8px",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    padding: "12px",
+    borderRadius: 20,
+    background: "rgba(15,25,70,0.8)",
     position: "relative",
-    zIndex: 10,
+    overflow: "hidden",
+  },
+  avatarWrapper: {
+    position: "relative",
+    width: 60,
+    height: 60,
   },
   avatar: {
     borderRadius: "50%",
-    border: "2px solid #2563eb",
-    boxShadow: "0 0 10px #2563eb60",
+    border: "2px solid #60A5FA",
+    zIndex: 10,
     objectFit: "cover",
   },
-  name: {
-    margin: 0,
-    fontWeight: 600,
-    color: "#fff",
+  avatarHalo: {
+    position: "absolute",
+    top: -5,
+    left: -5,
+    width: 70,
+    height: 70,
+    borderRadius: "50%",
+    background: "rgba(96,165,250,0.3)",
+    filter: "blur(12px)",
+    zIndex: 5,
+    animation: "pulse 2s infinite",
   },
-  status: {
-    margin: 0,
+  userInfo: {
+    marginLeft: 14,
+    display: "flex",
+    flexDirection: "column",
+  },
+  userName: {
+    background: "none",
+    border: "none",
+    color: "#fff",
+    fontWeight: 700,
+    fontSize: 16,
+    cursor: "pointer",
+    padding: 0,
+  },
+  userStatus: {
+    color: "#93C5FD",
     fontSize: 13,
-    color: "#94a3b8",
+    marginTop: 2,
   },
   nav: {
     display: "flex",
     flexDirection: "column",
-    gap: 10,
+    gap: 14,
     flexGrow: 1,
   },
-  link: {
+  linkCard: {
     display: "flex",
     alignItems: "center",
-    gap: 14,
-    padding: "12px 16px",
-    borderRadius: 10,
-    fontSize: 15,
+    gap: 12,
+    padding: "12px 14px",
+    borderRadius: 16,
     fontWeight: 500,
-    transition: "all 0.2s ease",
+    color: "#CBD5E1",
+    fontSize: 15,
+    position: "relative",
     cursor: "pointer",
+    background: "rgba(10,20,60,0.5)",
+    transition: "all 0.3s ease",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.4)",
   },
-  icon: {
+  activeLinkCard: {
+    color: "#fff",
+    transform: "scale(1.05)",
+    background: "rgba(5,25,80,0.8)",
+    boxShadow: "0 6px 16px rgba(96,165,250,0.5)",
+  },
+  activeBadge: {
+    position: "absolute",
+    right: 0,
+    top: "10%",
+    width: 6,
+    height: "80%",
+    background: "#60A5FA",
+    borderRadius: 4,
+  },
+  linkIcon: {
     fontSize: 18,
     display: "flex",
     alignItems: "center",
   },
-  footer: {
-    marginTop: 30,
-    borderTop: "1px solid rgba(255, 255, 255, 0.05)",
-    paddingTop: 16,
-    fontSize: 13,
-    color: "#94a3b8",
+  footerCard: {
     display: "flex",
     alignItems: "center",
+    padding: "12px",
+    borderRadius: 18,
+    background: "rgba(15,25,70,0.8)",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
   },
 };
 

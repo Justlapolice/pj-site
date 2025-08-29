@@ -1,4 +1,4 @@
-Intranet CRS pour la Police Nationale de FRRP fait avec
+Intranet PJ pour la Police Nationale de FRRP fait avec
 
 [Next.js](https://nextjs.org) amorcé à l'aide de [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
@@ -6,21 +6,21 @@ Intranet CRS pour la Police Nationale de FRRP fait avec
 
 ## Information
 
-Ce projet contient : 
+Ce projet contient :
 
 ```bash
 Une page de connexion avec authentification via Discord
 # avec système d'authentification sécurisé et rôle
 Une page accueil avec un accès rapide sur les documents
 # avec système de gestion des documents
-Une page information sur la CRS
-# avec les différentes informations de la CRS
-Une page organisation avec les différents effectifs de la CRS du serveur
+Une page information sur la PJ
+# avec les différentes informations de la PJ
+Une page organisation avec les différents effectifs de la PJ du serveur
 # avec système de gestion des effectifs
-Une page de tenues avec les différentes tenues de la CRS
+Une page de tenues avec les différentes tenues de la PJ
 # avec système de gestion des tenues
-Une page de véhicules avec les différents véhicules de la CRS
+Une page de véhicules avec les différents véhicules de la PJ
 # avec système de gestion des véhicules
-Une page de statistiques avec les différentes statistiques de la CRS
+Une page de statistiques avec les différentes statistiques de la PJ
 # avec système de gestion des statistiques et avec des graphiques
 ```

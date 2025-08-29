@@ -1,4 +1,3 @@
-// app/auth/error/AuthErrorClient.tsx
 "use client";
 
 import { useSearchParams } from "next/navigation";
@@ -44,10 +43,8 @@ export default function AuthErrorClient() {
 
   return (
     <div className="relative h-screen w-full flex justify-center items-center bg-black overflow-hidden">
-      {/* Fond animé */}
       <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black animate-gradient opacity-60"></div>
 
-      {/* Particules flottantes */}
       <div className="absolute inset-0">
         {[...Array(30)].map((_, i) => (
           <div
@@ -82,14 +79,13 @@ export default function AuthErrorClient() {
               </svg>
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">
-              Erreur d'authentification
+              Erreur d&apos;authentification
             </h1>
             <p className="text-gray-300 text-sm">
               Impossible de poursuivre la connexion
             </p>
           </div>
 
-          {/* Message d'erreur */}
           <div className="mb-8 p-4 bg-red-900/40 border border-red-800/50 rounded-lg text-left">
             <div className="flex items-start">
               <svg
@@ -117,7 +113,7 @@ export default function AuthErrorClient() {
               href="/login"
               className="block w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
             >
-              Retour à l'accueil
+              Retour à l&apos;accueil
             </a>
             <a
               href="/login"
@@ -135,7 +131,6 @@ export default function AuthErrorClient() {
         </div>
       </div>
 
-      {/* Styles */}
       <style jsx>{`
         @keyframes gradient {
           0% {

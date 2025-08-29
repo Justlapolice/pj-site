@@ -1,16 +1,26 @@
 // Page not-found
 
-'use client'
-import { useRouter } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+"use client";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
 
-const existingPages = ['/accueil', '/infocrs', '/organigramme', '/tenues', '/vehicules'];
+const existingPages = [
+  "/accueil",
+  "/infopj",
+  "/organigramme",
+  "/tenues",
+  "/vehicules",
+  "/enquetes",
+  "/rapportvacation",
+];
 
 function getClosestMatches(path: string, maxResults = 3) {
   function distance(a: string, b: string) {
     if (a === b) return 0;
     if (!a.length || !b.length) return Math.max(a.length, b.length);
-    const matrix = Array(a.length + 1).fill(0).map(() => Array(b.length + 1).fill(0));
+    const matrix = Array(a.length + 1)
+      .fill(0)
+      .map(() => Array(b.length + 1).fill(0));
     for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
     for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
     for (let i = 1; i <= a.length; i++) {
@@ -25,9 +35,15 @@ function getClosestMatches(path: string, maxResults = 3) {
     return matrix[a.length][b.length];
   }
 
-  const scored = existingPages.map(page => ({ page, dist: distance(path, page) }));
+  const scored = existingPages.map((page) => ({
+    page,
+    dist: distance(path, page),
+  }));
   scored.sort((a, b) => a.dist - b.dist);
-  return scored.filter(s => s.dist <= 5).slice(0, maxResults).map(s => s.page);
+  return scored
+    .filter((s) => s.dist <= 5)
+    .slice(0, maxResults)
+    .map((s) => s.page);
 }
 
 export default function NotFound() {
@@ -46,7 +62,7 @@ export default function NotFound() {
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const path = window.location.pathname;
       setSuggestions(getClosestMatches(path));
     }
@@ -63,29 +79,65 @@ export default function NotFound() {
       <section className="pro-card">
         <div className="pro-svg-illustration" aria-hidden="true">
           {/* Illustration SVG minimaliste, institutionnelle */}
-          <svg width="84" height="84" viewBox="0 0 84 84" fill="none" xmlns="http://www.w3.org/2000/svg" className="fade-in">
-            <rect x="2" y="2" width="80" height="80" rx="16" fill="none" stroke="#2563EB" strokeWidth="2"/>
-            <path d="M42 26V46" stroke="#2563EB" strokeWidth="3" strokeLinecap="round"/>
-            <circle cx="42" cy="57" r="2.5" fill="#f1f5fa"/>
-            <circle cx="42" cy="42" r="32" stroke="#2563EB" strokeWidth="2"/>
+          <svg
+            width="84"
+            height="84"
+            viewBox="0 0 84 84"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="fade-in"
+          >
+            <rect
+              x="2"
+              y="2"
+              width="80"
+              height="80"
+              rx="16"
+              fill="none"
+              stroke="#2563EB"
+              strokeWidth="2"
+            />
+            <path
+              d="M42 26V46"
+              stroke="#2563EB"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+            <circle cx="42" cy="57" r="2.5" fill="#f1f5fa" />
+            <circle cx="42" cy="42" r="32" stroke="#2563EB" strokeWidth="2" />
           </svg>
         </div>
-        <h1 className="pro-title" id="notfound-title">Erreur 404&nbsp;: Ressource introuvable</h1>
-        <p className="pro-desc">La ressource ou la page demandée est introuvable.<br/>Veuillez vérifier l’URL saisie ou retourner à la page d’accueil.</p>
-        <p className="pro-path">URL : {typeof window !== 'undefined' ? window.location.pathname : ''}</p>
+        <h1 className="pro-title" id="notfound-title">
+          Erreur 404&nbsp;: Ressource introuvable
+        </h1>
+        <p className="pro-desc">
+          La ressource ou la page demandée est introuvable.
+          <br />
+          Veuillez vérifier l’URL saisie ou retourner à la page d’accueil.
+        </p>
+        <p className="pro-path">
+          URL : {typeof window !== "undefined" ? window.location.pathname : ""}
+        </p>
         {suggestions.length > 0 && (
-          <nav className="pro-suggestions" aria-label="Suggestions de navigation">
+          <nav
+            className="pro-suggestions"
+            aria-label="Suggestions de navigation"
+          >
             <span className="pro-sugg-label">Suggestions&nbsp;:</span>
             <ul className="pro-sugg-list">
               {suggestions.map((s) => (
-                <li key={s}><a href={s} className="pro-sugg-link">{s}</a></li>
+                <li key={s}>
+                  <a href={s} className="pro-sugg-link">
+                    {s}
+                  </a>
+                </li>
               ))}
             </ul>
           </nav>
         )}
         <button
           className="pro-btn-home"
-          onClick={() => router.push('/accueil')}
+          onClick={() => router.push("/accueil")}
           autoFocus
           aria-label="Retour à l’accueil"
         >
@@ -99,7 +151,7 @@ export default function NotFound() {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-family: 'Inter', 'Roboto', Arial, sans-serif;
+          font-family: "Inter", "Roboto", Arial, sans-serif;
         }
         .pro-card {
           background: #162032;
@@ -110,7 +162,7 @@ export default function NotFound() {
           width: 100%;
           text-align: center;
           border: 1.5px solid #23304a;
-          animation: fadeInUp 0.7s cubic-bezier(.4,2,.3,1);
+          animation: fadeInUp 0.7s cubic-bezier(0.4, 2, 0.3, 1);
         }
         .pro-svg-illustration {
           margin-bottom: 1.7rem;
@@ -123,12 +175,22 @@ export default function NotFound() {
           animation: fadeIn 1.2s 0.1s forwards;
         }
         @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
         @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(32px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(32px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         .pro-title {
           font-size: 2.1rem;
@@ -180,7 +242,8 @@ export default function NotFound() {
           font-size: 0.98rem;
           transition: background 0.2s, color 0.2s;
         }
-        .pro-sugg-link:hover, .pro-sugg-link:focus {
+        .pro-sugg-link:hover,
+        .pro-sugg-link:focus {
           background: #2563eb;
           color: #fff;
           outline: none;

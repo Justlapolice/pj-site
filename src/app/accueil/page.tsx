@@ -1,11 +1,15 @@
 // Page accueil
 
 "use client";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Sidebar from "../../components/sidebar/sidebar";
 import { motion } from "framer-motion";
+import { Effectif } from "@prisma/client";
+import { UserGroupIcon } from "@heroicons/react/24/outline";
+import BlocNote from "../../components/note/BlocNote";
+import { toast } from "../../components/ui/use-toast";
 
 const InfoCard = ({
   title,
@@ -33,10 +37,15 @@ const InfoCard = ({
 export default function AccueilIntranet() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const displayName = session?.user?.name || "Utilisateur";
+  const user = session?.user as
+    | { guildNickname?: string; name?: string | null }
+    | undefined;
+  const displayName = user?.guildNickname || user?.name || "Utilisateur";
   const pathname = usePathname();
-
-  // Le style de fond est géré dans globals.css
+  const [effectifs, setEffectifs] = useState<Effectif[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
 
   // Vérification de l'authentification
   useEffect(() => {
@@ -44,6 +53,21 @@ export default function AccueilIntranet() {
       router.push("/login");
     }
   }, [status, router]);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      const justLoggedIn = searchParams.get("justLoggedIn");
+      if (justLoggedIn) {
+        toast({
+          title: "Authentification réussie",
+          description: `Tu es authentifié en tant que ${displayName}.`,
+          variant: "success",
+        });
+        // Nettoyer l'URL pour éviter de réafficher le toast au rafraîchissement
+        router.replace("/accueil");
+      }
+    }
+  }, [status, searchParams, displayName, router]);
 
   // Déconnexion automatique toutes les heures
   useEffect(() => {
@@ -64,6 +88,34 @@ export default function AccueilIntranet() {
     .toUpperCase()
     .slice(0, 2);
 
+  // Récupération des données des effectifs
+  useEffect(() => {
+    const fetchEffectifs = async () => {
+      try {
+        const response = await fetch("/api/effectifs");
+        if (!response.ok)
+          throw new Error("Erreur lors du chargement des données");
+
+        const data = await response.json();
+        setEffectifs(data);
+      } catch (err) {
+        console.error("Erreur:", err);
+        setError("Impossible de charger les données");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEffectifs();
+  }, []);
+
+  const { totalEffectifs } = useMemo(() => {
+    const total = effectifs.length;
+    return {
+      totalEffectifs: total,
+    };
+  }, [effectifs]);
+
   if (status === "loading") {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-gray-900">
@@ -82,14 +134,14 @@ export default function AccueilIntranet() {
       <Sidebar displayName={displayName} initials={initials} />
       <div className="flex-1 ml-[270px] relative z-10">
         {/* En-tête */}
-        <header className="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-10">
+        <header className="bg-[rgba(5,12,48,1)] backdrop-blur-md border-b border-[rgba(10,20,60,0.6)] sticky top-0 z-10">
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <a href="/accueil">
                   <img
-                    src="/crslogo.svg"
-                    alt="Logo CRS"
+                    src="/pjlogo.png"
+                    alt="Logo PJ"
                     className="h-10 w-auto"
                   />
                 </a>
@@ -97,7 +149,7 @@ export default function AccueilIntranet() {
                   href="/accueil"
                   className="text-xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent"
                 >
-                  Intranet CRS
+                  Intranet Police Judiciaire
                 </a>
               </div>
               <div className="hidden md:flex items-center space-x-6">
@@ -112,7 +164,6 @@ export default function AccueilIntranet() {
           </div>
         </header>
 
-        {/* Contenu principal */}
         <main className="flex-1 p-6 lg:p-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -126,40 +177,24 @@ export default function AccueilIntranet() {
             <p className="text-gray-400 mb-2">
               Bienvenue sur votre espace personnel
             </p>
-            {/* <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Accès rapide</h2> */}
           </motion.div>
 
-          {/* Grille de raccourcis */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <InfoCard
-              title="Documents récents"
-              icon={
-                <svg
-                  className="w-5 h-5 text-blue-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-              }
+              title="Effectif Total"
+              icon={<UserGroupIcon className="h-6 w-6 text-blue-400" />}
             >
-              <p>
-                Consultez vos derniers documents et ressources partagées par les
-                Responsables CRS.
+              <p className="text-3xl font-bold text-white mb-1">
+                {totalEffectifs}
               </p>
-              <button
-                onClick={() => router.push("/documents")}
-                className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
-              >
-                → Voir les documents
-              </button>
+              <p className="text-sm text-gray-400">Membres au total</p>
+            </InfoCard>
+
+            <InfoCard
+              title="Bloc-note"
+              icon={<UserGroupIcon className="h-6 w-6 text-blue-400" />}
+            >
+              <BlocNote roles={user?.roles || []} />
             </InfoCard>
           </div>
         </main>

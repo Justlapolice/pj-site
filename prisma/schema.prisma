@@ -11,6 +11,7 @@ model Effectif {
   id          Int      @id @default(autoincrement())
   prenom      String
   nom         String
+  nomPJ       String
   poste       String
   statut      String   @default("Actif")
   telephone   String?
@@ -21,6 +22,19 @@ model Effectif {
   grade       String?
 
   @@map("effectif")
+}
+
+model Enquete {
+  id          Int      @id @default(autoincrement())
+  objet       String
+  accusations String
+  directeur   String
+  directeurAdjoint String
+  statut      String   @default("Début")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("enquete")
 }
 
 enum Grade {
@@ -44,4 +58,20 @@ enum Grade {
   COM
   CD
   CG
+}
+
+model Note {
+  id        Int      @id @default(autoincrement())
+  content   String
+  updatedAt DateTime @updatedAt
+}
+
+model NoteEnquetes {
+  id        Int      @id @default(autoincrement())
+  enqueteId Int
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("note_enquetes")
 }

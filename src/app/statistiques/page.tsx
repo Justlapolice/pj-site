@@ -1,4 +1,3 @@
-// Page statistiques - Tableau de bord des statistiques
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -13,18 +12,10 @@ import {
   BriefcaseIcon,
   ArrowPathIcon,
 } from "@heroicons/react/24/outline";
-import ProgressBar from "@/components/ui/ProgressBar";
-import InterventionStats from "@/components/statistics/InterventionStats";
+import ProgressBar from "../../components/ui/ProgressBar";
+import InterventionStats from "../../components/statistics/InterventionStats";
 
-// Définition des types
-type Formation =
-  | "CRS"
-  | "BMU"
-  | "MO"
-  | "Maritime"
-  | "ERI"
-  | "Secours en Montagne"
-  | "CRS 8";
+type Formation = "PJ" | "PTS" | "Moto" | "Nautique" | "Négociateur";
 type Statut = "Actif" | "Non actif";
 
 interface Effectif {
@@ -46,7 +37,6 @@ interface User extends Record<string, any> {
   roles?: string[];
 }
 
-// Types pour les statistiques
 type FormationStats = {
   nom: string;
   count: number;
@@ -90,11 +80,9 @@ export default function StatistiquesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Gestion sécurisée de la session utilisateur
   const user = session?.user as User | undefined;
   const displayName = user?.guildNickname || user?.name || "Utilisateur";
 
-  // Vérifier si l'utilisateur a le rôle requis pour accéder aux statistiques
   const hasAccess = user?.roles?.includes("1331527328219529216") || false;
 
   // Génération des initiales
@@ -137,13 +125,11 @@ export default function StatistiquesPage() {
     }
   }, [hasAccess]);
 
-  // Calcul des statistiques avec useMemo pour optimiser les performances
   const { totalEffectifs, effectifsActifs, formationsTriees, postesTries } =
     useMemo(() => {
       const total = effectifs.length;
       const actifs = effectifs.filter((e) => e.statut === "Actif").length;
 
-      // Calcul des formations
       const formationsStats = effectifs.reduce((acc, effectif) => {
         effectif.formations.forEach((formation) => {
           acc[formation] = (acc[formation] || 0) + 1;
@@ -151,13 +137,11 @@ export default function StatistiquesPage() {
         return acc;
       }, {} as Record<string, number>);
 
-      // Calcul des postes
       const postesStats = effectifs.reduce((acc, effectif) => {
         acc[effectif.poste] = (acc[effectif.poste] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
 
-      // Tri des formations par nombre décroissant
       const formationsTriees = Object.entries(formationsStats)
         .sort((a, b) => b[1] - a[1])
         .map(([nom, count]) => ({
@@ -166,7 +150,6 @@ export default function StatistiquesPage() {
           percentage: Math.round((count / total) * 100) || 0,
         }));
 
-      // Ordre prédéfini des postes
       const ordrePostes = [
         "Directeur",
         "Responsable",
@@ -176,7 +159,6 @@ export default function StatistiquesPage() {
         "Stagiaire",
       ];
 
-      // Tri des postes selon l'ordre prédéfini
       const postesTries = ordrePostes
         .map((nom) => ({
           nom,
@@ -225,7 +207,6 @@ export default function StatistiquesPage() {
     );
   }
 
-  // Si l'utilisateur n'a pas accès, on ne montre rien (sera redirigé par l'effet)
   if (!hasAccess) {
     return null;
   }
@@ -234,15 +215,14 @@ export default function StatistiquesPage() {
     <div className="min-h-screen text-white flex">
       <Sidebar displayName={displayName} initials={initials} />
       <div className="flex-1 ml-[270px] relative z-10">
-        {/* En-tête */}
         <header className="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-10">
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <a href="/accueil">
                   <img
-                    src="/crslogo.svg"
-                    alt="Logo CRS"
+                    src="/pjlogo.png"
+                    alt="Logo PJ"
                     className="h-10 w-auto"
                   />
                 </a>
@@ -250,7 +230,7 @@ export default function StatistiquesPage() {
                   href="/accueil"
                   className="text-xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent"
                 >
-                  Intranet CRS
+                  Intranet Police Judiciaire
                 </a>
               </div>
               <div className="hidden md:flex items-center space-x-6">
@@ -265,9 +245,7 @@ export default function StatistiquesPage() {
           </div>
         </header>
 
-        {/* Contenu principal */}
         <main className="container mx-auto px-6 py-8">
-          {/* Cartes de synthèse */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <InfoCard
               title="Effectif Total"
@@ -360,7 +338,6 @@ export default function StatistiquesPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Graphique des formations */}
             <InfoCard
               title="Répartition par formation"
               icon={<AcademicCapIcon className="h-6 w-6 text-purple-400" />}
@@ -391,7 +368,6 @@ export default function StatistiquesPage() {
               </div>
             </InfoCard>
 
-            {/* Graphique des postes */}
             <InfoCard
               title="Répartition par poste"
               icon={<BriefcaseIcon className="h-6 w-6 text-blue-400" />}
@@ -423,12 +399,10 @@ export default function StatistiquesPage() {
             </InfoCard>
           </div>
 
-          {/* Section des statistiques d'intervention */}
           <div className="mt-8">
             <InfoCard
               title="Répartition des Interventions"
               icon={<ChartBarIcon className="h-6 w-6 text-green-400" />}
-              // className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 border-gray-700/70 hover:border-green-500/50"
             >
               <div className="space-y-6 py-2">
                 <InterventionStats />

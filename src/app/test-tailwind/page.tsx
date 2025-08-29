@@ -134,7 +134,7 @@ export default function StatistiquesPage() {
               <div className="flex items-center space-x-4">
                 <a href="/accueil">
                   <img
-                    src="/crslogo.svg"
+                    src="/pjlogo.png"
                     alt="Logo CRS"
                     className="h-10 w-auto"
                   />
@@ -182,6 +182,11 @@ export default function StatistiquesPage() {
                 <p className="text-gray-300">
                   Cette carte utilise des classes Tailwind pour le style.
                 </p>
+              </div>
+              <div className="mt-6 p-4 border border-gray-200 rounded-lg">
+                <h2 className="text-xl font-semibold mb-2 text-blue-700">
+                  Text de couleur
+                </h2>
               </div>
             </div>
           </div>

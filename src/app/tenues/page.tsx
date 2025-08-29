@@ -1,37 +1,25 @@
-// Page tenues
-
-'use client';
-import React, { useEffect } from 'react';
-import { useSession, signOut } from 'next-auth/react';
-import { useRouter, usePathname } from 'next/navigation';
-import Sidebar from '../../components/sidebar/sidebar';
-import { motion } from 'framer-motion';
-import OutfitCard from '../../components/tenues/OutfitCard';
-import { outfits, additionalOutfits } from '../../data/tenues';
-
-// (ImageModal déplacé dans src/components/tenues/ImageModal.tsx)
-
-// Composant de tenue réutilisable
-
-// (OutfitCard déplacé dans src/components/tenues/OutfitCard.tsx)
-
-// Données importées depuis ../../data/tenues
-
-// Données supplémentaires importées depuis ../../data/tenues
+"use client";
+import { useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { useRouter, usePathname } from "next/navigation";
+import Sidebar from "../../components/sidebar/sidebar";
+import { motion } from "framer-motion";
+import OutfitCard from "../../components/tenues/OutfitCard";
+import { outfits, additionalOutfits } from "../../data/tenues";
 
 function TenuesCRS() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
-  
-  // Type assertion pour accéder aux propriétés personnalisées
-  const user = session?.user as { guildNickname?: string; name?: string | null } | undefined;
-  const displayName = user?.guildNickname || user?.name || 'Utilisateur';
+  const user = session?.user as
+    | { guildNickname?: string; name?: string | null }
+    | undefined;
+  const displayName = user?.guildNickname || user?.name || "Utilisateur";
 
   // Vérification de l'authentification
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
+    if (status === "unauthenticated") {
+      router.push("/login");
     }
   }, [status, router]);
 
@@ -39,7 +27,7 @@ function TenuesCRS() {
   useEffect(() => {
     const timer = setInterval(() => {
       signOut({
-        callbackUrl: '/login',
+        callbackUrl: "/login",
       });
     }, 60 * 60 * 1000);
 
@@ -48,9 +36,9 @@ function TenuesCRS() {
 
   // Génération des initiales
   const initials = displayName
-    .split(' ')
+    .split(" ")
     .map((n: string) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
     .slice(0, 2);
 
@@ -68,32 +56,40 @@ function TenuesCRS() {
   return (
     <div className="min-h-screen text-white flex bg-gray-900">
       <Sidebar displayName={displayName} initials={initials} />
-      
+
       <div className="flex-1 relative z-0 ml-[270px] w-[calc(100%-270px)]">
-        {/* En-tête */}
         <header className="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-10">
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <a href="/accueil">
-                  <img src="/crslogo.svg" alt="Logo CRS" className="h-10 w-auto" />
+                  <img
+                    src="/pjlogo.png"
+                    alt="Logo CRS"
+                    className="h-10 w-auto"
+                  />
                 </a>
-                <a href="/accueil" className="text-xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+                <a
+                  href="/accueil"
+                  className="text-xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent"
+                >
                   Intranet CRS
                 </a>
               </div>
               <div className="hidden md:flex items-center space-x-6">
                 <span className="text-gray-300 text-sm">
-                  Connecté en tant que: <span className="text-blue-400 font-medium">{displayName}</span>
+                  Connecté en tant que:{" "}
+                  <span className="text-blue-400 font-medium">
+                    {displayName}
+                  </span>
                 </span>
               </div>
             </div>
           </div>
         </header>
 
-        {/* Contenu principal */}
         <main className="p-6 lg:p-8">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -104,25 +100,35 @@ function TenuesCRS() {
                 Tenues Officielles CRS
               </h2>
             </div>
-            <p className="text-gray-400 mt-2">Vous retrouvez ici les tenues de la CRS à porter en fonction de <span className="text-red-400 font-medium font-semibold">vos missions et grades</span></p>
+            <p className="text-gray-400 mt-2">
+              Vous retrouvez ici les tenues de la CRS à porter en fonction de{" "}
+              <span className="text-red-400 font-medium font-semibold">
+                vos missions et grades
+              </span>
+            </p>
           </motion.div>
 
-                    {/* Section d'information */}
           <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700/50 mb-8">
-            <h3 className="text-xl font-semibold text-white mb-4">⚠️ Notes importantes ⚠️</h3>
+            <h3 className="text-xl font-semibold text-white mb-4">
+              ⚠️ Notes importantes ⚠️
+            </h3>
             <ul className="space-y-2 text-gray-300">
               <li className="flex items-start">
                 <span className="text-blue-400 mr-2">•</span>
-                <span>Les grades doivent être correctement positionnés selon la tenue</span>
+                <span>
+                  Les grades doivent être correctement positionnés selon la
+                  tenue
+                </span>
               </li>
               <li className="flex items-start">
                 <span className="text-blue-400 mr-2">•</span>
-                <span>En cas de doute, se référer à son supérieur hiérarchique</span>
+                <span>
+                  En cas de doute, se référer à son supérieur hiérarchique
+                </span>
               </li>
             </ul>
           </div>
 
-          {/* Grille de tenues principales */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
             {outfits.map((outfit, index) => (
               <OutfitCard
@@ -132,18 +138,29 @@ function TenuesCRS() {
                 imageSrc={outfit.image}
                 imageAlt={outfit.imageAlt || `Tenue ${outfit.title}`}
                 secondImageSrc={outfit.secondImage}
-                secondImageAlt={outfit.secondImageAlt || `Vue alternative de la tenue ${outfit.title}`}
+                secondImageAlt={
+                  outfit.secondImageAlt ||
+                  `Vue alternative de la tenue ${outfit.title}`
+                }
                 thirdImageSrc={outfit.thirdImage}
-                thirdImageAlt={outfit.thirdImageAlt || `Vue alternative de la tenue ${outfit.title}`}
+                thirdImageAlt={
+                  outfit.thirdImageAlt ||
+                  `Vue alternative de la tenue ${outfit.title}`
+                }
                 fourthImageSrc={outfit.fourthImage}
-                fourthImageAlt={outfit.fourthImageAlt || `Vue alternative de la tenue ${outfit.title}`}
+                fourthImageAlt={
+                  outfit.fourthImageAlt ||
+                  `Vue alternative de la tenue ${outfit.title}`
+                }
                 fifthImageSrc={outfit.fifthImage}
-                fifthImageAlt={outfit.fifthImageAlt || `Vue alternative de la tenue ${outfit.title}`}
+                fifthImageAlt={
+                  outfit.fifthImageAlt ||
+                  `Vue alternative de la tenue ${outfit.title}`
+                }
               />
             ))}
           </div>
-          
-          {/* Section des tenues supplémentaires */}
+
           <div className="mt-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
               {additionalOutfits.map((outfit, index) => (
@@ -154,13 +171,25 @@ function TenuesCRS() {
                   imageSrc={outfit.image}
                   imageAlt={outfit.imageAlt || `Tenue ${outfit.title}`}
                   secondImageSrc={outfit.secondImage}
-                  secondImageAlt={outfit.secondImageAlt || `Vue alternative de la tenue ${outfit.title}`}
+                  secondImageAlt={
+                    outfit.secondImageAlt ||
+                    `Vue alternative de la tenue ${outfit.title}`
+                  }
                   thirdImageSrc={outfit.thirdImage}
-                  thirdImageAlt={outfit.thirdImageAlt || `Vue alternative de la tenue ${outfit.title}`}
+                  thirdImageAlt={
+                    outfit.thirdImageAlt ||
+                    `Vue alternative de la tenue ${outfit.title}`
+                  }
                   fourthImageSrc={outfit.fourthImage}
-                  fourthImageAlt={outfit.fourthImageAlt || `Vue alternative de la tenue ${outfit.title}`}
+                  fourthImageAlt={
+                    outfit.fourthImageAlt ||
+                    `Vue alternative de la tenue ${outfit.title}`
+                  }
                   fifthImageSrc={outfit.fifthImage}
-                  fifthImageAlt={outfit.fifthImageAlt || `Vue alternative de la tenue ${outfit.title}`}
+                  fifthImageAlt={
+                    outfit.fifthImageAlt ||
+                    `Vue alternative de la tenue ${outfit.title}`
+                  }
                 />
               ))}
             </div>

@@ -1,54 +1,42 @@
-// Page organigramme - Gestion des effectifs
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { useRouter, usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import Sidebar from "../../components/sidebar/sidebar";
 import {
   PlusIcon,
   PencilIcon,
   TrashIcon,
   XMarkIcon,
-  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
-import { CardContent } from "@/components/ui/card";
+import { CardContent } from "../../components/ui/card";
+import EffectifModal from "../../components/ui/effectif-modal";
 
-// Définition des types
 type Statut = "Actif" | "Non actif";
-type Formation =
-  | "CRS"
-  | "BMU"
-  | "MO"
-  | "Maritime"
-  | "ERI"
-  | "Secours en Montagne"
-  | "CRS 8";
+type Formation = "PJ" | "PTS" | "Moto" | "Nautique" | "Négociateur";
 
-// Liste des formations disponibles
 const FORMATIONS: Formation[] = [
-  "CRS",
-  "BMU",
-  "MO",
-  "Maritime",
-  "ERI",
-  "Secours en Montagne",
-  "CRS 8",
+  "PJ",
+  "PTS",
+  "Moto",
+  "Nautique",
+  "Négociateur",
 ];
 
 interface Effectif {
   id: number;
   prenom: string;
   nom: string;
+  nomPJ: string;
   grade?: string;
   poste: string;
   statut: Statut;
   telephone?: string;
-  formations: Formation[]; // Toujours un tableau de Formation
+  formations: Formation[];
 }
 
-// Type pour les données brutes de l'API
 interface RawEffectif extends Omit<Effectif, "formations"> {
   formations: Formation[] | string | null;
 }
@@ -61,40 +49,14 @@ interface User extends Record<string, any> {
   roles?: string[];
 }
 
-// Composant de carte réutilisable
-const InfoCard = ({
-  title,
-  children,
-  icon,
-}: {
-  title: string;
-  children: React.ReactNode;
-  icon: React.ReactNode;
-}) => (
-  <motion.div
-    className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:border-blue-500/50 transition-all duration-300 h-full flex flex-col"
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.4 }}
-  >
-    <div className="flex items-center mb-4">
-      <div className="p-2 bg-blue-600/20 rounded-lg mr-3">{icon}</div>
-      <h3 className="text-lg font-semibold text-gray-100">{title}</h3>
-    </div>
-    <div className="text-gray-300 flex-1">{children}</div>
-  </motion.div>
-);
-
 export default function GestionEffectifs() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const pathname = usePathname();
   const [effectifs, setEffectifs] = useState<Effectif[]>([]);
   const [totalMembers, setTotalMembers] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  // État pour gérer les effectifs
   const [currentEffectif, setCurrentEffectif] = useState<Partial<Effectif>>({
     formations: [] as Formation[],
   });
@@ -104,7 +66,9 @@ export default function GestionEffectifs() {
     type: "success",
   });
 
-  // Gestion sécurisée de la session utilisateur
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingValue, setEditingValue] = useState("");
+
   const user = session?.user as User | undefined;
   const displayName = user?.guildNickname || user?.name || "Utilisateur";
   const initials = displayName
@@ -114,10 +78,8 @@ export default function GestionEffectifs() {
     .toUpperCase()
     .slice(0, 2);
 
-  // Vérifier si l'utilisateur a le rôle requis pour la gestion des effectifs
   const canManageStaff = user?.roles?.includes("1331527328219529216") || false;
 
-  // Fonction utilitaire pour afficher les notifications
   const showToastMessage = (
     message: string,
     type: "success" | "error" | "warning" = "success"
@@ -126,7 +88,6 @@ export default function GestionEffectifs() {
     setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 5000);
   };
 
-  // Déconnexion automatique toutes les heures
   useEffect(() => {
     const timer = setInterval(() => {
       signOut({
@@ -137,7 +98,6 @@ export default function GestionEffectifs() {
     return () => clearInterval(timer);
   }, []);
 
-  // Vérification de l'authentification
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
@@ -146,7 +106,6 @@ export default function GestionEffectifs() {
     }
   }, [status, router]);
 
-  // Charger les effectifs
   const loadEffectifs = async () => {
     setIsLoading(true);
     try {
@@ -157,12 +116,10 @@ export default function GestionEffectifs() {
       const data: Array<Omit<Effectif, "id"> & { id?: number }> =
         await response.json();
 
-      // S'assurer que les formations sont toujours des tableaux de Formation
       const formattedData: Effectif[] = data.map((effectif) => {
         let formations: Formation[] = [];
 
         if (Array.isArray(effectif.formations)) {
-          // Si c'est déjà un tableau, on filtre pour ne garder que les valeurs valides
           formations = effectif.formations.filter((f): f is Formation =>
             FORMATIONS.includes(f as Formation)
           );
@@ -170,13 +127,12 @@ export default function GestionEffectifs() {
           effectif.formations &&
           FORMATIONS.includes(effectif.formations as Formation)
         ) {
-          // Si c'est une seule formation valide
           formations = [effectif.formations as Formation];
         }
 
         return {
           ...effectif,
-          id: effectif.id || 0, // Assure un ID par défaut si non fourni
+          id: effectif.id || 0,
           formations,
         };
       });
@@ -191,7 +147,6 @@ export default function GestionEffectifs() {
     }
   };
 
-  // Afficher un message toast
   const showToast = (
     message: string,
     type: "success" | "error" = "success"
@@ -200,10 +155,10 @@ export default function GestionEffectifs() {
     setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 5000);
   };
 
-  // Ouvrir le modal d'ajout
   const handleAddClick = () => {
     setCurrentEffectif({
       prenom: "",
+      nomPJ: "",
       nom: "",
       poste: "",
       statut: "Actif",
@@ -214,9 +169,7 @@ export default function GestionEffectifs() {
     setIsModalOpen(true);
   };
 
-  // Ouvrir le modal d'édition
   const handleEditClick = (effectif: Effectif) => {
-    // S'assurer que formations est toujours un tableau
     const effectifFormations = Array.isArray(effectif.formations)
       ? effectif.formations
       : typeof effectif.formations === "string"
@@ -231,18 +184,14 @@ export default function GestionEffectifs() {
     setIsModalOpen(true);
   };
 
-  // Liste des formations disponibles
   const formationsList: Formation[] = [
-    "CRS",
-    "BMU",
-    "MO",
-    "Maritime",
-    "ERI",
-    "Secours en Montagne",
-    "CRS 8",
+    "PJ",
+    "PTS",
+    "Moto",
+    "Nautique",
+    "Négociateur",
   ];
 
-  // Liste des grades disponibles
   const GRADES = [
     "PA",
     "E_GPX",
@@ -266,10 +215,8 @@ export default function GestionEffectifs() {
     "CG",
   ];
 
-  // Fonction pour formater la valeur du grade pour l'affichage
   const formatGradeForDisplay = (grade?: string) => {
     if (!grade) return "Non spécifié";
-    // Remplacer les underscores par des tirets et B_C par B/C
     return grade
       .replace(/_/g, "-")
       .replace(/B-C/g, "B/C")
@@ -277,17 +224,39 @@ export default function GestionEffectifs() {
       .replace("B/C-Sup", "B/C Sup");
   };
 
-  // Fonction pour formater la valeur du grade pour la base de données
   const formatGradeForDb = (grade: string) => {
-    // Remplacer les tirets par des underscores et les espaces par des underscores
     return grade.replace(/-/g, "_").replace(/\s+/g, "_");
   };
 
-  // Gérer la soumission du formulaire
+  const handleSaveNomPJ = async (id: number) => {
+    try {
+      const response = await fetch(`/api/effectifs/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nomPJ: editingValue,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Erreur lors de la mise à jour");
+
+      setEffectifs(
+        effectifs.map((eff) =>
+          eff.id === id ? { ...eff, nomPJ: editingValue } : eff
+        )
+      );
+
+      setEditingId(null);
+      showToast("Nom PJ mis à jour avec succès", "success");
+    } catch (error) {
+      console.error("Erreur:", error);
+      showToast("Erreur lors de la mise à jour du nom PJ", "error");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Vérifier si un effectif est sélectionné
     if (!currentEffectif) {
       showToastMessage("Aucun effectif sélectionné", "error");
       return;
@@ -296,6 +265,7 @@ export default function GestionEffectifs() {
     const {
       prenom,
       nom,
+      nomPJ,
       grade,
       poste,
       statut,
@@ -303,7 +273,6 @@ export default function GestionEffectifs() {
       formations = [],
     } = currentEffectif;
 
-    // Validation des champs obligatoires
     if (!prenom || !nom || !poste || !statut) {
       showToastMessage(
         "Veuillez remplir tous les champs obligatoires",
@@ -312,17 +281,16 @@ export default function GestionEffectifs() {
       return;
     }
 
-    // S'assurer que les formations sont valides
     const validFormations = Array.isArray(formations)
       ? formations.filter((f): f is Formation =>
           FORMATIONS.includes(f as Formation)
         )
       : [];
 
-    // Préparation des données à envoyer
     const effectifData = {
       prenom,
       nom,
+      nomPJ,
       grade: grade ? formatGradeForDb(grade) : null,
       poste,
       statut,
@@ -331,8 +299,6 @@ export default function GestionEffectifs() {
     };
 
     try {
-      // Suppression du code en double
-
       const url =
         isEditing && currentEffectif.id
           ? `/api/effectifs/${currentEffectif.id}`
@@ -346,6 +312,7 @@ export default function GestionEffectifs() {
         body: JSON.stringify({
           prenom,
           nom,
+          nomPJ,
           poste,
           statut,
           telephone,
@@ -371,7 +338,6 @@ export default function GestionEffectifs() {
     }
   };
 
-  // Supprimer un effectif
   const handleDelete = async (id: number) => {
     if (!confirm("Êtes-vous sûr de vouloir supprimer cet effectif ?")) return;
 
@@ -389,7 +355,6 @@ export default function GestionEffectifs() {
     }
   };
 
-  // Gérer les changements des champs du formulaire
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -416,7 +381,6 @@ export default function GestionEffectifs() {
     });
   };
 
-  // Formater la date d'arrivée
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = {
       day: "2-digit",
@@ -440,16 +404,15 @@ export default function GestionEffectifs() {
     <div className="min-h-screen text-white flex">
       <Sidebar displayName={displayName} initials={initials} />
       <div className="flex-1 ml-[270px] relative z-10">
-        {/* En-tête */}
-        <header className="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-10">
+        <header className="bg-[rgba(5,12,48,0.95)] backdrop-blur-md border-b border-[rgba(10,20,60,0.6)] sticky top-0 z-10 shadow-md">
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <a href="/accueil">
                   <img
-                    src="/crslogo.svg"
+                    src="/pjlogo.png"
                     alt="Logo CRS"
-                    className="h-10 w-auto"
+                    className="h-10 w-auto hover:scale-105 transition-transform duration-300"
                   />
                 </a>
                 <a
@@ -460,9 +423,9 @@ export default function GestionEffectifs() {
                 </a>
               </div>
               <div className="hidden md:flex items-center space-x-6">
-                <span className="text-gray-300 text-sm">
+                <span className="text-gray-200 text-sm">
                   Connecté en tant que:{" "}
-                  <span className="text-blue-400 font-medium">
+                  <span className="text-blue-400 font-semibold">
                     {displayName}
                   </span>
                 </span>
@@ -471,27 +434,25 @@ export default function GestionEffectifs() {
           </div>
         </header>
 
-        {/* Contenu principal */}
         <main className="container mx-auto px-6 py-8">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+          <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
+            <h1 className="text-3xl font-extrabold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
               Gestion des effectifs
             </h1>
-            <CardContent className="text-red-300 text-sm font-bold text-3xl">
+            <CardContent className="text-gray-200 font-semibold text-lg bg-[rgba(5,12,48,0.5)] px-4 py-2 rounded-lg border border-[rgba(10,20,60,0.5)] shadow-sm">
               Nombre total de membres: {totalMembers || 0}
             </CardContent>
             {canManageStaff && (
               <motion.button
                 onClick={handleAddClick}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-200"
-                style={{ borderRadius: "0.5rem" }}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
+                className="bg-blue-600/80 hover:bg-blue-500/90 text-white px-5 py-2 rounded-xl flex items-center gap-2 shadow-lg hover:scale-105 transition-transform duration-200"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
                 Ajouter un effectif
                 <img
-                  src="/crslogo.svg"
+                  src="/pjlogo.png"
                   alt="Logo CRS"
                   className="h-5 w-5 mr-2 "
                 />
@@ -499,86 +460,58 @@ export default function GestionEffectifs() {
             )}
           </div>
 
-          {/* Tableau des effectifs */}
           <motion.div
-            className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 overflow-hidden "
+            className="bg-[rgba(5,12,48,0.7)] backdrop-blur-md rounded-2xl border border-[rgba(10,20,60,0.6)] overflow-hidden shadow-md"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-700">
-                <thead className="bg-gray-700/50">
+              <table className="min-w-full divide-y divide-[rgba(10,20,60,0.5)]">
+                <thead className="bg-[rgba(10,20,60,0.6)]">
                   <tr>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-                    >
-                      Nom
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-                    >
-                      Grade
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-                    >
-                      Poste
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-                    >
-                      Téléphone
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-                    >
-                      Statut
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-                    >
-                      Formation
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider"
-                    >
-                      Actions
-                    </th>
+                    {[
+                      "Nom",
+                      "Nom PJ",
+                      "Grade",
+                      "Poste",
+                      "Téléphone",
+                      "Statut",
+                      "Formation",
+                      "Actions",
+                    ].map((col) => (
+                      <th
+                        key={col}
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
+                      >
+                        {col}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
-                <tbody className="bg-gray-800/50 divide-y divide-gray-700">
+                <tbody className="divide-y divide-[rgba(10,20,60,0.5)]">
                   {effectifs.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={7}
-                        className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"
+                        colSpan={8}
+                        className="px-6 py-4 text-center text-gray-400"
                       >
                         Aucun effectif trouvé
                       </td>
                     </tr>
                   ) : (
-                    // Trier les effectifs par ordre hiérarchique des postes, puis des grades, puis par nom
                     [...effectifs]
                       .sort((a, b) => {
-                        // Définir l'ordre de priorité des postes (du plus haut au plus bas)
                         const postePriorite: Record<string, number> = {
                           Directeur: 1,
                           Responsable: 2,
                           "Responsable Adjoint": 3,
                           Formateur: 4,
                           Confirmé: 5,
-                          Stagiaire: 6,
+                          Titulaire: 6,
+                          Stagiaire: 7,
                         };
 
-                        // Définir l'ordre de priorité des grades
                         const gradePriorite: Record<string, number> = {
                           CG: 1,
                           CD: 2,
@@ -602,16 +535,13 @@ export default function GestionEffectifs() {
                           PA: 20,
                         };
 
-                        // Récupérer la priorité des postes
                         const prioritePosteA = postePriorite[a.poste] || 7;
                         const prioritePosteB = postePriorite[b.poste] || 7;
 
-                        // Si les postes sont différents, trier par poste
                         if (prioritePosteA !== prioritePosteB) {
                           return prioritePosteA - prioritePosteB;
                         }
 
-                        // Si même poste, trier par grade
                         const gradeA = a.grade || "";
                         const gradeB = b.grade || "";
                         const prioriteGradeA = gradePriorite[gradeA] || 999;
@@ -621,20 +551,19 @@ export default function GestionEffectifs() {
                           return prioriteGradeA - prioriteGradeB;
                         }
 
-                        // Si même grade et même poste, trier par nom de famille
                         return a.nom.localeCompare(b.nom);
                       })
                       .map((effectif) => (
                         <motion.tr
                           key={effectif.id}
-                          className="hover:bg-gray-700/30 transition-colors"
+                          className="hover:bg-[rgba(10,20,60,0.4)] transition-colors duration-200"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ duration: 0.3 }}
                         >
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-6 py-4 flex items-center gap-3">
                             <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-600/20 flex items-center justify-center text-blue-400 font-medium">
+                              <div className="h-10 w-10 rounded-full bg-blue-600/30 flex items-center justify-center text-blue-400 font-semibold">
                                 {effectif.prenom[0]}
                                 {effectif.nom[0]}
                               </div>
@@ -644,6 +573,43 @@ export default function GestionEffectifs() {
                                 </div>
                               </div>
                             </div>
+                          </td>
+                          <td
+                            className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 hover:bg-gray-700/50 cursor-pointer"
+                            onClick={() => {
+                              setEditingId(effectif.id);
+                              setEditingValue(effectif.nomPJ || "");
+                            }}
+                          >
+                            {editingId === effectif.id ? (
+                              <div className="flex items-center">
+                                <input
+                                  type="text"
+                                  value={editingValue}
+                                  onChange={(e) =>
+                                    setEditingValue(e.target.value)
+                                  }
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      handleSaveNomPJ(effectif.id);
+                                    } else if (e.key === "Escape") {
+                                      setEditingId(null);
+                                    }
+                                  }}
+                                  onBlur={() => handleSaveNomPJ(effectif.id)}
+                                  autoFocus
+                                  className="bg-gray-700 border border-blue-500 text-white px-2 py-1 rounded w-full"
+                                />
+                              </div>
+                            ) : (
+                              <div className="min-h-[24px] flex items-center">
+                                {effectif.nomPJ || (
+                                  <span className="text-gray-500">
+                                    Cliquez pour éditer
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                             {effectif.grade
@@ -716,290 +682,18 @@ export default function GestionEffectifs() {
             </div>
           </motion.div>
 
-          {/* Modal d'ajout/édition - Seulement pour les utilisateurs autorisés */}
-          <AnimatePresence>
-            {isModalOpen && canManageStaff && currentEffectif && (
-              <>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-                  onClick={() => setIsModalOpen(false)}
-                  role="dialog"
-                  aria-modal="true"
-                  aria-labelledby="modal-title"
-                />
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 20, scale: 0.98 }}
-                    transition={{ type: "spring", damping: 25, stiffness: 400 }}
-                    className="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="p-6">
-                      <div className="flex items-center justify-between mb-6 ">
-                        <h2
-                          id="modal-title"
-                          className="text-xl font-bold text-gray-900 dark:text-white "
-                        >
-                          {isEditing
-                            ? "Modifier un effectif"
-                            : "Ajouter un effectif"}
-                        </h2>
-                        <button
-                          onClick={() => setIsModalOpen(false)}
-                          className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
-                          aria-label="Fermer la fenêtre"
-                        >
-                          <XMarkIcon className="h-6 w-6" />
-                        </button>
-                      </div>
-
-                      <form onSubmit={handleSubmit} className="space-y-5">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                          <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-300">
-                              Prénom *
-                            </label>
-                            <div className="relative">
-                              <input
-                                style={{ borderRadius: "10px" }}
-                                type="text"
-                                name="prenom"
-                                value={currentEffectif.prenom || ""}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 text-sm rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                placeholder="Entrez le prénom"
-                                required
-                              />
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <label
-                              htmlFor="nom"
-                              className="block text-sm font-medium text-gray-300"
-                            >
-                              Nom *
-                            </label>
-                            <div className="relative">
-                              <input
-                                style={{ borderRadius: "10px" }}
-                                type="text"
-                                id="nom"
-                                name="nom"
-                                value={currentEffectif.nom || ""}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 text-sm rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                                placeholder="Entrez le nom"
-                                required
-                                aria-required="true"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <label
-                              htmlFor="grade"
-                              className="block text-sm font-medium text-gray-300"
-                            >
-                              Grade
-                            </label>
-                            <div className="relative">
-                              <select
-                                style={{ borderRadius: "10px" }}
-                                id="grade"
-                                name="grade"
-                                value={currentEffectif.grade || ""}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 text-sm rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer pr-10"
-                              >
-                                <option value="">Grade</option>
-                                {GRADES.map((grade) => (
-                                  <option key={grade} value={grade}>
-                                    {grade}
-                                  </option>
-                                ))}
-                              </select>
-                              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <ChevronDownIcon className="h-4 w-4 text-gray-400" />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <label
-                              htmlFor="poste"
-                              className="block text-sm font-medium text-gray-300"
-                            >
-                              Poste *
-                            </label>
-                            <div className="relative">
-                              <select
-                                style={{ borderRadius: "10px" }}
-                                id="poste"
-                                name="poste"
-                                value={currentEffectif.poste || ""}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 text-sm rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer pr-10"
-                                required
-                                aria-required="true"
-                              >
-                                <option value="">Poste</option>
-                                <option value="Stagiaire">Stagiaire</option>
-                                <option value="Confirmé">Confirmé</option>
-                                <option value="Formateur">Formateur</option>
-                                <option value="Responsable Adjoint">
-                                  Responsable Adjoint
-                                </option>
-                                <option value="Responsable">Responsable</option>
-                                <option value="Directeur">Directeur</option>
-                              </select>
-                              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <ChevronDownIcon className="h-4 w-4 text-gray-400" />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <label
-                              htmlFor="statut"
-                              className="block text-sm font-medium text-gray-300"
-                            >
-                              Statut *
-                            </label>
-                            <div className="relative">
-                              <select
-                                style={{ borderRadius: "10px" }}
-                                id="statut"
-                                name="statut"
-                                value={currentEffectif.statut || "Actif"}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 text-sm rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer pr-10"
-                                required
-                                aria-required="true"
-                              >
-                                <option value="Actif">Actif</option>
-                                <option value="Non actif">Non actif</option>
-                              </select>
-                              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <ChevronDownIcon className="h-4 w-4 text-gray-400" />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <label
-                              htmlFor="telephone"
-                              className="block text-sm font-medium text-gray-300"
-                            >
-                              Téléphone
-                            </label>
-                            <div className="relative">
-                              <input
-                                style={{ borderRadius: "10px" }}
-                                type="tel"
-                                id="telephone"
-                                name="telephone"
-                                value={currentEffectif.telephone || ""}
-                                onChange={handleInputChange}
-                                placeholder="06.12.34.56.78"
-                                pattern="^(\+33|0)[1-9]([-. ]?[0-9]{2}){4}$"
-                                className="w-full px-4 py-2 text-sm rounded-lg bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              />
-                              {currentEffectif.telephone && (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const newEffectif = {
-                                      ...currentEffectif,
-                                      telephone: "",
-                                    };
-                                    setCurrentEffectif(newEffectif);
-                                  }}
-                                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                                  aria-label="Effacer le numéro de téléphone"
-                                >
-                                  <XMarkIcon className="h-4 w-4" />
-                                </button>
-                              )}
-                            </div>
-                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                              Format: 06.12.34.56.78
-                            </p>
-                          </div>
-
-                          {/* Section Formations */}
-                          <div className="space-y-3 col-span-2 mt-2">
-                            <h3 className="text-base font-medium text-gray-200 pb-1 border-b border-gray-700">
-                              Formations
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                              {formationsList.map((formation) => (
-                                <label
-                                  key={formation}
-                                  className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-700/50 transition-colors cursor-pointer"
-                                >
-                                  <input
-                                    style={{ borderRadius: "10px" }}
-                                    type="checkbox"
-                                    checked={
-                                      currentEffectif.formations?.includes(
-                                        formation
-                                      ) || false
-                                    }
-                                    onChange={() =>
-                                      handleFormationChange(formation)
-                                    }
-                                    className="h-4 w-4 text-blue-500 rounded border-gray-500 bg-gray-600 focus:ring-blue-500 cursor-pointer"
-                                  />
-                                  <span className="text-sm text-gray-200 font-medium">
-                                    {formation}
-                                  </span>
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex justify-end space-x-3 pt-4 mt-6 border-t border-gray-700">
-                          <button
-                            style={{ borderRadius: "10px" }}
-                            type="button"
-                            onClick={() => setIsModalOpen(false)}
-                            className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                          >
-                            Annuler
-                          </button>
-                          <button
-                            style={{ borderRadius: "10px" }}
-                            type="submit"
-                            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors flex items-center"
-                          >
-                            {isEditing ? (
-                              <>
-                                <PencilIcon className="h-4 w-4 mr-2" />
-                                Mettre à jour
-                              </>
-                            ) : (
-                              <>
-                                <PlusIcon className="h-4 w-4 mr-2" />
-                                Ajouter
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      </form>
-                    </div>
-                  </motion.div>
-                </div>
-              </>
-            )}
-          </AnimatePresence>
-
-          {/* Toast de notification */}
+          <EffectifModal
+            isOpen={isModalOpen}
+            isEditing={isEditing}
+            effectif={currentEffectif}
+            formationsList={formationsList}
+            grades={GRADES}
+            onClose={() => setIsModalOpen(false)}
+            onSubmit={handleSubmit}
+            onInputChange={handleInputChange}
+            onFormationChange={handleFormationChange}
+            setEffectif={setCurrentEffectif}
+          />
           {toast.show && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}

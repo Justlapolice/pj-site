@@ -1,7 +1,36 @@
 @import "tailwindcss/base";
 @import "tailwindcss/utilities";
 @import "tailwindcss/components";
+@import url("https://fonts.googleapis.com/css2?family=Style+Script&display=swap");
 
+.font-signature {
+  font-family: "Style Script", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.signature-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.signature {
+  display: inline-block;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  margin-bottom: 5px;
+  position: relative;
+}
+
+.signature::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: #ffffff;
+  margin-top: 2px;
+}
 
 :root {
   --background: #ffffff;
@@ -19,8 +48,6 @@
   h1 {
     @apply text-3xl font-bold text-red-600;
   }
-  
-  
 
   @media (prefers-color-scheme: dark) {
     :root {
@@ -29,13 +56,14 @@
     }
   }
 
-  html, body {
+  html,
+  body {
     margin: 0;
     padding: 0;
     min-height: 100%;
     height: 100%;
     width: 100%;
-    background: url('/backgroundaccueil.png') no-repeat center center fixed;
+    background: url("/backgroundaccueil.png") no-repeat center center fixed;
     background-size: cover;
     color: var(--foreground);
     font-family: var(--font-sans), Arial, Helvetica, sans-serif;
@@ -60,16 +88,14 @@
   margin-right: auto;
 }
 
-/* Correction pour les petits écrans */
 @media (max-width: 768px) {
   #__next {
     margin-left: 0;
     width: 100%;
   }
-  
+
   .main-container {
     padding: 1rem;
-    padding-top: 5rem; /* Espace pour le header sur mobile */
+    padding-top: 5rem;
   }
 }
-

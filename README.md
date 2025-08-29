@@ -1,4 +1,4 @@
-Intranet CRS pour la Police Nationale de FRRP fait avec
+Intranet Police Judiciaire pour la Police Nationale de FRRP fait avec
 
 [Next.js](https://nextjs.org) amorcé à l'aide de [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
@@ -6,7 +6,7 @@ Intranet CRS pour la Police Nationale de FRRP fait avec
 
 ## Information
 
-Correction des bugs : 
+Correction des bugs :
 
 ```bash
 

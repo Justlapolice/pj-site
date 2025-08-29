@@ -1,17 +1,13 @@
-// Page vehicules
-
 "use client";
 import { useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import Sidebar from "../../components/sidebar/sidebar";
 
-// Composants
-import { VehiculeSection } from "@/components/vehicules/VehiculeSection";
-import { VehiculeHeader } from "@/components/vehicules/VehiculeHeader";
-import { VehiculeNotes } from "@/components/vehicules/VehiculeNotes";
+import { VehiculeSection } from "../../components/vehicules/VehiculeSection";
+import { VehiculeHeader } from "../../components/vehicules/VehiculeHeader";
+import { VehiculeNotes } from "../../components/vehicules/VehiculeNotes";
 
-// Données des tenues
 const vehicules = [
   {
     title: "Dacia Duster CRS",
@@ -35,7 +31,7 @@ const vehicules = [
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/autoroute/peugeot_expert_pmv.png",
-    secondImageSrc: "/vehicules_images/autoroute/peugeot_expert_pmv2.png", // À ajouter ultérieurement
+    secondImageSrc: "/vehicules_images/autoroute/peugeot_expert_pmv2.png",
   },
   {
     title: "Renault Mégane IV",
@@ -56,7 +52,7 @@ const vehicules = [
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/autoroute/peugeot_rifter.png",
-    secondImageSrc: "/vehicules_images/autoroute/peugeot_rifter_2.png", // À ajouter ultérieurement
+    secondImageSrc: "/vehicules_images/autoroute/peugeot_rifter_2.png",
   },
   {
     title: "Renault Scénic",
@@ -67,7 +63,7 @@ const vehicules = [
       { label: "Nombre d'exemplaire", value: "04" },
     ],
     image: "/vehicules_images/tvcrsetautre/renault_scenic.png",
-    secondImageSrc: "/vehicules_images/tvcrsetautre/renault_scenic_2.png", // À ajouter ultérieurement
+    secondImageSrc: "/vehicules_images/tvcrsetautre/renault_scenic_2.png",
   },
 ];
 
@@ -326,7 +322,7 @@ function VehiculesCRS() {
               <div className="flex items-center space-x-4">
                 <a href="/accueil">
                   <img
-                    src="/crslogo.svg"
+                    src="/pjlogo.png"
                     alt="Logo CRS"
                     className="h-10 w-auto"
                   />
@@ -350,7 +346,6 @@ function VehiculesCRS() {
           </div>
         </header>
 
-        {/* Contenu principal */}
         <main className="p-6 lg:p-8">
           <VehiculeHeader
             title="Véhicules Officiels CRS"

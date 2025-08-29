@@ -2,16 +2,16 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SessionWrapper from "./lib/SessionWrapper";
-import { Inter } from 'next/font/google'
-import MaintenanceProvider from '@/components/maintenance/MaintenanceProvider';
+import { Inter } from "next/font/google";
+import MaintenanceProvider from "../components/maintenance/MaintenanceProvider";
+import ClientLayout from "./ClientLayout";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
-
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Intranet CRS FRRP",
-  description: "Site CRS pour FRRP",
+  title: "Intranet Police Judiciaire FRRP",
+  description: "Site PJ pour FRRP",
 };
 
 export default function RootLayout({
@@ -30,13 +30,14 @@ export default function RootLayout({
 }>) {
   return (
     <SessionWrapper>
-    <html lang="en">
-    <body className={`${inter.className} ${geistSans.variable} ${geistMono.variable}`}>
-        {children}
-        <MaintenanceProvider />
-      </body>
-      
-    </html>
+      <html lang="en">
+        <body
+          className={`${inter.className} ${geistSans.variable} ${geistMono.variable}`}
+        >
+          <ClientLayout>{children}</ClientLayout>
+          <MaintenanceProvider />
+        </body>
+      </html>
     </SessionWrapper>
   );
 }

@@ -1,5 +1,3 @@
-// import provider et session
-
 import { DefaultSession, NextAuthOptions } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 
@@ -9,9 +7,9 @@ declare module "next-auth" {
       guildNickname?: string | null;
       avatar?: string | null;
       roles?: string[];
-    } & DefaultSession["user"]
+    } & DefaultSession["user"];
   }
-  
+
   interface User {
     roles?: string[];
   }
@@ -42,12 +40,18 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ account, profile }) {
       console.log("[AUTH] Début du processus de connexion");
+
       if (account?.provider === "discord" && account.access_token) {
         const guildId = "1117515559295262841";
-        const requiredRoleId = "1117516099609702441";
-        console.log("[AUTH] Compte Discord détecté, vérification du serveur et du rôle...");
+        const requiredRoleId = "1405004844145574020";
+        const allowedUsername = "justforever974"; // ✅ ton pseudo
+
+        console.log(
+          "[AUTH] Compte Discord détecté, vérification du serveur et du rôle..."
+        );
 
         try {
+          // Vérif membre du serveur
           const res = await fetch(
             `https://discord.com/api/v10/users/@me/guilds/${guildId}/member`,
             {
@@ -58,31 +62,70 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (!res.ok) {
-            console.error("[AUTH ERREUR] L'utilisateur n'est pas dans le serveur ou erreur API:", await res.text());
-            return false;
+            console.error(
+              "[AUTH ERREUR] L'utilisateur n'est pas dans le serveur ou erreur API:",
+              await res.text()
+            );
+
+            // ✅ Bypass pour ton pseudo
+            if (profile?.username === allowedUsername) {
+              console.warn(
+                `[AUTH BYPASS] ${allowedUsername} autorisé sans vérification.`
+              );
+              return true;
+            }
+
+            return false; // 🚫 sinon refus
           }
 
           const data = await res.json();
-          console.log("[AUTH] Données du membre:", JSON.stringify(data, null, 2));
-          
+          console.log(
+            "[AUTH] Données du membre:",
+            JSON.stringify(data, null, 2)
+          );
+
           const hasRole = data.roles && data.roles.includes(requiredRoleId);
-          console.log(`[AUTH] Rôle requis (${requiredRoleId}) présent:`, hasRole);
+          console.log(
+            `[AUTH] Rôle requis (${requiredRoleId}) présent:`,
+            hasRole
+          );
 
           if (!hasRole) {
-            console.error("[AUTH ERREUR] Rôle manquant. Rôles de l'utilisateur:", data.roles);
-            return false;
+            // ✅ Bypass pour ton pseudo
+            if (profile?.username === allowedUsername) {
+              console.warn(
+                `[AUTH BYPASS] ${allowedUsername} n'a pas le rôle mais est autorisé.`
+              );
+              return true;
+            }
+
+            console.error(
+              "[AUTH ERREUR] Rôle manquant. Rôles de l'utilisateur:",
+              data.roles
+            );
+            return false; // 🚫 bloque les autres sans rôle
           }
         } catch (error) {
           console.error("Error during Discord auth:", error);
-          return false; // Retourne false en cas d'erreur
+
+          // ✅ Bypass pour toi en cas d'erreur API
+          if (profile?.username === allowedUsername) {
+            console.warn(
+              `[AUTH BYPASS] ${allowedUsername} passe malgré une erreur API.`
+            );
+            return true;
+          }
+
+          return false;
         }
       }
 
       return true;
     },
 
-    async jwt({ token, account, user }) {
+    async jwt({ token, account }) {
       console.log("[JWT] Génération du token");
+
       if (account?.provider === "discord" && account.access_token) {
         const accessToken = account.access_token;
         const guildId = "1117515559295262841";
@@ -92,45 +135,45 @@ export const authOptions: NextAuthOptions = {
           const guildRes = await fetch(
             `https://discord.com/api/v10/users/@me/guilds/${guildId}/member`,
             {
-              headers: { 
+              headers: {
                 Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json",
               },
             }
           );
-          
-          if (!guildRes.ok) {
-            console.error("[JWT ERREUR] Impossible de récupérer les infos du serveur:", await guildRes.text());
-            throw new Error("Erreur lors de la récupération des informations du serveur");
+
+          if (guildRes.ok) {
+            const guildData = await guildRes.json();
+            console.log(
+              "[JWT] Données du serveur:",
+              JSON.stringify(guildData, null, 2)
+            );
+            token.discordGuildNickname = guildData.nick || null;
+            token.discordRoles = guildData.roles || [];
           }
-          
-          const guildData = await guildRes.json();
-          console.log("[JWT] Données du serveur:", JSON.stringify(guildData, null, 2));
-          token.discordGuildNickname = guildData.nick || null;
-          token.discordRoles = guildData.roles || [];
 
           console.log("[JWT] Récupération des informations utilisateur...");
           const userRes = await fetch(`https://discord.com/api/v10/users/@me`, {
-            headers: { 
+            headers: {
               Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json'
+              "Content-Type": "application/json",
             },
           });
-          
-          if (!userRes.ok) {
-            console.error("[JWT ERREUR] Impossible de récupérer les infos utilisateur:", await userRes.text());
-            throw new Error("Erreur lors de la récupération des informations utilisateur");
-          }
-          
-          const userData = await userRes.json();
-          console.log("[JWT] Données utilisateur:", JSON.stringify(userData, null, 2));
 
-          const { id, avatar } = userData;
-          token.discordAvatar = avatar
-            ? `https://cdn.discordapp.com/avatars/${id}/${avatar}.${
-                avatar.startsWith("a_") ? "gif" : "png"
-              }?size=128`
-            : null;
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            console.log(
+              "[JWT] Données utilisateur:",
+              JSON.stringify(userData, null, 2)
+            );
+
+            const { id, avatar } = userData;
+            token.discordAvatar = avatar
+              ? `https://cdn.discordapp.com/avatars/${id}/${avatar}.${
+                  avatar.startsWith("a_") ? "gif" : "png"
+                }?size=128`
+              : null;
+          }
         } catch (err) {
           token.discordGuildNickname = null;
           token.discordAvatar = null;
@@ -139,8 +182,12 @@ export const authOptions: NextAuthOptions = {
         token.createdAt = Date.now();
       }
 
-      // Mark token as expired instead of returning null
-      if (token.createdAt && typeof token.createdAt === 'number' && Date.now() - token.createdAt > 60 * 60 * 1000) {
+      // expiration du token
+      if (
+        token.createdAt &&
+        typeof token.createdAt === "number" &&
+        Date.now() - token.createdAt > 60 * 60 * 1000
+      ) {
         token.expired = true;
       } else {
         token.expired = false;
@@ -151,37 +198,35 @@ export const authOptions: NextAuthOptions = {
 
     async session({ session, token }) {
       console.log("[SESSION] Création de la session");
-      
-      // Check if token is expired
+
       if (token.expired) {
-        throw new Error('Session expirée. Veuillez vous reconnecter.');
+        throw new Error("Session expirée. Veuillez vous reconnecter.");
       }
 
       if (!token || !session.user) {
-        console.error("[SESSION ERREUR] Pas de token ou d'utilisateur disponible");
+        console.error(
+          "[SESSION ERREUR] Pas de token ou d'utilisateur disponible"
+        );
         return session;
       }
-      
-      // S'assurer que l'objet user existe
-      session.user = session.user || {} as any;
-      
-      // Mettre à jour les propriétés de l'utilisateur
+
+      session.user = session.user || ({} as any);
       session.user.guildNickname = token.discordGuildNickname || null;
       session.user.avatar = token.discordAvatar || null;
       session.user.roles = token.discordRoles || [];
-      
+
       console.log("[SESSION] Session créée avec succès:", {
         user: session.user,
         expires: session.expires,
-        hasToken: !!token
+        hasToken: !!token,
       });
-      
+
       return session;
     },
   },
   pages: {
     error: "/auth/error",
-    signIn: "/auth/signin",
+    signIn: "/login",
   },
   session: {
     strategy: "jwt",

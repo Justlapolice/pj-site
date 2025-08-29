@@ -4,14 +4,14 @@ import type { NextRequest } from "next/server";
 
 const protectedRoutes = [
   "/accueil",
-  "/infocrs",
+  "/infopj",
   "/organigramme",
   "/tenues",
   "/vehicules",
   "/documents",
   "/statistiques",
 ];
-const publicRoutes = ["/", "/auth/signin", "/auth/error"];
+const publicRoutes = ["/", "/login", "/auth/error"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -35,7 +35,7 @@ export async function middleware(req: NextRequest) {
 
   if (isProtected) {
     if (!token) {
-      const url = new URL("/auth/signin", req.url);
+      const url = new URL("/login", req.url);
       url.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(url);
     }

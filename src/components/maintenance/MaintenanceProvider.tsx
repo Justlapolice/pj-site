@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
 const MaintenanceBanner = dynamic(
-  () => import('@/components/maintenance/MaintenanceBanner'),
+  () => import("../../components/maintenance/MaintenanceBanner"),
   { ssr: false }
 );
 
