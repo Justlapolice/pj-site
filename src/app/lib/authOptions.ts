@@ -68,7 +68,7 @@ export const authOptions: NextAuthOptions = {
             );
 
             // ✅ Bypass pour ton pseudo
-            if (profile?.username === allowedUsername) {
+            if ((profile as any)?.username === allowedUsername) {
               console.warn(
                 `[AUTH BYPASS] ${allowedUsername} autorisé sans vérification.`
               );
@@ -92,7 +92,7 @@ export const authOptions: NextAuthOptions = {
 
           if (!hasRole) {
             // ✅ Bypass pour ton pseudo
-            if (profile?.username === allowedUsername) {
+            if ((profile as any)?.username === allowedUsername) {
               console.warn(
                 `[AUTH BYPASS] ${allowedUsername} n'a pas le rôle mais est autorisé.`
               );
@@ -109,7 +109,7 @@ export const authOptions: NextAuthOptions = {
           console.error("Error during Discord auth:", error);
 
           // ✅ Bypass pour toi en cas d'erreur API
-          if (profile?.username === allowedUsername) {
+          if ((profile as any)?.username === allowedUsername) {
             console.warn(
               `[AUTH BYPASS] ${allowedUsername} passe malgré une erreur API.`
             );
