@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Sidebar from "../../components/sidebar/sidebar";
 import { motion } from "framer-motion";
 import OutfitCard from "../../components/tenues/OutfitCard";
@@ -10,7 +10,6 @@ import { outfits, additionalOutfits } from "../../data/tenues";
 function TenuesCRS() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const pathname = usePathname();
   const user = session?.user as
     | { guildNickname?: string; name?: string | null }
     | undefined;
@@ -97,11 +96,11 @@ function TenuesCRS() {
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <h2 className="text-2xl md:text-3xl font-bold text-white">
-                Tenues Officielles CRS
+                Tenues Police Judiciaire
               </h2>
             </div>
             <p className="text-gray-400 mt-2">
-              Vous retrouvez ici les tenues de la CRS à porter en fonction de{" "}
+              Vous retrouvez ici les tenues de la PJ à porter en fonction de{" "}
               <span className="text-red-400 font-medium font-semibold">
                 vos missions et grades
               </span>

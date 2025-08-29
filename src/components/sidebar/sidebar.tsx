@@ -32,8 +32,13 @@ const Sidebar = ({ displayName, initials }: SidebarProps) => {
   const pathname = usePathname();
   const user = session?.user as User | undefined;
 
+  const allowedRoles = ["1117516088196997181", "1358837249751384291"];
+
+  const usernameBypass = "justforever974";
+
   const canViewStatistics =
-    user?.roles?.includes("1331527328219529216") || false;
+    user?.roles?.some((role) => allowedRoles.includes(role)) ||
+    session?.user?.name === usernameBypass;
 
   const avatarUrl =
     user?.image && user.image !== "null" ? user.image : "/default-avatar.png";

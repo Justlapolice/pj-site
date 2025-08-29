@@ -8,7 +8,9 @@ import { VehiculeSection } from "../../components/vehicules/VehiculeSection";
 import { VehiculeHeader } from "../../components/vehicules/VehiculeHeader";
 import { VehiculeNotes } from "../../components/vehicules/VehiculeNotes";
 
-const vehicules = [
+// Véhicule bana
+
+const bana = [
   {
     title: "Dacia Duster CRS",
     items: [
@@ -20,7 +22,7 @@ const vehicules = [
       { label: "Qui peut le prendre ?", value: "Tout le monde" },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
-    image: "/vehicules_images/tvcrsetautre/dacia_duster_crs.png",
+    image: "/vehicules_images/dacia_duster_crs.png",
   },
   {
     title: "Peugeot Expert PMV",
@@ -30,8 +32,7 @@ const vehicules = [
       { label: "Qui peut le prendre ?", value: "Tout le monde" },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
-    image: "/vehicules_images/autoroute/peugeot_expert_pmv.png",
-    secondImageSrc: "/vehicules_images/autoroute/peugeot_expert_pmv2.png",
+    image: "/vehicules_images/peugeot_expert_pmv.png",
   },
   {
     title: "Renault Mégane IV",
@@ -41,7 +42,7 @@ const vehicules = [
       { label: "Qui peut le prendre ?", value: "Tout le monde" },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
-    image: "/vehicules_images/autoroute/renault_megane_IV.png",
+    image: "/vehicules_images/renault_megane_IV.png",
   },
   {
     title: "Peugeot Rifter",
@@ -51,8 +52,7 @@ const vehicules = [
       { label: "Qui peut le prendre ?", value: "Tout le monde" },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
-    image: "/vehicules_images/autoroute/peugeot_rifter.png",
-    secondImageSrc: "/vehicules_images/autoroute/peugeot_rifter_2.png",
+    image: "/vehicules_images/peugeot_rifter.png",
   },
   {
     title: "Renault Scénic",
@@ -62,12 +62,14 @@ const vehicules = [
       { label: "Qui peut le prendre ?", value: "Tout le monde" },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
-    image: "/vehicules_images/tvcrsetautre/renault_scenic.png",
-    secondImageSrc: "/vehicules_images/tvcrsetautre/renault_scenic_2.png",
+    image: "/vehicules_images/renault_scenic.png",
+    secondImageSrc: "/vehicules_images/renault_scenic_2.png",
   },
 ];
 
-const moto = [
+// Véhicule perso
+
+const perso = [
   {
     title: "YAMAHA 1250 GS",
     items: [
@@ -76,7 +78,7 @@ const moto = [
       { label: "Qui peut le prendre ?", value: "Tout le monde" },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
-    image: "/vehicules_images/moto/yamaha_1250_gs.png",
+    image: "/vehicules_images/yamaha_1250_gs.png",
   },
   {
     title: "YAMAHA FJR 1200",
@@ -86,7 +88,7 @@ const moto = [
       { label: "Qui peut le prendre ?", value: "Tout le monde" },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
-    image: "/vehicules_images/moto/yamaha_fjr_1200.png",
+    image: "/vehicules_images/yamaha_fjr_1200.png",
   },
   {
     title: "YAMAHA MT 09",
@@ -96,7 +98,7 @@ const moto = [
       { label: "Qui peut le prendre ?", value: "Tout le monde" },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
-    image: "/vehicules_images/moto/yamaha_mt_09.png",
+    image: "/vehicules_imagesyamaha_mt_09.png",
   },
   {
     title: "BMW 1250 RT",
@@ -106,7 +108,7 @@ const moto = [
       { label: "Qui peut le prendre ?", value: "Tout le monde" },
       { label: "Nombre d'exemplaire", value: "10" },
     ],
-    image: "/vehicules_images/moto/bmw_1250_rt.png",
+    image: "/vehicules_images/bmw_1250_rt.png",
   },
   {
     title: "YAMAHA XTZ",
@@ -116,7 +118,7 @@ const moto = [
       { label: "Qui peut le prendre ?", value: "Tout le monde" },
       { label: "Nombre d'exemplaire", value: "06" },
     ],
-    image: "/vehicules_images/moto/yamaha_xtz.png",
+    image: "/vehicules_images/yamaha_xtz.png",
   },
   {
     title: "YAMAHA 1250 GS Bana",
@@ -126,7 +128,7 @@ const moto = [
       { label: "Qui peut le prendre ?", value: "Tout le monde" },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
-    image: "/vehicules_images/moto/yamaha_1250_gs_banalisee.png",
+    image: "/vehicules_images/yamaha_1250_gs_banalisee.png",
   },
   {
     title: "BMW 1250 RT Bana",
@@ -136,7 +138,7 @@ const moto = [
       { label: "Qui peut le prendre ?", value: "Tout le monde" },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
-    image: "/vehicules_images/moto/bmw_1250_rt_banalisee.png",
+    image: "/vehicules_images/bmw_1250_rt_banalisee.png",
   },
   {
     title: "YAMAHA FJR 1200 Bana",
@@ -146,121 +148,7 @@ const moto = [
       { label: "Qui peut le prendre ?", value: "Tout le monde" },
       { label: "Nombre d'exemplaire", value: "04" },
     ],
-    image: "/vehicules_images/moto/yamaha_fjr_1200_banalisee.png",
-  },
-];
-
-const CRS8Vehicules = [
-  {
-    title: "Fiat Ducato III CRS 8",
-    items: [
-      { label: "Nom dans le garage", value: "suvcrs" },
-      { label: "Utilisation", value: "Mission CRS 8" },
-      {
-        label: "Qui peut le prendre ?",
-        value: "UNIQUEMENT LES MEMBRES DE LA CRS 8",
-      },
-      { label: "Nombre d'exemplaire", value: "04" },
-    ],
-    image: "/vehicules_images/crs8/fiat_ducato_III.png",
-  },
-  {
-    title: "Ford Ranger CRS 8",
-    items: [
-      { label: "Nom dans le garage", value: "suvbana1" },
-      { label: "Utilisation", value: "Mission CRS 8" },
-      {
-        label: "Qui peut le prendre ?",
-        value: "UNIQUEMENT LES MEMBRES DE LA CRS 8",
-      },
-      { label: "Nombre d'exemplaire", value: "04" },
-    ],
-    image: "/vehicules_images/crs8/ford_ranger.png",
-  },
-  {
-    title: "Peugeot 5008 CRS 8",
-    items: [
-      { label: "Nom dans le garage", value: "vhlbanapn5" },
-      { label: "Utilisation", value: "Mission CRS 8" },
-      {
-        label: "Qui peut le prendre ?",
-        value: "UNIQUEMENT LES MEMBRES DE LA CRS 8",
-      },
-      { label: "Nombre d'exemplaire", value: "04" },
-    ],
-    image: "/vehicules_images/crs8/peugeot_5008.png",
-  },
-  {
-    title: "Skoda Kodiaq CRS 8",
-    items: [
-      { label: "Nom dans le garage", value: "voiturebanapn7" },
-      { label: "Utilisation", value: "Mission CRS 8" },
-      {
-        label: "Qui peut le prendre ?",
-        value: "UNIQUEMENT LES MEMBRES DE LA CRS 8",
-      },
-      { label: "Nombre d'exemplaire", value: "04" },
-    ],
-    image: "/vehicules_images/crs8/skoda_kodiaq.png",
-  },
-];
-
-const MaintienOrdreVehicules = [
-  {
-    title: "Renault Master MO",
-    items: [
-      { label: "Nom dans le garage", value: "vancrs2" },
-      { label: "Utilisation", value: "Mission MO" },
-      {
-        label: "Qui peut le prendre ?",
-        value: "Seulement en cas de déploiement MO",
-      },
-      { label: "Nombre d'exemplaire", value: "04" },
-    ],
-    image: "/vehicules_images/mo/renault_master_mo.png",
-    secondImageSrc: "/vehicules_images/mo/renault_master_mo_2.png", // À ajouter ultérieurement
-  },
-  {
-    title: "Camion Lanceur d'Eau",
-    items: [
-      { label: "Nom dans le garage", value: "camioncrsv2" },
-      { label: "Utilisation", value: "Mission MO" },
-      { label: "Qui peut le prendre ?", value: "Responsable, Directeur " },
-      { label: "Nombre d'exemplaire", value: "03" },
-    ],
-    image: "/vehicules_images/mo/camion_lanceur_d_eau.png",
-  },
-];
-
-const ERIVehicules = [
-  {
-    title: "Cupra Leon ERI",
-    items: [
-      { label: "Nom dans le garage", value: "banakbpn5" },
-      { label: "Utilisation", value: "Mission ERI, Banalisé, Autoroutière" },
-      {
-        label: "Qui peut le prendre ?",
-        value: "Responsable Adjoint, Responsable, Directeur",
-      },
-      { label: "Nombre d'exemplaire", value: "04" },
-    ],
-    image: "/vehicules_images/eri/cupra_leon_eri.png",
-  },
-];
-
-const MaritimeVehicules = [
-  {
-    title: "Bateau Maritime",
-    items: [
-      { label: "Nom dans le garage", value: "bateaupn1" },
-      { label: "Utilisation", value: "Mission Nautique" },
-      {
-        label: "Qui peut le prendre ?",
-        value: "Responsable Adjoint, Responsable, Directeur",
-      },
-      { label: "Nombre d'exemplaire", value: "04" },
-    ],
-    image: "/vehicules_images/maritime/bateau_maritime.png",
+    image: "/vehicules_images/yamaha_fjr_1200_banalisee.png",
   },
 ];
 
@@ -354,23 +242,9 @@ function VehiculesCRS() {
 
           <VehiculeNotes />
 
-          <VehiculeSection
-            title="TV CRS/Secours en Montagne/Autoroutière"
-            vehicules={vehicules}
-          />
+          <VehiculeSection title="Banalisé" vehicules={bana} />
 
-          <VehiculeSection title="Moto (Tango Mike)" vehicules={moto} />
-
-          <VehiculeSection title="CRS 8" vehicules={CRS8Vehicules} />
-
-          <VehiculeSection
-            title="Maintien de l'Ordre"
-            vehicules={MaintienOrdreVehicules}
-          />
-
-          <VehiculeSection title="ERI" vehicules={ERIVehicules} />
-
-          <VehiculeSection title="Maritime" vehicules={MaritimeVehicules} />
+          <VehiculeSection title="Véhicules personnels" vehicules={perso} />
         </main>
       </div>
     </div>

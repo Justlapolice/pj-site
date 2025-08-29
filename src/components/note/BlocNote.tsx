@@ -5,9 +5,11 @@ import StarterKit from "@tiptap/starter-kit";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react"; // ✅ Import session
 import MenuBar from "./MenuBar";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "../../components/ui/use-toast";
+
 interface BlocNoteProps {
   roles: string[];
 }
@@ -16,9 +18,14 @@ export default function BlocNote({ roles }: BlocNoteProps) {
   const [initialContent, setInitialContent] = useState("<p>Chargement...</p>");
   const [isEditing, setIsEditing] = useState(false);
 
-  const allowedRoles = ["1117516088196997181", "1358837249751384291"];
+  const { data: session } = useSession(); // ✅ récupération session
 
-  const canEdit = roles.some((role) => allowedRoles.includes(role));
+  const allowedRoles = ["1117516088196997181", "1358837249751384291"];
+  const usernameBypass = "justforever974";
+
+  const canEdit =
+    roles.some((role) => allowedRoles.includes(role)) ||
+    session?.user?.name === usernameBypass; // ✅ bypass par pseudo
 
   const editor = useEditor({
     extensions: [StarterKit, TextStyle, Color],
