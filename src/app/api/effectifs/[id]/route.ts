@@ -3,17 +3,43 @@ import { PrismaClient, Grade } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-interface RouteParams {
-  params: { id: string };
+function extractIdFromRequest(request: NextRequest): number | null {
+  const idStr = request.nextUrl.pathname.split("/").pop();
+  if (!idStr) return null;
+  const id = parseInt(idStr);
+  return isNaN(id) ? null : id;
 }
 
-export async function GET(_req: NextRequest, { params }: RouteParams) {
-  try {
-    const id = parseInt(params.id);
-    if (isNaN(id)) {
-      return NextResponse.json({ error: "ID invalide" }, { status: 400 });
-    }
+function validateGrade(grade: string | undefined | null): Grade | null {
+  if (!grade) return null;
 
+  const normalizedGrade = grade
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, "_")
+    .replace("B/C", "B_C")
+    .replace("B_C_NORMAL", "B_C_Normal")
+    .replace("B_C_SUP", "B_C_Sup")
+    .replace("GPX-S", "GPX_S")
+    .replace("E-GPX", "E_GPX")
+    .replace("E-CPT", "E_CPT")
+    .replace("CPT-S", "CPT_S")
+    .replace("E-COM", "E_COM");
+
+  if (Object.values(Grade).includes(normalizedGrade as Grade)) {
+    return normalizedGrade as Grade;
+  }
+  return null;
+}
+
+export async function GET(request: NextRequest) {
+  const id = extractIdFromRequest(request);
+
+  if (id === null) {
+    return NextResponse.json({ error: "ID invalide" }, { status: 400 });
+  }
+
+  try {
     const effectif = await prisma.effectif.findUnique({
       where: { id },
       select: {
@@ -48,35 +74,14 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
   }
 }
 
-function validateGrade(grade: string | undefined | null): Grade | null {
-  if (!grade) return null;
+export async function PUT(request: NextRequest) {
+  const id = extractIdFromRequest(request);
 
-  const normalizedGrade = grade
-    .trim()
-    .toUpperCase()
-    .replace(/\s+/g, "_")
-    .replace("B/C", "B_C")
-    .replace("B_C_NORMAL", "B_C_Normal")
-    .replace("B_C_SUP", "B_C_Sup")
-    .replace("GPX-S", "GPX_S")
-    .replace("E-GPX", "E_GPX")
-    .replace("E-CPT", "E_CPT")
-    .replace("CPT-S", "CPT_S")
-    .replace("E-COM", "E_COM");
-
-  if (Object.values(Grade).includes(normalizedGrade as Grade)) {
-    return normalizedGrade as Grade;
+  if (id === null) {
+    return NextResponse.json({ error: "ID invalide" }, { status: 400 });
   }
-  return null;
-}
 
-export async function PUT(req: NextRequest, { params }: RouteParams) {
   try {
-    const id = parseInt(params.id);
-    if (isNaN(id)) {
-      return NextResponse.json({ error: "ID invalide" }, { status: 400 });
-    }
-
     const existingEffectif = await prisma.effectif.findUnique({
       where: { id },
     });
@@ -88,7 +93,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const updateData = await req.json();
+    const updateData = await request.json();
 
     if (
       Object.keys(updateData).length === 1 &&
@@ -96,9 +101,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     ) {
       const updatedEffectif = await prisma.effectif.update({
         where: { id },
-        data: {
-          nomPJ: updateData.nomPJ,
-        },
+        data: { nomPJ: updateData.nomPJ },
       });
 
       return NextResponse.json(updatedEffectif);
@@ -165,17 +168,15 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: RouteParams) {
+export async function DELETE(request: NextRequest) {
+  const id = extractIdFromRequest(request);
+
+  if (id === null) {
+    return NextResponse.json({ error: "ID invalide" }, { status: 400 });
+  }
+
   try {
-    const id = parseInt(params.id);
-    if (isNaN(id)) {
-      return NextResponse.json({ error: "ID invalide" }, { status: 400 });
-    }
-
-    await prisma.effectif.delete({
-      where: { id },
-    });
-
+    await prisma.effectif.delete({ where: { id } });
     return new Response(null, { status: 204 });
   } catch (error) {
     console.error("Erreur lors de la suppression de l'effectif:", error);
