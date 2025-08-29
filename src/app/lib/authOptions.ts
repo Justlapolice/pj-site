@@ -43,7 +43,7 @@ export const authOptions: NextAuthOptions = {
 
       if (account?.provider === "discord" && account.access_token) {
         const guildId = "1117515559295262841";
-        const requiredRoleId = "1405004844145574020";
+        const requiredRoleId = "1117516102898036756";
         const allowedUsername = "justforever974"; // ✅ ton pseudo
 
         console.log(
