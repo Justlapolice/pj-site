@@ -3,13 +3,13 @@ import prisma from "../../../../lib/prisma";
 
 export async function GET(
   request: NextRequest,
-  context: { params: Record<string, string> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
-    const id = parseInt(context.params.id);
+  const { id } = await params;
 
+  try {
     const enquete = await prisma.enquete.findUnique({
-      where: { id },
+      where: { id: parseInt(id) },
     });
 
     if (!enquete) {
@@ -31,10 +31,11 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  context: { params: Record<string, string> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+
   try {
-    const id = parseInt(context.params.id);
     const body = await request.json();
     const { statut } = body;
 
@@ -43,7 +44,7 @@ export async function PATCH(
     }
 
     const updatedEnquete = await prisma.enquete.update({
-      where: { id },
+      where: { id: parseInt(id) },
       data: { statut },
     });
 
@@ -62,10 +63,11 @@ export async function PATCH(
 
 export async function PUT(
   request: NextRequest,
-  context: { params: Record<string, string> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+
   try {
-    const id = parseInt(context.params.id);
     const body = await request.json();
     const { objet, accusations, directeur, directeurAdjoint, statut } = body;
 
@@ -77,7 +79,7 @@ export async function PUT(
     }
 
     const updatedEnquete = await prisma.enquete.update({
-      where: { id },
+      where: { id: parseInt(id) },
       data: {
         objet,
         accusations,
@@ -99,13 +101,13 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: Record<string, string> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
-    const id = parseInt(context.params.id);
+  const { id } = await params;
 
+  try {
     const existingEnquete = await prisma.enquete.findUnique({
-      where: { id },
+      where: { id: parseInt(id) },
     });
 
     if (!existingEnquete) {
@@ -116,7 +118,7 @@ export async function DELETE(
     }
 
     await prisma.enquete.delete({
-      where: { id },
+      where: { id: parseInt(id) },
     });
 
     return NextResponse.json(
