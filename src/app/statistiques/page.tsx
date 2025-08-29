@@ -83,7 +83,10 @@ export default function StatistiquesPage() {
   const user = session?.user as User | undefined;
   const displayName = user?.guildNickname || user?.name || "Utilisateur";
 
-  const hasAccess = user?.roles?.includes("1331527328219529216") || false;
+  const allowedRoles = ["1117516088196997181", "1358837249751384291"];
+
+  const hasAccess =
+    user?.roles?.some((role) => allowedRoles.includes(role)) || false;
 
   // Génération des initiales
   const initials = displayName

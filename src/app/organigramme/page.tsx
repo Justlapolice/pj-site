@@ -78,7 +78,10 @@ export default function GestionEffectifs() {
     .toUpperCase()
     .slice(0, 2);
 
-  const canManageStaff = user?.roles?.includes("1331527328219529216") || false;
+  const allowedRoles = ["1117516088196997181", "1358837249751384291"];
+
+  const canManageStaff =
+    user?.roles?.some((role) => allowedRoles.includes(role)) || false;
 
   const showToastMessage = (
     message: string,

@@ -16,7 +16,9 @@ export default function BlocNote({ roles }: BlocNoteProps) {
   const [initialContent, setInitialContent] = useState("<p>Chargement...</p>");
   const [isEditing, setIsEditing] = useState(false);
 
-  const canEdit = roles.includes("1331527328219529216");
+  const allowedRoles = ["1117516088196997181", "1358837249751384291"];
+
+  const canEdit = roles.some((role) => allowedRoles.includes(role));
 
   const editor = useEditor({
     extensions: [StarterKit, TextStyle, Color],

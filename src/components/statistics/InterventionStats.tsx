@@ -15,7 +15,9 @@ interface User extends Record<string, any> {
 const InterventionStats = () => {
   const { data: session } = useSession();
   const user = session?.user as User | undefined;
-  const isAdmin = user?.roles?.includes("1331527328219529216") || false;
+  const allowedRoles = ["1117516088196997181", "1358837249751384291"];
+  const isAdmin =
+    user?.roles?.some((role) => allowedRoles.includes(role)) || false;
 
   const [stats, setStats] = useState<StatItem[]>([
     { name: "BMU", value: 70, color: "bg-blue-500", icon: "🏍️" },
