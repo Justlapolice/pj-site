@@ -38,8 +38,9 @@ export default function AccueilIntranet() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const user = session?.user as
-    | { guildNickname?: string; name?: string | null }
+    | { guildNickname?: string; name?: string | null; roles?: string[] }
     | undefined;
+
   const displayName = user?.guildNickname || user?.name || "Utilisateur";
   const pathname = usePathname();
   const [effectifs, setEffectifs] = useState<Effectif[]>([]);
