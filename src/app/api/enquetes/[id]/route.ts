@@ -3,14 +3,12 @@ import { NextRequest } from "next/server";
 import prisma from "../../../../lib/prisma";
 
 type RouteParams = {
-  params: {
-    id: string;
-  };
+  id: string;
 };
 
 export async function GET(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: RouteParams }
 ) {
   try {
     const enquete = await prisma.enquete.findUnique({
@@ -36,7 +34,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: RouteParams }
 ) {
   try {
     const body = await request.json();
@@ -66,7 +64,7 @@ export async function PATCH(
 
 export async function PUT(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: RouteParams }
 ) {
   try {
     const body = await request.json();
@@ -102,7 +100,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: RouteParams }
 ) {
   try {
     const existingEnquete = await prisma.enquete.findUnique({
