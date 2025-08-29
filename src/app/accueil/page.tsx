@@ -1,7 +1,7 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Sidebar from "../../components/sidebar/sidebar";
@@ -10,7 +10,7 @@ import { Effectif } from "@prisma/client";
 import { UserGroupIcon } from "@heroicons/react/24/outline";
 import BlocNote from "../../components/note/BlocNote";
 import { toast } from "../../components/ui/use-toast";
-
+import JustLoggedInToast from "./JustLoggedInToast";
 const InfoCard = ({
   title,
   children,
@@ -133,6 +133,9 @@ export default function AccueilIntranet() {
     <div className="min-h-screen text-white flex">
       <Sidebar displayName={displayName} initials={initials} />
       <div className="flex-1 ml-[270px] relative z-10">
+        <Suspense fallback={null}>
+          <JustLoggedInToast displayName={displayName} />
+        </Suspense>
         {/* En-tête */}
         <header className="bg-[rgba(5,12,48,1)] backdrop-blur-md border-b border-[rgba(10,20,60,0.6)] sticky top-0 z-10">
           <div className="container mx-auto px-6 py-4">
