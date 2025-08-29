@@ -39,13 +39,20 @@ export default function Rapport() {
   const pathname = usePathname();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [formData, setFormData] = useState({
-    id: undefined as number | undefined,
+  const [formData, setFormData] = useState<{
+    id: number | undefined;
+    objet: string;
+    accusations: string;
+    directeur: string;
+    directeurAdjoint: string;
+    statut: Statut;
+  }>({
+    id: undefined,
     objet: "",
     accusations: "",
     directeur: "",
     directeurAdjoint: "",
-    statut: "Début" as const,
+    statut: "Début",
   });
 
   const [isEditing, setIsEditing] = useState(false);
