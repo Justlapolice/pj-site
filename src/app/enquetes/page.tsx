@@ -358,7 +358,7 @@ export default function Rapport() {
               </h2>
               <div className="flex gap-2">
                 <motion.button
-                  onClick={handleOpenModal}
+                  onClick={() => handleOpenModal()}
                   className="bg-gradient-to-r from-blue-500 to-white text-black px-4 py-1.5 rounded-xl flex items-center gap-2 shadow-lg text-sm"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.97 }}
