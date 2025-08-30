@@ -255,18 +255,12 @@ export default function EnquetePage() {
   const handleSaveSection = async (
     sectionId: string,
     data: Record<string, string>
-  ) => {
+  ): Promise<void> => {
     try {
       const response = await fetch("/api/sections", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          enqueteId: id,
-          sectionId,
-          data,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enqueteId: id, sectionId, data }),
       });
 
       if (!response.ok) {
@@ -277,11 +271,8 @@ export default function EnquetePage() {
         ...prev,
         [sectionId]: data,
       }));
-
-      return true;
     } catch (error) {
       console.error("Erreur lors de la sauvegarde de la section:", error);
-      return false;
     }
   };
 
