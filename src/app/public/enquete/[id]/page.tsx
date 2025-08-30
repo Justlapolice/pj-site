@@ -344,16 +344,17 @@ export default function EnquetePage() {
     <div className="w-full min-h-screen bg-[#0f0f1a] text-white p-6 space-y-6">
       {/* Header et statut */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="text-2xl font-bold">
-          Rapport de synthèse - Enquête n°PJ {id}
-          {numeroEnquete}
-          <p className="text-lg font-semibold text-gray-400">
-            - Objet de l&apos;enquête : {enquete.objet}
-          </p>
-          <p className="text-lg font-semibold text-gray-400">
-            - Chefs Accusations : {enquete.accusations}
-          </p>
-        </h1>
+        {enquete && (
+          <h1 className="text-2xl font-bold">
+            Rapport de synthèse - Enquête n°PJ {id} {numeroEnquete}
+            <p className="text-lg font-semibold text-gray-400">
+              - Objet de l&apos;enquête : {enquete.objet}
+            </p>
+            <p className="text-lg font-semibold text-gray-400">
+              - Chefs Accusations : {enquete.accusations || "Non renseigné"}
+            </p>
+          </h1>
+        )}
 
         <div className="relative">
           <button
