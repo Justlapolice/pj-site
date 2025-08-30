@@ -91,19 +91,6 @@ export default function LoginClient() {
               Accès sécurisé - Tous droits réservés © {new Date().getFullYear()}
             </span>
           </div>
-          {/* <div className="mt-2 flex items-center justify-center space-x-4 text-xs text-gray-400">
-              <a href="#" className="hover:text-blue-600 hover:underline">
-                Aide
-              </a>
-              <span>•</span>
-              <a href="#" className="hover:text-blue-600 hover:underline">
-                Mentions légales
-              </a>
-              <span>•</span>
-              <a href="#" className="hover:text-blue-600 hover:underline">
-                Contact
-              </a>
-            </div> */}
         </div>
 
         {!session && (

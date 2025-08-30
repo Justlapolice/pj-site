@@ -37,11 +37,11 @@ interface Effectif {
   formations: Formation[];
 }
 
-interface RawEffectif extends Omit<Effectif, "formations"> {
+export interface RawEffectif extends Omit<Effectif, "formations"> {
   formations: Formation[] | string | null;
 }
 
-interface User extends Record<string, any> {
+interface User {
   guildNickname?: string;
   name?: string | null;
   email?: string | null;
@@ -315,16 +315,7 @@ export default function GestionEffectifs() {
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prenom,
-          nom,
-          nomPJ,
-          poste,
-          statut,
-          telephone,
-          formations,
-          grade: grade || null,
-        }),
+        body: JSON.stringify(effectifData),
       });
 
       if (!response.ok) throw new Error("Erreur lors de la sauvegarde");
@@ -385,17 +376,6 @@ export default function GestionEffectifs() {
         formations: newFormations as Formation[],
       };
     });
-  };
-
-  const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    };
-    return new Date(dateString).toLocaleDateString("fr-FR", options);
   };
 
   if (status === "loading" || isLoading) {

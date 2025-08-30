@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
@@ -50,12 +50,13 @@ export default function EnqueteModal({
   formData,
   directeurs,
   adjoints,
+  isEditing,
 }: EnqueteModalProps) {
-  const [isEditing, setIsEditing] = useState(false);
   return (
     <AnimatePresence>
       {isOpen && (
         <>
+          {/* Fond noir semi-transparent */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -64,6 +65,7 @@ export default function EnqueteModal({
             onClick={onClose}
           />
 
+          {/* Contenu du modal */}
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.98 }}
@@ -74,6 +76,7 @@ export default function EnqueteModal({
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6">
+                {/* Titre et bouton de fermeture */}
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-lg font-semibold">
                     {isEditing
@@ -88,7 +91,9 @@ export default function EnqueteModal({
                   </button>
                 </div>
 
+                {/* Formulaire */}
                 <form onSubmit={onSubmit} className="space-y-5">
+                  {/* Objet */}
                   <div className="space-y-1">
                     <label className="block text-sm font-medium text-gray-300">
                       Objet de l&apos;enquête
@@ -103,6 +108,7 @@ export default function EnqueteModal({
                     />
                   </div>
 
+                  {/* Accusations */}
                   <div className="space-y-1">
                     <label className="block text-sm font-medium text-gray-300">
                       Chefs d&apos;accusations
@@ -117,6 +123,7 @@ export default function EnqueteModal({
                     />
                   </div>
 
+                  {/* Directeur */}
                   <div className="space-y-1">
                     <label className="block text-sm font-medium text-gray-300">
                       Directeur d&apos;enquête
@@ -138,6 +145,7 @@ export default function EnqueteModal({
                     </select>
                   </div>
 
+                  {/* Directeur adjoint */}
                   <div className="space-y-1">
                     <label className="block text-sm font-medium text-gray-300">
                       Directeur adjoint d&apos;enquête
@@ -159,6 +167,7 @@ export default function EnqueteModal({
                     </select>
                   </div>
 
+                  {/* Bouton Submit */}
                   <div className="pt-4">
                     <button
                       type="submit"

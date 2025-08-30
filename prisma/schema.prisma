@@ -75,3 +75,15 @@ model NoteEnquetes {
   
   @@map("note_enquetes")
 }
+
+model EnqueteSection {
+  id        Int      @id @default(autoincrement())
+  enqueteId Int
+  sectionId String   // Identifiant unique de la section (ex: "identite", "documents")
+  data      Json     // Données de la section au format JSON
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([enqueteId, sectionId])
+  @@map("enquete_section")
+}

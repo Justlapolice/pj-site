@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { Effectif } from "../../types/effectif";
 import Image from "next/image";
 import Sidebar from "../../components/sidebar/sidebar";
 import { motion, AnimatePresence } from "framer-motion";
@@ -36,7 +37,6 @@ export default function Rapport() {
     | { guildNickname?: string; name?: string | null }
     | undefined;
   const displayName = user?.guildNickname || user?.name || "Utilisateur";
-  const pathname = usePathname();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [formData, setFormData] = useState<{
@@ -84,8 +84,8 @@ export default function Rapport() {
       try {
         const response = await fetch("/api/effectifs");
         if (response.ok) {
-          const data = await response.json();
-          const formattedData = data.map((effectif: any) => ({
+          const data: Effectif[] = await response.json();
+          const formattedData = data.map((effectif: Effectif) => ({
             ...effectif,
             nomComplet: `${effectif.prenom} ${effectif.nom}`,
           }));
@@ -320,6 +320,10 @@ export default function Rapport() {
     return null;
   }
 
+  if (isLoading) {
+    return <div>Chargement en cours...</div>;
+  }
+
   return (
     <div className="min-h-screen text-white flex">
       <Sidebar displayName={displayName} initials={initials} />
@@ -406,7 +410,9 @@ export default function Rapport() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-700">
-                  {enquetes.map((enquete, index) => (
+                  {enquetes
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .map((enquete, index) => (
                     <tr key={index}>
                       <td className="px-6 py-4 text-sm font-medium">
                         {enquete.id}

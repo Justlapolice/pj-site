@@ -1,8 +1,7 @@
 "use client";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { FaCheck, FaLink, FaTrash } from "react-icons/fa";
-import { EditableSection } from "@/components/editable-section";
+import { FaCheck, FaLink, FaTrash, FaPen } from "react-icons/fa";
 
 type Statut =
   | "Début"
@@ -40,13 +39,6 @@ export default function EnquetePage() {
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
-  interface SectionData {
-    [key: string]: string | number | boolean | null | undefined;
-  }
-
-  const [sectionsData, setSectionsData] = useState<Record<string, SectionData>>(
-    {}
-  );
 
   const statusColors = {
     Début: "bg-blue-500 hover:bg-blue-600",
@@ -93,27 +85,12 @@ export default function EnquetePage() {
 
     const fetchEnquete = async () => {
       try {
-        const [enqueteResponse, sectionsResponse] = await Promise.all([
-          fetch(`/api/enquetes/${id}`),
-          fetch(`/api/sections?enqueteId=${id}`),
-        ]);
-
-        if (enqueteResponse.ok) {
-          const data = await enqueteResponse.json();
+        const response = await fetch(`/api/enquetes/${id}`);
+        if (response.ok) {
+          const data = await response.json();
           setEnquete(data);
         } else {
           console.error("Erreur lors de la récupération de l'enquête");
-        }
-
-        if (sectionsResponse.ok) {
-          const sections = await sectionsResponse.json();
-          const sectionsMap = (
-            sections as Array<{ sectionId: string; data: SectionData }>
-          ).reduce<Record<string, SectionData>>((acc, section) => {
-            acc[section.sectionId] = section.data;
-            return acc;
-          }, {});
-          setSectionsData(sectionsMap);
         }
       } catch (error) {
         console.error("Erreur:", error);
@@ -122,9 +99,7 @@ export default function EnquetePage() {
       }
     };
 
-    if (id) {
-      fetchEnquete();
-    }
+    fetchEnquete();
   }, [id]);
 
   const handleCopyLink = () => {
@@ -251,91 +226,65 @@ export default function EnquetePage() {
     );
   }
 
-  const handleSaveSection = async (
-    sectionId: string,
-    data: Record<string, string>
-  ) => {
-    try {
-      const response = await fetch("/api/sections", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          enqueteId: id,
-          sectionId,
-          data,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la sauvegarde");
-      }
-
-      setSectionsData((prev) => ({
-        ...prev,
-        [sectionId]: data,
-      }));
-
-      return true;
-    } catch (error) {
-      console.error("Erreur lors de la sauvegarde de la section:", error);
-      return false;
-    }
-  };
-
   const sections = [
     {
-      id: "enqueteurs",
       title: "ENQUÊTEUR(S)/ENQUÊTRICE(S)",
-      fields: [
-        { key: "directeur", label: "Directeur", type: "text" },
-        { key: "directeurAdjoint", label: "Directeur adjoint", type: "text" },
-      ],
-      initialData: {
-        directeur: enquete.directeur || "",
-        directeurAdjoint: enquete.directeurAdjoint || "",
-      },
+      icon: (
+        <button
+          onClick={() => alert("Modifier")}
+          className="text-white hover:text-gray-200 transition"
+        >
+          <FaPen />
+        </button>
+      ),
+      content: (
+        <>
+          Nous soussigné : <b>{enquete.directeur}</b>, Officier de Police
+          Judiciaire, en résidence à Paris 75000
+          <br />
+          Assisté de : <b>{enquete.directeurAdjoint}</b>, Officier de Police
+          Judiciaire, en résidence à Paris 75000
+        </>
+      ),
     },
     {
-      id: "identite",
       title: "IDENTITÉ DU MIS EN CAUSE",
-      fields: [
-        { key: "nom", label: "Nom", type: "text" },
-        { key: "prenom", label: "Prénom", type: "text" },
-        { key: "dateNaissance", label: "Date de naissance", type: "date" },
-        { key: "lieuNaissance", label: "Lieu de naissance", type: "text" },
-        { key: "adresse", label: "Adresse", type: "text" },
-        { key: "profession", label: "Profession", type: "text" },
-        { key: "telephone", label: "Numéro de téléphone", type: "text" },
-        { key: "groupe", label: "Groupe", type: "text" },
-      ],
-      initialData: sectionsData["identite"] || {},
+      icon: <FaPen />,
+      content: (
+        <>
+          <p>Nom : x</p>
+          <p>Prénom : x</p>
+          <p>Date de naissance : x</p>
+          <p>Lieu de naissance : x</p>
+          <p>Adresse : x</p>
+          <p>Profession : x</p>
+          <p>Numéro de téléphone : x</p>
+          <p>Groupe : x</p>
+        </>
+      ),
     },
     {
-      id: "documents",
       title: "DOCUMENTS RELATIFS À L'ENQUÊTE",
-      fields: [
-        { key: "pvi", label: "PVI", type: "text" },
-        { key: "pva", label: "PVA", type: "text" },
-        { key: "plainte", label: "Dépôt de plainte", type: "text" },
-        { key: "piecesJointes", label: "Pièces jointes", type: "text" },
-      ],
-      initialData: sectionsData["documents"] || {},
+      icon: <FaPen />,
+      content: (
+        <>
+          <p>PVI : x</p>
+          <p>PVA : x</p>
+          <p>Dépôt de plainte : x</p>
+          <p>Pièces jointes : x</p>
+        </>
+      ),
     },
     {
-      id: "compteRendu",
       title: "COMPTE-RENDU DE L'ENQUÊTE",
-      fields: [
-        {
-          key: "contenu",
-          label: "Contenu du compte-rendu",
-          type: "textarea",
-        },
-      ],
-      initialData: sectionsData["compteRendu"] || {
-        date: new Date().toISOString().split("T")[0],
-      },
+      icon: <FaPen />,
+      content: (
+        <>
+          Fait à Paris le{" "}
+          {new Date(enquete.createdAt).toLocaleDateString("fr-FR")} à{" "}
+          {new Date(enquete.createdAt).toLocaleTimeString("fr-FR")}
+        </>
+      ),
     },
   ];
 
@@ -458,26 +407,19 @@ export default function EnquetePage() {
           </div>
 
           {/* Sections */}
-          <div className="space-y-6">
-            {sections.map((section) => (
-              <div key={section.id}>
-                {/* Header */}
-                <div className="flex justify-between items-center bg-[#3b26b1] px-3 py-1 rounded-t-md">
-                  <h3 className="font-bold text-sm">{section.title}</h3>
-                </div>
-
-                {/* Body */}
-                <div className="bg-[#1d1d2f] p-3 rounded-b-md">
-                  <EditableSection
-                    // title={section.title}
-                    fields={section.fields}
-                    initialContent={section.initialData}
-                    onSave={(data) => handleSaveSection(section.id, data)}
-                  />
-                </div>
+          {sections.map((section, idx) => (
+            <div key={idx}>
+              <div className="flex justify-between items-center bg-[#3b26b1] px-3 py-1 rounded-t-md">
+                <h3 className="font-bold text-sm">{section.title}</h3>
+                <button className="text-white hover:text-gray-200 transition">
+                  {section.icon}
+                </button>
               </div>
-            ))}
-          </div>
+              <div className="bg-[#1d1d2f] p-3 rounded-b-md">
+                {section.content}
+              </div>
+            </div>
+          ))}
 
           {/* Signatures */}
           <div className="mt-6 flex justify-around items-end gap-12">

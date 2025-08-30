@@ -28,7 +28,7 @@ interface Effectif {
   formations: Formation[];
 }
 
-interface User extends Record<string, any> {
+interface User {
   guildNickname?: string;
   name?: string | null;
   email?: string | null;
@@ -146,7 +146,7 @@ export default function StatistiquesPage() {
         return acc;
       }, {} as Record<string, number>);
 
-      const formationsTriees = Object.entries(formationsStats)
+      const formationsTriees: FormationStats[] = Object.entries(formationsStats)
         .sort((a, b) => b[1] - a[1])
         .map(([nom, count]) => ({
           nom,
@@ -163,7 +163,7 @@ export default function StatistiquesPage() {
         "Stagiaire",
       ];
 
-      const postesTries = ordrePostes
+      const postesTries: PosteStats[] = ordrePostes
         .map((nom) => ({
           nom,
           count: postesStats[nom] || 0,
