@@ -20,6 +20,7 @@ interface Enquete {
   statut: Statut;
   createdAt: string;
   updatedAt: string;
+  accusations?: string;
 }
 
 interface Note {
