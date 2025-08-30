@@ -67,7 +67,10 @@ export const authOptions: NextAuthOptions = {
               await res.text()
             );
 
-            if ((profile as any)?.username === allowedUsername) {
+            if (
+              (profile as unknown as { username?: string })?.username ===
+              allowedUsername
+            ) {
               console.warn(
                 `[AUTH BYPASS] ${allowedUsername} autorisé sans vérification.`
               );
@@ -90,7 +93,10 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (!hasRole) {
-            if ((profile as any)?.username === allowedUsername) {
+            if (
+              (profile as unknown as { username?: string })?.username ===
+              allowedUsername
+            ) {
               console.warn(
                 `[AUTH BYPASS] ${allowedUsername} n'a pas le rôle mais est autorisé.`
               );
@@ -106,7 +112,10 @@ export const authOptions: NextAuthOptions = {
         } catch (error) {
           console.error("Error during Discord auth:", error);
 
-          if ((profile as any)?.username === allowedUsername) {
+          if (
+            (profile as unknown as { username?: string })?.username ===
+            allowedUsername
+          ) {
             console.warn(
               `[AUTH BYPASS] ${allowedUsername} passe malgré une erreur API.`
             );
@@ -172,6 +181,10 @@ export const authOptions: NextAuthOptions = {
               : null;
           }
         } catch (err) {
+          console.error(
+            "Erreur lors de la récupération du profil Discord:",
+            err
+          );
           token.discordGuildNickname = null;
           token.discordAvatar = null;
         }
@@ -207,7 +220,12 @@ export const authOptions: NextAuthOptions = {
         return session;
       }
 
-      session.user = session.user || ({} as any);
+      session.user = session.user || {
+        guildNickname: null,
+        avatar: null,
+        roles: [],
+      };
+
       session.user.guildNickname = token.discordGuildNickname || null;
       session.user.avatar = token.discordAvatar || null;
       session.user.roles = token.discordRoles || [];

@@ -112,6 +112,14 @@ export default function AccueilIntranet() {
     );
   }
 
+  if (isLoading) {
+    return <div>Chargement en cours...</div>;
+  }
+
+  if (error) {
+    return <div className="p-4 text-red-500">Erreur: {error}</div>;
+  }
+
   return (
     <div className="min-h-screen text-white flex">
       <Sidebar displayName={displayName} initials={initials} />
