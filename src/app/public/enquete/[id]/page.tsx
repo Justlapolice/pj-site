@@ -285,7 +285,16 @@ export default function EnquetePage() {
     }
   };
 
-  const sections = [
+  const sections: {
+    id: string;
+    title: string;
+    fields: {
+      key: string;
+      label: string;
+      type?: "text" | "textarea" | "date";
+    }[];
+    initialData: Record<string, string>;
+  }[] = [
     {
       id: "enqueteurs",
       title: "ENQUÊTEUR(S)/ENQUÊTRICE(S)",
