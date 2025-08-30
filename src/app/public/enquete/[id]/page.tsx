@@ -42,7 +42,7 @@ export default function EnquetePage() {
   const [saving, setSaving] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   interface SectionData {
-    [key: string]: string | number | boolean | null | undefined;
+    [key: string]: string;
   }
 
   const [sectionsData, setSectionsData] = useState<Record<string, SectionData>>(
