@@ -293,7 +293,7 @@ export default function EnquetePage() {
       label: string;
       type?: "text" | "textarea" | "date";
     }[];
-    initialData: Record<string, string>;
+    initialData: SectionData; // au lieu de Record<string, string>
   }[] = [
     {
       id: "enqueteurs",
