@@ -1,8 +1,18 @@
 "use client";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { FaCheck, FaLink, FaTrash } from "react-icons/fa";
-import { EditableSection } from "@/components/editable-section";
+import {
+  FaCheck,
+  FaLink,
+  FaTrash,
+  FaSave,
+  FaTimes,
+  FaPen,
+} from "react-icons/fa";
+import { EditableSection } from "../../../../components/editable/editable-section";
+import { useSession } from "next-auth/react";
+import { RichTextEditor } from "../../../../components/editable/rich-text-editor";
+import Image from "next/image";
 
 type Statut =
   | "Début"
@@ -29,17 +39,68 @@ interface Note {
   createdAt: string;
 }
 
+interface User {
+  guildNickname?: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  roles?: string[];
+}
+
 export default function EnquetePage() {
+  const { data: session } = useSession();
+  const user = session?.user as User | undefined;
   const params = useParams();
   const id = params?.id as string;
+
+  const allowedRoles = ["1117516088196997181", "1358837249751384291"];
+  const usernameBypass = "justforever974";
+  const hasEditPermission =
+    user?.roles?.some((role) => allowedRoles.includes(role)) ||
+    session?.user?.name === usernameBypass;
 
   const [notes, setNotes] = useState<Note[]>([]);
   const [newNote, setNewNote] = useState("");
   const [enquete, setEnquete] = useState<Enquete | null>(null);
+  const [effectifDirecteur, setEffectifDirecteur] = useState<{
+    grade?: string;
+  } | null>(null);
+  const [effectifDirecteurAdjoint, setEffectifDirecteurAdjoint] = useState<{
+    grade?: string;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const grades = {
+    PA: "Policier Adjoint",
+    E_GPX: "Élève Gardien de la Paix",
+    GPX_S: "Gardien de la Paix Stagiaire",
+    GPX: "Gardien de la Paix",
+    B_C_Normal: "Brigadier Chef de Classe Normal",
+    B_C_Sup: "Brigadier-Chef de Classe Supérieur",
+    MAJ: "Major",
+    MEEX: "Major Exeptionnel",
+    MAJRULP: "Major-RULP",
+    E_CPT: "Élève Officier",
+    CPT_S: "Lieutenant Stagiaire",
+    LTN: "Lieutenant",
+    CNE: "Capitaine",
+    CDT: "Commandant",
+    CDTD: "Commandant Divisionnaire",
+    CDTEF: "Commandant Divisionnaire Fonctionnel de la Police Nationale",
+    E_COM: "Élève Commissaire",
+    COM: "Commissaire",
+    CD: "Commissaire Divisionnaire",
+    CG: "Contrôleur Général",
+  };
+
+  const getGradeLabel = (gradeKey?: string | null) => {
+    if (!gradeKey) return "";
+    return grades[gradeKey as keyof typeof grades] || gradeKey;
+  };
   const [rotations, setRotations] = useState({ dir: 0, adj: 0 });
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [isEditingRichText, setIsEditingRichText] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   interface SectionData {
     [key: string]: string;
@@ -63,7 +124,6 @@ export default function EnquetePage() {
   const mois = String(today.getMonth() + 1).padStart(2, "0"); // 08
   const annee = today.getFullYear(); // 2025
 
-  // Construit ton numéro d'enquête
   const numeroEnquete = `PN17ARR${annee}${jour}${mois}`;
 
   const handleStatusChange = async (newStatus: Statut) => {
@@ -127,6 +187,36 @@ export default function EnquetePage() {
       fetchEnquete();
     }
   }, [id]);
+
+  useEffect(() => {
+    const fetchEffectifs = async () => {
+      if (!enquete) return;
+
+      try {
+        const dirResponse = await fetch(
+          `/api/effectifs?nomPJ=${enquete.directeur}`
+        );
+        if (dirResponse.ok) {
+          const data = await dirResponse.json();
+          setEffectifDirecteur(data[0] || {});
+        }
+
+        const adjResponse = await fetch(
+          `/api/effectifs?nomPJ=${enquete.directeurAdjoint}`
+        );
+        if (adjResponse.ok) {
+          const data = await adjResponse.json();
+          setEffectifDirecteurAdjoint(data[0] || {});
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des effectifs:", error);
+      }
+    };
+
+    if (enquete) {
+      fetchEffectifs();
+    }
+  }, [enquete]);
 
   const handleCopyLink = () => {
     const url = window.location.href;
@@ -199,7 +289,7 @@ export default function EnquetePage() {
               pathname.endsWith(".webp")
             ) {
               return (
-                <img
+                <Image
                   key={idx}
                   src={part}
                   alt="note image"
@@ -220,7 +310,11 @@ export default function EnquetePage() {
                 {part}
               </a>
             );
-          } catch (e) {
+          } catch (error) {
+            console.error(
+              "Erreur lors du traitement du contenu de la note:",
+              error
+            );
             return <span key={idx}>{part}</span>;
           }
         })}
@@ -271,45 +365,66 @@ export default function EnquetePage() {
         ...prev,
         [sectionId]: data,
       }));
+
+      // Mise à jour de la date après une sauvegarde réussie
+      if (sectionId === "compteRendu") {
+        setEnquete((prev) =>
+          prev
+            ? {
+                ...prev,
+                updatedAt: new Date().toISOString(),
+              }
+            : null
+        );
+      }
     } catch (error) {
       console.error("Erreur lors de la sauvegarde de la section:", error);
     }
   };
 
-  const sections: {
-    id: string;
-    title: string;
-    fields: {
-      key: string;
-      label: string;
-      type?: "text" | "textarea" | "date";
-    }[];
-    initialData: SectionData; // au lieu de Record<string, string>
-  }[] = [
+  // Définition des types de champs autorisés
+  type FieldType = "text" | "textarea" | "date" | "link" | "richtext";
+
+  interface SectionField {
+    key: string;
+    label: string;
+    type?: FieldType;
+  }
+
+  const sections = [
     {
       id: "enqueteurs",
       title: "ENQUÊTEUR(S)/ENQUÊTRICE(S)",
-      fields: [
-        { key: "directeur", label: "Directeur", type: "text" },
-        { key: "directeurAdjoint", label: "Directeur adjoint", type: "text" },
-      ],
-      initialData: {
-        directeur: enquete.directeur || "",
-        directeurAdjoint: enquete.directeurAdjoint || "",
-      },
+      icon: (
+        <button
+          onClick={() => alert("Modifier")}
+          className="text-white hover:text-gray-200 transition"
+        ></button>
+      ),
+      content: (
+        <>
+          Nous soussigné :{" "}
+          <b>
+            {getGradeLabel(effectifDirecteur?.grade)} {enquete.directeur}
+          </b>
+          , Officier de Police Judiciaire, en résidence à Paris 75000
+          <br />
+          Assisté de :{" "}
+          <b>
+            {getGradeLabel(effectifDirecteurAdjoint?.grade)}{" "}
+            {enquete.directeurAdjoint}
+          </b>
+          , Officier de Police Judiciaire, en résidence à Paris 75000
+        </>
+      ),
     },
     {
       id: "identite",
-      title: "IDENTITÉ DU MIS EN CAUSE",
+      title: "IDENTITÉ DE L'ENQUÊTE",
       fields: [
-        { key: "nom", label: "Nom", type: "text" },
-        { key: "prenom", label: "Prénom", type: "text" },
-        { key: "dateNaissance", label: "Date de naissance", type: "date" },
-        { key: "lieuNaissance", label: "Lieu de naissance", type: "text" },
-        { key: "adresse", label: "Adresse", type: "text" },
-        { key: "profession", label: "Profession", type: "text" },
-        { key: "telephone", label: "Numéro de téléphone", type: "text" },
-        { key: "groupe", label: "Groupe", type: "text" },
+        { key: "numeroEnquete", label: "Numéro d'enquête" },
+        { key: "dateOuverture", label: "Date d'ouverture", type: "date" },
+        { key: "lieu", label: "Lieu des faits" },
       ],
       initialData: sectionsData["identite"] || {},
     },
@@ -317,10 +432,10 @@ export default function EnquetePage() {
       id: "documents",
       title: "DOCUMENTS RELATIFS À L'ENQUÊTE",
       fields: [
-        { key: "pvi", label: "PVI", type: "text" },
-        { key: "pva", label: "PVA", type: "text" },
-        { key: "plainte", label: "Dépôt de plainte", type: "text" },
-        { key: "piecesJointes", label: "Pièces jointes", type: "text" },
+        { key: "pvi", label: "PVI", type: "link" },
+        { key: "pva", label: "PVA", type: "link" },
+        { key: "plainte", label: "Plainte", type: "link" },
+        { key: "piecesJointes", label: "PJ", type: "link" },
       ],
       initialData: sectionsData["documents"] || {},
     },
@@ -331,10 +446,11 @@ export default function EnquetePage() {
         {
           key: "contenu",
           label: "Contenu du compte-rendu",
-          type: "textarea",
+          type: "richtext" as const,
         },
-      ],
+      ] as SectionField[],
       initialData: sectionsData["compteRendu"] || {
+        contenu: "",
         date: new Date().toISOString().split("T")[0],
       },
     },
@@ -347,43 +463,44 @@ export default function EnquetePage() {
         {enquete && (
           <h1 className="text-2xl font-bold">
             Rapport de synthèse - Enquête n°PJ {id} {numeroEnquete}
-            <p className="text-lg font-semibold text-gray-400">
+            {/* <p className="text-lg font-semibold text-gray-400">
               - Objet de l&apos;enquête : {enquete.objet}
             </p>
             <p className="text-lg font-semibold text-gray-400">
               - Chefs Accusations : {enquete.accusations || "Non renseigné"}
-            </p>
+            </p> */}
           </h1>
         )}
 
         <div className="relative">
-          <button
-            onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-            className={`px-4 py-1 rounded-full text-white font-medium text-sm ${
-              statusColors[enquete.statut as keyof typeof statusColors] ||
-              "bg-gray-500"
-            } transition-colors flex items-center gap-2`}
-            disabled={saving}
-          >
-            {enquete.statut}
-            <svg
-              className={`w-4 h-4 transition-transform ${
-                showStatusDropdown ? "rotate-180" : ""
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
+          {hasEditPermission && (
+            <button
+              onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+              className={`px-4 py-1 rounded-full text-white font-medium text-sm ${
+                statusColors[enquete.statut as keyof typeof statusColors] ||
+                "bg-gray-500"
+              } transition-colors flex items-center gap-2`}
+              disabled={saving}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-
+              {enquete.statut}
+              <svg
+                className={`w-4 h-4 transition-transform ${
+                  showStatusDropdown ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+          )}
           {showStatusDropdown && (
             <div className="absolute z-10 mt-1 w-40 bg-[#1e1e2d] rounded-md shadow-lg border border-gray-700">
               {(Object.keys(statusColors) as Statut[]).map((statut) => (
@@ -406,24 +523,28 @@ export default function EnquetePage() {
       <div className="flex justify-end gap-3">
         <button
           onClick={handleCopyLink}
-          className="flex items-center gap-2 bg-gray-600 px-3 py-1.5 rounded hover:bg-gray-700 transition"
+          className="flex items-center gap-2 bg-yellow-600 px-3 py-1.5 rounded hover:bg-yellow-700 transition"
         >
           <FaLink /> Lien
         </button>
 
-        <button
-          onClick={() => handleStatusChange("Annulée")}
-          className="flex items-center gap-2 bg-red-600 px-3 py-1.5 rounded hover:bg-red-700 transition"
-        >
-          <FaTrash /> Annuler
-        </button>
+        {hasEditPermission && (
+          <button
+            onClick={() => handleStatusChange("Annulée")}
+            className="flex items-center gap-2 bg-red-600 px-3 py-1.5 rounded hover:bg-red-700 transition"
+          >
+            <FaTrash /> Annuler
+          </button>
+        )}
 
-        <button
-          onClick={() => handleStatusChange("Terminée")}
-          className="flex items-center gap-2 bg-green-600 px-3 py-1.5 rounded hover:bg-green-700 transition"
-        >
-          <FaCheck /> Clôturer
-        </button>
+        {hasEditPermission && (
+          <button
+            onClick={() => handleStatusChange("Terminée")}
+            className="flex items-center gap-2 bg-green-600 px-3 py-1.5 rounded hover:bg-green-700 transition"
+          >
+            <FaCheck /> Clôturer
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
@@ -434,15 +555,23 @@ export default function EnquetePage() {
             <div className="grid grid-cols-3 divide-x divide-[#070995] items-stretch text-center">
               {/* Logo gauche */}
               <div className="flex justify-center items-center p-6">
-                <img src="/pjlogo.png" alt="Logo PJ" className="h-20 w-auto" />
+                <Image
+                  src="/pjlogo.png"
+                  alt="Logo PJ"
+                  className="h-20 w-auto"
+                  width={80}
+                  height={80}
+                />
               </div>
 
               {/* Bloc central */}
               <div className="flex flex-col justify-center items-center p-6">
-                <img
+                <Image
                   src="/logopn.png"
                   alt="Logo Police Nationale"
                   className="h-16 w-auto mb-2"
+                  width={80}
+                  height={80}
                 />
                 <h2 className="font-bold text-lg">Rapport de synthèse</h2>
                 <p className="text-gray-300">Police Judiciaire</p>
@@ -450,7 +579,7 @@ export default function EnquetePage() {
               </div>
 
               {/* Texte République Française */}
-              <div className="flex flex-col justify-center items-center text-sm leading-5 text-gray-400 p-6">
+              <div className="flex flex-col justify-center items-center text-sm leading-5 text-white p-6">
                 <p>RÉPUBLIQUE FRANÇAISE MINISTÈRE DE L&apos;INTÉRIEUR</p>
                 <p>DIRECTION CENTRALE DE LA POLICE NATIONALE</p>
                 <p>PRÉFECTURE DE POLICE DE PARIS</p>
@@ -470,12 +599,109 @@ export default function EnquetePage() {
 
                 {/* Body */}
                 <div className="bg-[#1d1d2f] p-3 rounded-b-md">
-                  <EditableSection
-                    // title={section.title}
-                    fields={section.fields}
-                    initialContent={section.initialData}
-                    onSave={(data) => handleSaveSection(section.id, data)}
-                  />
+                  {section.id === "enqueteurs" ? (
+                    <div className="text-white">{section.content}</div>
+                  ) : section.id === "compteRendu" ? (
+                    <div className="mt-2">
+                      {/* Boutons modifier / annuler / enregistrer */}
+                      {hasEditPermission && (
+                        <div className="flex justify-end mb-2">
+                          {!isEditingRichText ? (
+                            <button
+                              onClick={() => setIsEditingRichText(true)}
+                              className="text-gray-400 hover:text-white transition"
+                              aria-label="Modifier"
+                            >
+                              <FaPen className="h-4 w-4" />
+                            </button>
+                          ) : (
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => setIsEditingRichText(false)}
+                                className="text-gray-400 hover:text-white transition"
+                                disabled={saving}
+                                aria-label="Annuler"
+                              >
+                                <FaTimes className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const form = document.querySelector(
+                                    `form[data-section="${section.id}"]`
+                                  ) as HTMLFormElement;
+                                  if (form) form.requestSubmit();
+                                }}
+                                className="text-green-400 hover:text-green-300 transition"
+                                disabled={saving}
+                                aria-label="Enregistrer"
+                              >
+                                <FaSave className="h-4 w-4" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Contenu */}
+                      {isEditingRichText && hasEditPermission ? (
+                        <form
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            handleSaveSection(section.id, {
+                              ...(section.initialData || {}),
+                              contenu: section.initialData?.contenu || "",
+                            });
+                            setIsEditingRichText(false);
+                          }}
+                          data-section={section.id}
+                          className="space-y-3"
+                        >
+                          <RichTextEditor
+                            value={section.initialData?.contenu || ""}
+                            onChange={(content) => {
+                              setSectionsData((prev) => ({
+                                ...prev,
+                                [section.id]: {
+                                  ...section.initialData,
+                                  contenu: content,
+                                },
+                              }));
+                            }}
+                            readOnly={!isEditingRichText}
+                            allowedRoles={allowedRoles}
+                          />
+                        </form>
+                      ) : (
+                        <div className="prose prose-invert max-w-none p-3 rounded-md bg-[#0f0f1a]">
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html:
+                                section.initialData?.contenu ||
+                                "<p class='text-gray-500'>Aucun contenu saisi</p>",
+                            }}
+                          />
+                        </div>
+                      )}
+
+                      <p className="mt-4 text-sm text-gray-400">
+                        Fait à Paris le{" "}
+                        {new Date(enquete.createdAt).toLocaleDateString(
+                          "fr-FR"
+                        )}{" "}
+                        à{" "}
+                        {new Date(enquete.createdAt).toLocaleTimeString(
+                          "fr-FR"
+                        )}
+                      </p>
+                    </div>
+                  ) : (
+                    <EditableSection
+                      fields={section.fields || []}
+                      initialContent={section.initialData || {}}
+                      onSave={(data) => handleSaveSection(section.id, data)}
+                      allowedRoles={hasEditPermission ? allowedRoles : []}
+                    />
+                  )}
                 </div>
               </div>
             ))}
@@ -512,30 +738,34 @@ export default function EnquetePage() {
             <h3 className="font-bold mb-2">Notes</h3>
 
             <div className="flex gap-2 mb-4">
-              <input
-                type="text"
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && !saving && addNote()}
-                placeholder="Ajouter une note..."
-                className={`w-full p-2 rounded bg-[#2a2a3a] text-white border ${
-                  saving
-                    ? "border-gray-600"
-                    : "border-[#3a3a4a] focus:border-indigo-500"
-                } focus:outline-none`}
-                disabled={saving}
-              />
-              <button
-                onClick={addNote}
-                disabled={saving}
-                className={`px-4 py-2 rounded transition ${
-                  saving
-                    ? "bg-gray-600 cursor-not-allowed"
-                    : "bg-indigo-600 hover:bg-indigo-700"
-                }`}
-              >
-                {saving ? "Enregistrement..." : "Ajouter"}
-              </button>
+              {hasEditPermission && (
+                <input
+                  type="text"
+                  value={newNote}
+                  onChange={(e) => setNewNote(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && !saving && addNote()}
+                  placeholder="Ajouter une note..."
+                  className={`w-full p-2 rounded bg-[#2a2a3a] text-white border ${
+                    saving
+                      ? "border-gray-600"
+                      : "border-[#3a3a4a] focus:border-indigo-500"
+                  } focus:outline-none`}
+                  disabled={saving}
+                />
+              )}
+              {hasEditPermission && (
+                <button
+                  onClick={addNote}
+                  disabled={saving}
+                  className={`px-4 py-2 rounded transition ${
+                    saving
+                      ? "bg-gray-600 cursor-not-allowed"
+                      : "bg-indigo-600 hover:bg-indigo-700"
+                  }`}
+                >
+                  {saving ? "Enregistrement..." : "Ajouter"}
+                </button>
+              )}
             </div>
 
             <div className="space-y-2 max-h-60 overflow-y-auto">
@@ -567,7 +797,7 @@ export default function EnquetePage() {
           className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 cursor-pointer"
           onClick={() => setLightboxImage(null)}
         >
-          <img
+          <Image
             src={lightboxImage}
             className="max-h-full max-w-full rounded shadow-lg"
             alt="Note image"

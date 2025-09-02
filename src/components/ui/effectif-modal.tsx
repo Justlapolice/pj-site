@@ -44,7 +44,6 @@ export default function EffectifModal({
   onSubmit,
   onInputChange,
   onFormationChange,
-  setEffectif,
 }: EffectifModalProps) {
   return (
     <AnimatePresence>

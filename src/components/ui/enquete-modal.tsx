@@ -126,7 +126,7 @@ export default function EnqueteModal({
                   {/* Directeur */}
                   <div className="space-y-1">
                     <label className="block text-sm font-medium text-gray-300">
-                      Directeur d&apos;enquête
+                      DE
                     </label>
                     <select
                       id="directeur"
@@ -148,7 +148,7 @@ export default function EnqueteModal({
                   {/* Directeur adjoint */}
                   <div className="space-y-1">
                     <label className="block text-sm font-medium text-gray-300">
-                      Directeur adjoint d&apos;enquête
+                      DAE
                     </label>
                     <select
                       id="directeurAdjoint"

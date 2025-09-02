@@ -5,33 +5,59 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import Sidebar from "../../components/sidebar/sidebar";
-import { motion } from "framer-motion";
 import { Effectif } from "@prisma/client";
-import { UserGroupIcon } from "@heroicons/react/24/outline";
-import BlocNote from "../../components/note/BlocNote";
 import JustLoggedInToast from "./JustLoggedInToast";
-const InfoCard = ({
-  title,
-  children,
-  icon,
-}: {
-  title: string;
-  children: React.ReactNode;
-  icon: React.ReactNode;
-}) => (
-  <motion.div
-    className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:border-blue-500/50 transition-all duration-300 h-full flex flex-col"
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.4 }}
-  >
-    <div className="flex items-center mb-4">
-      <div className="p-2 bg-blue-600/20 rounded-lg mr-3">{icon}</div>
-      <h3 className="text-lg font-semibold text-gray-100">{title}</h3>
-    </div>
-    <div className="text-gray-300 flex-1">{children}</div>
-  </motion.div>
-);
+import WelcomeCards from "../../components/accueil/cardaccueil/WelcomeCards";
+import StatsSection from "../../components/accueil/statsaccueil/StatsSection";
+import HeaderAccueil from "../../components/accueil/headeraccueil/HeaderAccueil";
+
+const roleImages: Record<string, string> = {
+  "1221836487516225668": "/grades/admin.png",
+  "1117516044408471642": "/grades/compolice.png",
+  "1201527681209090058": "/grades/cdtd.png",
+  "1117516048397246585": "/grades/cdt.png",
+  "1117516050314051594": "/grades/cptltn.png",
+  "1117516054999093260": "/grades/majrulp.png",
+  "554624526210695218": "/grades/meex.png",
+  "1117516055804399697": "/grades/maj.png",
+  "1117516058681688074": "/grades/gpx.png",
+  "1117516059763810375": "/grades/gpxs.png",
+  "1117516061026291843": "/grades/elvgpx.png",
+  "1117516061957439589": "/grades/pa.png",
+};
+
+// Mapping des rôles Discord vers les grades
+const roleToGrade: Record<string, string> = {
+  // CEA
+  "1117516061957439589": "Policier Adjoint",
+  "1117516061026291843": "Élève Gardien de la Paix",
+  "1117516059763810375": "Gardien de la Paix Stagiaire",
+  "1117516058681688074": "Gardien de la Paix",
+  "1117516055804399697": "Major",
+  "554624526210695218": "Major Exceptionnel",
+  "1117516054999093260": "Major RULP",
+
+  // CC
+  "1117516050314051594": "Lieutenant Capitaine",
+  "1117516048397246585": "Commandant",
+  "1201527681209090058": "Commandant Divisionnaire",
+
+  // CCD
+
+  "1117516044408471642": "Commissaire de Police",
+  "1221836487516225668": "Commissaire Général",
+};
+
+const roleToQualifications: Record<string, string> = {
+  "1117516079099564175": "Agent de Police Judiciaire ",
+  "1117516078055161926": "Officier de Police Judiciaire",
+};
+
+const postePJ: Record<string, string> = {
+  "1117516102898036756": "Membre PJ",
+  "1117516088196997181": "Adjoint PJ",
+  "1358837249751384291": "Responsable PJ",
+};
 
 export default function AccueilIntranet() {
   const { data: session, status } = useSession();
@@ -40,7 +66,44 @@ export default function AccueilIntranet() {
     | { guildNickname?: string; name?: string | null; roles?: string[] }
     | undefined;
 
+  const getGradeInfo = (roles?: string[]) => {
+    if (!roles) return { grade: null, roleId: null };
+    for (const roleId of roles) {
+      if (roleToGrade[roleId]) {
+        return { grade: roleToGrade[roleId], roleId };
+      }
+    }
+    return { grade: null, roleId: null };
+  };
+
+  const { grade, roleId: gradeRoleId } = getGradeInfo(user?.roles);
+
+  const getQualificationInfo = (roles?: string[]) => {
+    if (!roles) return { qualification: null, roleId: null };
+    for (const roleId of roles) {
+      if (roleToQualifications[roleId]) {
+        return { qualification: roleToQualifications[roleId], roleId };
+      }
+    }
+    return { qualification: null, roleId: null };
+  };
+
+  const { qualification } = getQualificationInfo(user?.roles);
+
+  const getPostePJInfo = (roles?: string[]) => {
+    if (!roles) return { postePJName: null, roleId: null };
+    for (const roleId of roles) {
+      if (postePJ[roleId]) {
+        return { postePJName: postePJ[roleId], roleId };
+      }
+    }
+    return { postePJName: null, roleId: null };
+  };
+
+  const { postePJName } = getPostePJInfo(user?.roles);
+
   const displayName = user?.guildNickname || user?.name || "Utilisateur";
+  const cleanDisplayName = displayName.replace(/^\s*(\[[^\]]*\]\s*)+/g, "");
   const pathname = usePathname();
   const [effectifs, setEffectifs] = useState<Effectif[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -63,14 +126,13 @@ export default function AccueilIntranet() {
     return () => clearInterval(timer);
   }, []);
 
-  // Génération des initiales
-  const initials = displayName
+  // Génération des initiales à partir du nom nettoyé
+  const initials = cleanDisplayName
     .split(" ")
     .map((n: string) => n[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
-
   // Récupération des données des effectifs
   useEffect(() => {
     const fetchEffectifs = async () => {
@@ -127,70 +189,24 @@ export default function AccueilIntranet() {
         <Suspense fallback={null}>
           <JustLoggedInToast displayName={displayName} />
         </Suspense>
-        {/* En-tête */}
-        <header className="bg-[rgba(5,12,48,1)] backdrop-blur-md border-b border-[rgba(10,20,60,0.6)] sticky top-0 z-10">
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <a href="/accueil">
-                  <img
-                    src="/pjlogo.png"
-                    alt="Logo PJ"
-                    className="h-10 w-auto"
-                  />
-                </a>
-                <a
-                  href="/accueil"
-                  className="text-xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent"
-                >
-                  Intranet Police Judiciaire
-                </a>
-              </div>
-              <div className="hidden md:flex items-center space-x-6">
-                <span className="text-gray-300 text-sm">
-                  Connecté en tant que:{" "}
-                  <span className="text-blue-400 font-medium">
-                    {displayName}
-                  </span>
-                </span>
-              </div>
-            </div>
-          </div>
-        </header>
+
+        <HeaderAccueil displayName={cleanDisplayName} />
 
         <main className="flex-1 p-6 lg:p-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-8"
-          >
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-              Bonjour, {displayName}
-            </h2>
-            <p className="text-gray-400 mb-2">
-              Bienvenue sur votre espace personnel
-            </p>
-          </motion.div>
+          <WelcomeCards
+            cleanDisplayName={cleanDisplayName}
+            grade={grade}
+            gradeRoleId={gradeRoleId}
+            qualification={qualification}
+            postePJ={postePJName}
+            roleImages={roleImages}
+            roles={user?.roles || []}
+          />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <InfoCard
-              title="Effectif Total"
-              icon={<UserGroupIcon className="h-6 w-6 text-blue-400" />}
-            >
-              <p className="text-3xl font-bold text-white mb-1">
-                {totalEffectifs}
-              </p>
-              <p className="text-sm text-gray-400">Membres au total</p>
-            </InfoCard>
-
-            <InfoCard
-              title="Bloc-note"
-              icon={<UserGroupIcon className="h-6 w-6 text-blue-400" />}
-            >
-              <BlocNote roles={user?.roles || []} />
-            </InfoCard>
-          </div>
+          <StatsSection
+            totalEffectifs={totalEffectifs}
+            roles={user?.roles || []}
+          />
         </main>
       </div>
     </div>

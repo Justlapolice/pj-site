@@ -85,7 +85,7 @@ export default function LoginClient() {
         </div>
 
         <div className="bg-blue-800 px-8 py-4 border-t border-gray-200">
-          <div className="flex items-center justify-center space-x-2 text-xs text-black font-extrabold">
+          <div className="flex items-center justify-center space-x-2 text-xs text-white font-extrabold">
             <FaShieldAlt className="text-white" />
             <span>
               Accès sécurisé - Tous droits réservés © {new Date().getFullYear()}

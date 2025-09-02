@@ -4,6 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import Sidebar from "../../components/sidebar/sidebar";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const InfoCard = ({
   title,
@@ -31,9 +32,13 @@ const InfoCard = ({
 export default function InfoPJ() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const displayName =
-    session?.user?.guildNickname || session?.user?.name || "Utilisateur";
   const pathname = usePathname();
+  const user = session?.user as
+    | { guildNickname?: string; name?: string | null; roles?: string[] }
+    | undefined;
+
+  const displayName = user?.guildNickname || user?.name || "Utilisateur";
+  const cleanDisplayName = displayName.replace(/^\s*(\[[^\]]*\]\s*)+/g, "");
 
   // Vérification de l'authentification
   useEffect(() => {
@@ -42,19 +47,18 @@ export default function InfoPJ() {
     }
   }, [status, router]);
 
-  // Déconnexion automatique toutes les heuress
+  // Déconnexion automatique toutes les heures
   useEffect(() => {
     const timer = setInterval(() => {
       signOut({
         callbackUrl: "/login",
       });
     }, 60 * 60 * 1000);
-
     return () => clearInterval(timer);
   }, []);
 
   // Génération des initiales
-  const initials = displayName
+  const initials = cleanDisplayName
     .split(" ")
     .map((n: string) => n[0])
     .join("")
@@ -83,10 +87,11 @@ export default function InfoPJ() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <a href="/accueil">
-                  <img
+                  <Image
                     src="/pjlogo.png"
                     alt="Logo PJ"
-                    className="h-10 w-auto"
+                    width={40}
+                    height={40}
                   />
                 </a>
                 <a
@@ -100,7 +105,7 @@ export default function InfoPJ() {
                 <span className="text-gray-300 text-sm">
                   Connecté en tant que:{" "}
                   <span className="text-blue-400 font-medium">
-                    {displayName}
+                    {cleanDisplayName}
                   </span>
                 </span>
               </div>
@@ -117,9 +122,9 @@ export default function InfoPJ() {
               transition={{ duration: 0.5 }}
               className="mb-8"
             >
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 flex items-center">
-                Présentation de la Police Judiciaire{" "}
-                <img src="/pjlogo.png" alt="Logo PJ" className="h-10 w-auto" />
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 flex items-center gap-2">
+                Présentation de la Police Judiciaire
+                <Image src="/pjlogo.png" alt="Logo PJ" width={40} height={40} />
               </h2>
             </motion.div>
 
@@ -127,10 +132,11 @@ export default function InfoPJ() {
               <InfoCard
                 title="Date de création"
                 icon={
-                  <img
+                  <Image
                     src="/pjlogo.png"
                     alt="Logo PJ"
-                    className="h-10 w-auto"
+                    width={40}
+                    height={40}
                   />
                 }
               >
@@ -140,14 +146,15 @@ export default function InfoPJ() {
               <InfoCard
                 title="Nos missions"
                 icon={
-                  <img
+                  <Image
                     src="/pjlogo.png"
-                    alt="Logo CRS"
-                    className="h-10 w-auto"
+                    alt="Logo PJ"
+                    width={40}
+                    height={40}
                   />
                 }
               >
-                <p>La Police Judiciaire à plusieurs missions les voici : </p>
+                <p>La Police Judiciaire a plusieurs missions :</p>
                 <ul>
                   <li>● MISSION 1</li>
                   <li>● MISSION 2</li>
@@ -160,15 +167,16 @@ export default function InfoPJ() {
               <InfoCard
                 title="Nos sous-spécialités"
                 icon={
-                  <img
+                  <Image
                     src="/pjlogo.png"
-                    alt="Logo CRS"
-                    className="h-10 w-auto"
+                    alt="Logo PJ"
+                    width={40}
+                    height={40}
                   />
                 }
               >
                 <p>
-                  Dans cette partie vous retrouverais les différents services de
+                  Dans cette partie vous retrouverez les différents services de
                   la Police Judiciaire.
                 </p>
                 <ul>
@@ -179,18 +187,20 @@ export default function InfoPJ() {
                   <li>● SOUS SPE 5</li>
                 </ul>
               </InfoCard>
+
               <InfoCard
-                title="Réglement de la Police Judiciaire"
+                title="Règlement de la Police Judiciaire"
                 icon={
-                  <img
+                  <Image
                     src="/pjlogo.png"
-                    alt="Logo CRS"
-                    className="h-10 w-auto"
+                    alt="Logo PJ"
+                    width={40}
+                    height={40}
                   />
                 }
               >
                 <p>
-                  Dans cette partie vous trouverais le règlement de la Police
+                  Dans cette partie vous trouverez le règlement de la Police
                   Judiciaire.
                 </p>
                 <ul>

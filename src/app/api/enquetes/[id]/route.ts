@@ -37,15 +37,19 @@ export async function PATCH(
 
   try {
     const body = await request.json();
-    const { statut } = body;
+    const { statut, archived } = body as { statut?: string; archived?: boolean };
 
-    if (!statut) {
-      return NextResponse.json({ error: "Statut manquant" }, { status: 400 });
+    if (statut === undefined && archived === undefined) {
+      return NextResponse.json({ error: "Rien à mettre à jour" }, { status: 400 });
     }
+
+    const data: any = {};
+    if (statut !== undefined) data.statut = statut;
+    if (archived !== undefined) data.archived = archived;
 
     const updatedEnquete = await prisma.enquete.update({
       where: { id: parseInt(id) },
-      data: { statut },
+      data,
     });
 
     return NextResponse.json(updatedEnquete, { status: 200 });
