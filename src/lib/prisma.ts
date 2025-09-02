@@ -1,19 +1,18 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
-// Vérifions si nous sommes dans un environnement de développement
-const isDevelopment = process.env.NODE_ENV === 'development';
-
-// Créons une nouvelle instance de PrismaClient
-const prisma = new PrismaClient({
-  log: isDevelopment ? ['query', 'error', 'warn'] : ['error'],
-});
-
-// Dans un environnement de développement, attachons Prisma à global pour éviter les fuites de mémoire
-if (isDevelopment) {
-  (global as any).prisma = prisma;
+declare global {
+  // pour TypeScript : éviter l'erreur sur global.prisma
+  var prisma: PrismaClient | undefined;
 }
 
-// Exportation de PrismaClient
-export { prisma };
+const isDevelopment = process.env.NODE_ENV === "development";
+
+const prisma = isDevelopment
+  ? global.prisma ?? new PrismaClient({ log: ["query", "error", "warn"] })
+  : new PrismaClient({ log: ["error"] });
+
+// Dans dev, on attache à global pour éviter la création multiple d'instances
+if (isDevelopment) global.prisma = prisma;
 
 export default prisma;
+export { prisma };
