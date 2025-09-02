@@ -277,6 +277,11 @@ export default function EnquetePage() {
     return (
       <>
         {parts.map((part, idx) => {
+          // Si ce n’est pas une URL, on affiche tel quel
+          if (!part.match(/^https?:\/\//)) {
+            return <span key={idx}>{part}</span>;
+          }
+
           try {
             const url = new URL(part.trim());
             const pathname = url.pathname.toLowerCase();
@@ -294,6 +299,8 @@ export default function EnquetePage() {
                   src={part}
                   alt="note image"
                   className="max-w-full rounded cursor-pointer hover:opacity-80 transition my-1"
+                  width={400} // obligatoire pour Next/Image
+                  height={400} // sinon erreur
                   onClick={() => setLightboxImage(part)}
                 />
               );
@@ -311,10 +318,7 @@ export default function EnquetePage() {
               </a>
             );
           } catch (error) {
-            console.error(
-              "Erreur lors du traitement du contenu de la note:",
-              error
-            );
+            console.error("Lien invalide:", part, error);
             return <span key={idx}>{part}</span>;
           }
         })}
@@ -391,30 +395,31 @@ export default function EnquetePage() {
     type?: FieldType;
   }
 
-  const sections = [
+  const sections: {
+    id: string;
+    title: string;
+    fields?: SectionField[];
+    initialData?: SectionData;
+    content?: React.ReactNode;
+    icon?: React.ReactNode;
+  }[] = [
     {
       id: "enqueteurs",
       title: "ENQUÊTEUR(S)/ENQUÊTRICE(S)",
-      icon: (
-        <button
-          onClick={() => alert("Modifier")}
-          className="text-white hover:text-gray-200 transition"
-        ></button>
-      ),
       content: (
         <>
           Nous soussigné :{" "}
           <b>
             {getGradeLabel(effectifDirecteur?.grade)} {enquete.directeur}
           </b>
-          , Officier de Police Judiciaire, en résidence à Paris 75000
+          , Officier de Police Judiciaire
           <br />
           Assisté de :{" "}
           <b>
             {getGradeLabel(effectifDirecteurAdjoint?.grade)}{" "}
             {enquete.directeurAdjoint}
           </b>
-          , Officier de Police Judiciaire, en résidence à Paris 75000
+          , Officier de Police Judiciaire
         </>
       ),
     },
@@ -423,7 +428,11 @@ export default function EnquetePage() {
       title: "IDENTITÉ DE L'ENQUÊTE",
       fields: [
         { key: "numeroEnquete", label: "Numéro d'enquête" },
-        { key: "dateOuverture", label: "Date d'ouverture", type: "date" },
+        {
+          key: "dateOuverture",
+          label: "Date d'ouverture",
+          type: "date" as const,
+        },
         { key: "lieu", label: "Lieu des faits" },
       ],
       initialData: sectionsData["identite"] || {},
@@ -432,10 +441,10 @@ export default function EnquetePage() {
       id: "documents",
       title: "DOCUMENTS RELATIFS À L'ENQUÊTE",
       fields: [
-        { key: "pvi", label: "PVI", type: "link" },
-        { key: "pva", label: "PVA", type: "link" },
-        { key: "plainte", label: "Plainte", type: "link" },
-        { key: "piecesJointes", label: "PJ", type: "link" },
+        { key: "pvi", label: "PVI", type: "link" as const },
+        { key: "pva", label: "PVA", type: "link" as const },
+        { key: "plainte", label: "Plainte", type: "link" as const },
+        { key: "piecesJointes", label: "PJ", type: "link" as const },
       ],
       initialData: sectionsData["documents"] || {},
     },
@@ -448,11 +457,8 @@ export default function EnquetePage() {
           label: "Contenu du compte-rendu",
           type: "richtext" as const,
         },
-      ] as SectionField[],
-      initialData: sectionsData["compteRendu"] || {
-        contenu: "",
-        date: new Date().toISOString().split("T")[0],
-      },
+      ],
+      initialData: sectionsData["compteRendu"] || { contenu: "" },
     },
   ];
 
