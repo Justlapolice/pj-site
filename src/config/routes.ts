@@ -1,6 +1,5 @@
 // Liste des routes autorisées dans l'application
 export const appRoutes = {
-  // Routes publiques (accessibles sans authentification)
   public: [
     { path: "/", label: "Accueil" },
     { path: "/login", label: "Connexion" },

@@ -79,7 +79,8 @@ export default function BlocNote({ roles }: BlocNoteProps) {
             {canEdit && (
               <button
                 onClick={() => setIsEditing(true)}
-                className="absolute top-2 right-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded shadow transition"
+                className="absolute right-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded shadow transition"
+                style={{ top: "-65px" }}
               >
                 Modifier
               </button>

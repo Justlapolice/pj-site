@@ -9,9 +9,14 @@ type EnqueteData = {
   statut: string;
 };
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const enquetes = await prisma.enquete.findMany();
+    const url = new URL(request.url);
+    const archivedParam = url.searchParams.get("archived");
+
+    const archived = archivedParam === "true";
+
+    const enquetes = await prisma.enquete.findMany({ where: { archived } });
     return NextResponse.json(enquetes);
   } catch (error) {
     console.error("Erreur lors de la récupération des enquetes:", error);
@@ -25,8 +30,8 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const { objet, accusations, directeur, directeurAdjoint, statut } =
-      await request.json() as EnqueteData;
-      
+      (await request.json()) as EnqueteData;
+
     const enquete = await prisma.enquete.create({
       data: {
         objet,
@@ -49,8 +54,8 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const url = new URL(request.url);
-    const id = url.pathname.split('/').pop();
-    
+    const id = url.pathname.split("/").pop();
+
     if (!id) {
       return NextResponse.json(
         { error: "ID de l'enquête manquant" },
@@ -59,7 +64,7 @@ export async function PUT(request: Request) {
     }
 
     const { objet, accusations, directeur, directeurAdjoint, statut } =
-      await request.json() as EnqueteData;
+      (await request.json()) as EnqueteData;
 
     const updatedEnquete = await prisma.enquete.update({
       where: { id: parseInt(id) },

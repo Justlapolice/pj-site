@@ -2,15 +2,14 @@
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Effectif } from "../../types/effectif";
+import { Effectif } from "../../../types/effectif";
 import Image from "next/image";
-import Sidebar from "../../components/sidebar/sidebar";
+import Sidebar from "../../../components/sidebar/sidebar";
 import { motion, AnimatePresence } from "framer-motion";
-import { EyeIcon, PlusIcon } from "@heroicons/react/24/outline";
-import EnqueteModal from "../../components/ui/enquete-modal";
+import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
+import EnqueteModal from "../../../components/ui/enquete-modal";
 import { FaPen } from "react-icons/fa";
-import { toast } from "../../components/ui/use-toast";
-import { ArchiveIcon } from "lucide-react";
+import { toast } from "../../../components/ui/use-toast";
 
 type Statut =
   | "Début"
@@ -38,7 +37,7 @@ export default function Rapport() {
     | { guildNickname?: string; name?: string | null }
     | undefined;
   const displayName = user?.guildNickname || user?.name || "Utilisateur";
-  const cleanDisplayName = displayName.replace(/^\s*(\[[^\]]*\]\s*)+/g, "");
+  const cleanDisplayName = displayName.replace(/^\s*(\[[^]]*\]\s*)+/g, "");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [formData, setFormData] = useState<{
@@ -108,7 +107,7 @@ export default function Rapport() {
   useEffect(() => {
     const fetchEnquetes = async () => {
       try {
-        const response = await fetch("/api/enquetes");
+        const response = await fetch("/api/enquetes?archived=true");
         if (response.ok) {
           const data = await response.json();
           setEnquetes(data);
@@ -128,7 +127,7 @@ export default function Rapport() {
   const loadEnquetes = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/enquetes");
+      const response = await fetch("/api/enquetes?archived=true");
       if (response.ok) {
         const data = await response.json();
         setEnquetes(data);
@@ -277,30 +276,53 @@ export default function Rapport() {
     }));
   };
 
-  const handleArchive = async (id: number) => {
-    if (!window.confirm("Confirmez-vous l'archivage de cette enquête ?")) {
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette enquête ?")) {
       return;
     }
 
     try {
       const response = await fetch(`/api/enquetes/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ archived: true }),
+        method: "DELETE",
       });
 
-      if (!response.ok) throw new Error("Erreur lors de l'archivage");
+      if (!response.ok) {
+        throw new Error("Erreur lors de la suppression de l'enquête");
+      }
 
       await loadEnquetes();
+
       toast({
         variant: "success",
-        title: "Enquête archivée redirection en cours vers les archives ⚙️",
+        title: "Enquête supprimée avec succès",
       });
-      // Redirect to archive page so the user sees the archived enquete
-      router.push("/enquetes/archive");
     } catch (error) {
-      console.error("Erreur lors de l'archivage:", error);
-      toast({ variant: "error", title: "Impossible d'archiver l'enquête" });
+      console.error("Erreur lors de la suppression de l'enquête:", error);
+      toast({
+        variant: "error",
+        title: "Erreur lors de la suppression de l'enquête",
+      });
+    }
+  };
+
+  const handleRestore = async (id: number) => {
+    if (!window.confirm("Restaurer cette enquête depuis l'archive ?")) return;
+
+    try {
+      const response = await fetch(`/api/enquetes/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ archived: false }),
+      });
+
+      if (!response.ok) throw new Error("Erreur lors de la restauration");
+
+      await loadEnquetes();
+
+      toast({ variant: "success", title: "Enquête restaurée" });
+    } catch (error) {
+      console.error("Erreur lors de la restauration:", error);
+      toast({ variant: "error", title: "Impossible de restaurer l'enquête" });
     }
   };
 
@@ -359,27 +381,9 @@ export default function Rapport() {
           >
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl md:text-3xl font-bold">
-                Liste des enquêtes
+                Liste des archives
               </h2>
-              <div className="flex gap-2">
-                <motion.button
-                  onClick={() => handleOpenModal()}
-                  className="bg-gradient-to-r from-blue-500 to-white text-black px-4 py-1.5 rounded-xl flex items-center gap-2 shadow-lg text-sm"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  <PlusIcon className="h-4 w-4" /> Démarrer une nouvelle enquête
-                </motion.button>
-                <motion.button
-                  onClick={() => router.push("/enquetes/archive")}
-                  className="bg-gradient-to-r from-blue-500 to-white text-black px-4 py-1.5 rounded-xl flex items-center gap-2 shadow-lg text-sm"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  <ArchiveIcon className="h-4 w-4" /> Accès aux enquêtes
-                  archivées
-                </motion.button>
-              </div>
+              <div className="flex gap-2"></div>
             </div>
 
             <motion.div className="bg-[rgba(5,12,48,0.7)] backdrop-blur-md rounded-2xl border border-[rgba(10,20,60,0.6)] overflow-hidden shadow-md">
@@ -468,10 +472,16 @@ export default function Rapport() {
                               <EyeIcon className="h-4 w-4" />
                             </button>
                             <button
-                              className="bg-gradient-to-r from-blue-600 via-white to-red-600 text-black px-3 py-2 rounded"
-                              onClick={() => handleArchive(enquete.id)}
+                              className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded"
+                              onClick={() => handleRestore(enquete.id)}
                             >
-                              <ArchiveIcon className="h-4 w-4" />
+                              Restaurer
+                            </button>
+                            <button
+                              className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded"
+                              onClick={() => handleDelete(enquete.id)}
+                            >
+                              <TrashIcon className="h-4 w-4" />
                             </button>
                           </div>
                         </td>

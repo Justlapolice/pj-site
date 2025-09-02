@@ -25,14 +25,15 @@ model Effectif {
 }
 
 model Enquete {
-  id          Int      @id @default(autoincrement())
-  objet       String
-  accusations String
-  directeur   String
+  id              Int      @id @default(autoincrement())
+  objet           String
+  accusations    String
+  directeur      String
   directeurAdjoint String
-  statut      String   @default("Début")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  statut         String   @default("Début")
+  archived       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@map("enquete")
 }
@@ -87,3 +88,4 @@ model EnqueteSection {
   @@unique([enqueteId, sectionId])
   @@map("enquete_section")
 }
+

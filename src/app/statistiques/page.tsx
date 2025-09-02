@@ -13,6 +13,7 @@ import {
   ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 import ProgressBar from "../../components/ui/ProgressBar";
+import Image from "next/image";
 
 type Formation = "PJ" | "PTS" | "Moto" | "Nautique" | "Négociateur";
 type Statut = "Actif" | "Non actif";
@@ -81,6 +82,7 @@ export default function StatistiquesPage() {
 
   const user = session?.user as User | undefined;
   const displayName = user?.guildNickname || user?.name || "Utilisateur";
+  const cleanDisplayName = displayName.replace(/^\s*(\[[^]]*\]\s*)+/g, "");
 
   const usernameBypass = "justforever974";
   const allowedRoles = ["1117516088196997181", "1358837249751384291"];
@@ -90,7 +92,7 @@ export default function StatistiquesPage() {
     session?.user?.name === usernameBypass;
 
   // Génération des initiales
-  const initials = displayName
+  const initials = cleanDisplayName
     .split(" ")
     .map((n: string) => n[0])
     .join("")
@@ -217,17 +219,18 @@ export default function StatistiquesPage() {
 
   return (
     <div className="min-h-screen text-white flex">
-      <Sidebar displayName={displayName} initials={initials} />
+      <Sidebar displayName={cleanDisplayName} initials={initials} />
       <div className="flex-1 ml-[270px] relative z-10">
-        <header className="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-10">
+        <header className="bg-[rgba(5,12,48,1)] backdrop-blur-md border-b border-[rgba(10,20,60,0.6)] sticky top-0 z-10">
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <a href="/accueil">
-                  <img
+                  <Image
                     src="/pjlogo.png"
                     alt="Logo PJ"
-                    className="h-10 w-auto"
+                    width={40}
+                    height={40}
                   />
                 </a>
                 <a
@@ -241,7 +244,7 @@ export default function StatistiquesPage() {
                 <span className="text-gray-300 text-sm">
                   Connecté en tant que:{" "}
                   <span className="text-blue-400 font-medium">
-                    {displayName}
+                    {cleanDisplayName}
                   </span>
                 </span>
               </div>

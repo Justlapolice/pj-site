@@ -6,14 +6,16 @@ import Sidebar from "../../components/sidebar/sidebar";
 import { motion } from "framer-motion";
 import OutfitCard from "../../components/tenues/OutfitCard";
 import { outfits, additionalOutfits } from "../../data/tenues";
+import Image from "next/image";
 
 function TenuesCRS() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const user = session?.user as
-    | { guildNickname?: string; name?: string | null }
+    | { guildNickname?: string; name?: string | null; roles?: string[] }
     | undefined;
   const displayName = user?.guildNickname || user?.name || "Utilisateur";
+  const cleanDisplayName = displayName.replace(/^\s*(\[[^\]]*\]\s*)+/g, "");
 
   // Vérification de l'authentification
   useEffect(() => {
@@ -34,7 +36,7 @@ function TenuesCRS() {
   }, []);
 
   // Génération des initiales
-  const initials = displayName
+  const initials = cleanDisplayName
     .split(" ")
     .map((n: string) => n[0])
     .join("")
@@ -62,24 +64,25 @@ function TenuesCRS() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <a href="/accueil">
-                  <img
+                  <Image
                     src="/pjlogo.png"
                     alt="Logo CRS"
-                    className="h-10 w-auto"
+                    width={40}
+                    height={40}
                   />
                 </a>
                 <a
                   href="/accueil"
                   className="text-xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent"
                 >
-                  Intranet Police Judiciare
+                  Intranet Police Judiciaire
                 </a>
               </div>
               <div className="hidden md:flex items-center space-x-6">
                 <span className="text-gray-300 text-sm">
                   Connecté en tant que:{" "}
                   <span className="text-blue-400 font-medium">
-                    {displayName}
+                    {cleanDisplayName}
                   </span>
                 </span>
               </div>
@@ -101,7 +104,7 @@ function TenuesCRS() {
             </div>
             <p className="text-gray-400 mt-2">
               Vous retrouvez ici les tenues de la PJ à porter en fonction de{" "}
-              <span className="text-red-400 font-medium font-semibold">
+              <span className="text-red-400 font-semibold">
                 vos missions et grades
               </span>
             </p>

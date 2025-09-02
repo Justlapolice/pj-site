@@ -14,7 +14,6 @@ import {
   FaChartBar,
   FaFile,
 } from "react-icons/fa";
-import { SiDiscord } from "react-icons/si";
 import { FaFileArrowUp } from "react-icons/fa6";
 
 interface User extends Record<string, any> {
@@ -27,13 +26,16 @@ interface SidebarProps {
   initials: string;
 }
 
+// Fonction pour nettoyer les crochets au début du pseudo
+const cleanDisplayName = (name: string) =>
+  name.replace(/^\s*(\[[^\]]*\]\s*)+/g, "");
+
 const Sidebar = ({ displayName, initials }: SidebarProps) => {
   const { data: session } = useSession();
   const pathname = usePathname();
   const user = session?.user as User | undefined;
 
   const allowedRoles = ["1117516088196997181", "1358837249751384291"];
-
   const usernameBypass = "justforever974";
 
   const canViewStatistics =
@@ -67,6 +69,15 @@ const Sidebar = ({ displayName, initials }: SidebarProps) => {
 
   const links = [...baseLinks, ...adminLinks];
 
+  // Pseudo nettoyé et initiales correctes
+  const cleanedName = cleanDisplayName(displayName);
+  const cleanedInitials = cleanedName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
     <aside style={styles.sidebar}>
       {/* USER CARD */}
@@ -89,7 +100,7 @@ const Sidebar = ({ displayName, initials }: SidebarProps) => {
               void signOut({ callbackUrl: "/login" });
             }}
           >
-            {displayName}
+            {cleanedName}
           </button>
           <span style={styles.userStatus}>En ligne</span>
         </div>
@@ -118,7 +129,7 @@ const Sidebar = ({ displayName, initials }: SidebarProps) => {
       </nav>
 
       <div style={styles.footerCard}>
-        <SiDiscord size={22} color="#60A5FA" />
+        <Image src="/pjlogo.png" alt="Logo" width={22} height={22} />
         <span style={{ marginLeft: 10 }}>Connecté via Discord</span>
       </div>
     </aside>

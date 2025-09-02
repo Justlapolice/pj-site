@@ -13,6 +13,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { CardContent } from "../../components/ui/card";
 import EffectifModal from "../../components/ui/effectif-modal";
+import HeaderGestionEffectifs from "../../components/organigramme/HeaderGestionEffectifs";
 
 type Statut = "Actif" | "Non actif";
 type Formation = "PJ" | "PTS" | "Moto" | "Nautique" | "Négociateur";
@@ -68,16 +69,18 @@ export default function GestionEffectifs() {
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingValue, setEditingValue] = useState("");
+  const user = session?.user as
+    | { guildNickname?: string; name?: string | null; roles?: string[] }
+    | undefined;
 
-  const user = session?.user as User | undefined;
   const displayName = user?.guildNickname || user?.name || "Utilisateur";
-  const initials = displayName
+  const cleanDisplayName = displayName.replace(/^\s*(\[[^\]]*\]\s*)+/g, "");
+  const initials = cleanDisplayName
     .split(" ")
     .map((n: string) => n[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
-
   const usernameBypass = "justforever974";
 
   const allowedRoles = ["1117516088196997181", "1358837249751384291"];
@@ -390,35 +393,7 @@ export default function GestionEffectifs() {
     <div className="min-h-screen text-white flex">
       <Sidebar displayName={displayName} initials={initials} />
       <div className="flex-1 ml-[270px] relative z-10">
-        <header className="bg-[rgba(5,12,48,0.95)] backdrop-blur-md border-b border-[rgba(10,20,60,0.6)] sticky top-0 z-10 shadow-md">
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <a href="/accueil">
-                  <img
-                    src="/pjlogo.png"
-                    alt="Logo CRS"
-                    className="h-10 w-auto hover:scale-105 transition-transform duration-300"
-                  />
-                </a>
-                <a
-                  href="/accueil"
-                  className="text-xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent"
-                >
-                  Intranet Police Judiciare
-                </a>
-              </div>
-              <div className="hidden md:flex items-center space-x-6">
-                <span className="text-gray-200 text-sm">
-                  Connecté en tant que:{" "}
-                  <span className="text-blue-400 font-semibold">
-                    {displayName}
-                  </span>
-                </span>
-              </div>
-            </div>
-          </div>
-        </header>
+        <HeaderGestionEffectifs displayName={cleanDisplayName} />
 
         <main className="container mx-auto px-6 py-8">
           <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
@@ -431,7 +406,7 @@ export default function GestionEffectifs() {
             {canManageStaff && (
               <motion.button
                 onClick={handleAddClick}
-                className="bg-blue-600/80 hover:bg-blue-500/90 text-white px-5 py-2 rounded-xl flex items-center gap-2 shadow-lg hover:scale-105 transition-transform duration-200"
+                className="bg-gradient-to-r from-blue-500 to-white text-black px-5 py-2 rounded-xl flex items-center gap-2 shadow-lg hover:scale-105 transition-transform duration-200"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.97 }}
               >

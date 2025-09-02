@@ -1,5 +1,3 @@
-// Page not-found
-
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
@@ -12,6 +10,9 @@ const existingPages = [
   "/vehicules",
   "/enquetes",
   "/rapportvacation",
+  "/enquetes/archive",
+  "/enquetes/rapportvacation",
+  "/public/enquetes",
 ];
 
 function getClosestMatches(path: string, maxResults = 3) {

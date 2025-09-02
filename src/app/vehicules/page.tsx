@@ -1,12 +1,13 @@
 "use client";
 import { useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Sidebar from "../../components/sidebar/sidebar";
 
 import { VehiculeSection } from "../../components/vehicules/VehiculeSection";
 import { VehiculeHeader } from "../../components/vehicules/VehiculeHeader";
 import { VehiculeNotes } from "../../components/vehicules/VehiculeNotes";
+import Image from "next/image";
 
 // Véhicule bana
 
@@ -155,9 +156,11 @@ const perso = [
 function VehiculesCRS() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const displayName =
-    session?.user?.guildNickname || session?.user?.name || "Utilisateur";
-  const pathname = usePathname();
+  const user = session?.user as
+    | { guildNickname?: string; name?: string | null; roles?: string[] }
+    | undefined;
+  const displayName = user?.guildNickname || user?.name || "Utilisateur";
+  const cleanDisplayName = displayName.replace(/^\s*(\[[^\]]*\]\s*)+/g, "");
 
   // Vérification de l'authentification
   useEffect(() => {
@@ -178,7 +181,7 @@ function VehiculesCRS() {
   }, []);
 
   // Génération des initiales
-  const initials = displayName
+  const initials = cleanDisplayName
     .split(" ")
     .map((n: string) => n[0])
     .join("")
@@ -191,7 +194,7 @@ function VehiculesCRS() {
         <div className="animate-pulse flex flex-col items-center">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           <p className="mt-4 text-gray-300">
-            Chargement de la page {pathname} en cours...
+            Chargement de la page en cours...
           </p>
         </div>
       </div>
@@ -209,24 +212,25 @@ function VehiculesCRS() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <a href="/accueil">
-                  <img
+                  <Image
                     src="/pjlogo.png"
                     alt="Logo CRS"
-                    className="h-10 w-auto"
+                    width={40}
+                    height={40}
                   />
                 </a>
                 <a
                   href="/accueil"
                   className="text-xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent"
                 >
-                  Intranet Police Judiciare
+                  Intranet Police Judiciaire
                 </a>
               </div>
               <div className="hidden md:flex items-center space-x-6">
                 <span className="text-gray-300 text-sm">
                   Connecté en tant que:{" "}
                   <span className="text-blue-400 font-medium">
-                    {displayName}
+                    {cleanDisplayName}
                   </span>
                 </span>
               </div>

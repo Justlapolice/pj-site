@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "../../components/ui/use-toast";
 
@@ -11,10 +11,13 @@ export default function JustLoggedInToast({
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const hasShownToast = useRef(false);
 
   useEffect(() => {
     const justLoggedIn = searchParams.get("justLoggedIn");
-    if (justLoggedIn) {
+    if (justLoggedIn && !hasShownToast.current) {
+      // Évite de mettre le toast succes en double
+      hasShownToast.current = true;
       toast({
         title: "Authentification réussie",
         description: `Tu es authentifié en tant que ${displayName}.`,
