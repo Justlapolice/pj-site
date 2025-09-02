@@ -136,15 +136,40 @@ export default function AccueilIntranet() {
   // Récupération des données des effectifs
   useEffect(() => {
     const fetchEffectifs = async () => {
+      setIsLoading(true);
+      setError(null);
+
       try {
-        const response = await fetch("/api/effectifs");
-        if (!response.ok)
-          throw new Error("Erreur lors du chargement des données");
+        // URL complète pour local et prod
+        const baseUrl =
+          process.env.NEXT_PUBLIC_BASE_URL || window.location.origin;
+        const response = await fetch(`${baseUrl}/api/effectifs`);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(
+            "Erreur lors du fetch des effectifs:",
+            response.status,
+            errorText
+          );
+          throw new Error(
+            `Erreur HTTP ${response.status}: ${
+              errorText || "Impossible de charger les données"
+            }`
+          );
+        }
 
         const data = await response.json();
-        setEffectifs(data);
-      } catch (err) {
-        console.error("Erreur:", err);
+
+        // Normalisation des formations pour éviter les erreurs
+        const normalizedData = data.map((e: any) => ({
+          ...e,
+          formations: Array.isArray(e.formations) ? e.formations : [],
+        }));
+
+        setEffectifs(normalizedData);
+      } catch (err: any) {
+        console.error("Erreur lors du chargement des effectifs:", err);
         setError("Impossible de charger les données");
       } finally {
         setIsLoading(false);
